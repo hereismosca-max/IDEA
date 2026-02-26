@@ -16,55 +16,44 @@
 - [x] 开发阶段规划（4个Phase）
 - [x] GitHub仓库创建
 - [x] 文档初始化（ProductContent / ProjectArchitecture / DatabaseStructure / CODEBASE / DevLog / EditionLog）
+- [x] 项目目录结构创建（frontend/ + backend/ 全部骨架文件写入完成）
+- [x] 前端初始化（Next.js 14 + TypeScript + Tailwind + next-intl 配置完成）
+- [x] 后端初始化（FastAPI + SQLAlchemy + Alembic 骨架完成）
+- [x] 环境变量模板（backend/.env.example + frontend/.env.local.example）
+- [x] .gitignore 配置
+- [x] README.md 编写
+- [x] 数据库模型（User / Source / FetchLog / Article / UserSavedArticle / Category / ArticleCategory）
+- [x] API骨架（auth / articles / sources / categories，/api/v1/ 版本化）
+- [x] RSS抓取器（BaseFetcher抽象类 + RSSFetcher实现 + registry插件注册表）
+- [x] AI占位层（BaseAIProcessor接口 + PassthroughProcessor实现）
+- [x] 定时调度器（APScheduler 6小时 + 启动时立即执行）
+- [x] 日志系统（utils/logger.py，统一格式）
+- [x] 前端核心组件（TopBar / MenuBar / NewsCard / NewsFeed）
+- [x] i18n 配置（middleware + next-intl + en.json + zh.json）
 
 ---
 
 ## 🔨 Phase 1 · 地基（当前阶段）
 
-### 项目初始化
-- [ ] 创建项目目录结构（frontend/ + backend/）
-- [ ] 初始化 Next.js 前端项目（含TypeScript + Tailwind + next-intl）
-- [ ] 初始化 Python FastAPI 后端项目
-- [ ] 配置 `.env.example` 环境变量模板
-- [ ] 配置 `.gitignore`
+### ⬇️ 下一步：数据库配置与本地启动
+- [ ] 创建 Supabase Pro 项目，获取 DATABASE_URL
+- [ ] 填写 `backend/.env`（DATABASE_URL + JWT_SECRET_KEY）
+- [ ] 安装 Python 依赖（`pip install -r requirements.txt`）
+- [ ] 生成 Alembic 初始迁移（`alembic revision --autogenerate -m "init"`）
+- [ ] 执行迁移，创建所有表（`alembic upgrade head`）
+- [ ] 插入种子数据（5个新闻来源 + 7个分类标签）
+- [ ] 填写 `frontend/.env.local`（NEXT_PUBLIC_API_URL）
+- [ ] 安装前端依赖（`npm install`）
+- [ ] 本地启动后端（`uvicorn app.main:app --reload`）
+- [ ] 本地启动前端（`npm run dev`）
+- [ ] 验证后端 API 文档（http://localhost:8000/docs）
+- [ ] 验证新闻抓取任务正常运行（查看 FetchLog）
+- [ ] 验证前端能正常渲染新闻卡片
 
-### 数据库
-- [ ] 创建 Supabase Pro 项目
-- [ ] 配置 Alembic 数据库迁移工具
-- [ ] 编写所有表的迁移脚本并执行
-- [ ] 插入初始数据（5个新闻来源 + 7个分类标签）
-
-### 后端
-- [ ] 数据库连接配置（core/database.py）
-- [ ] 环境变量配置（core/config.py）
-- [ ] SQLAlchemy 数据库模型（models/）
-- [ ] Pydantic 数据格式定义（schemas/）
-- [ ] 用户认证系统（注册 / 登录 / JWT）
-- [ ] RSS抓取器基类（services/fetcher/base.py）
-- [ ] RSS抓取器实现（services/fetcher/rss.py）
-- [ ] 新闻来源注册表（services/fetcher/registry.py）
-- [ ] AI占位层接口（services/ai/base.py + processor.py）
-- [ ] APScheduler定时任务（services/scheduler.py）
-- [ ] 日志系统（utils/logger.py）
-- [ ] API路由：新闻列表 / 新闻详情（api/v1/routes/articles.py）
-- [ ] API路由：用户认证（api/v1/routes/auth.py）
-- [ ] API路由：分类标签（api/v1/routes/categories.py）
-
-### 前端
-- [ ] i18n 路由结构配置（[locale]/）
-- [ ] 翻译文本初始化（messages/en.json + zh.json）
-- [ ] TopBar 组件
-- [ ] MenuBar 组件（分类tabs）
-- [ ] NewsCard 组件
-- [ ] NewsFeed 组件（含分页）
-- [ ] 首页组装（page.tsx）
-- [ ] API请求封装（lib/api.ts）
-
-### 联调与部署
-- [ ] 本地前后端联调跑通
-- [ ] 部署后端至 Railway
-- [ ] 部署前端至 Vercel
-- [ ] 线上环境验证（新闻能正常抓取并展示）
+### 部署
+- [ ] 部署后端至 Railway（配置环境变量）
+- [ ] 部署前端至 Vercel（配置 NEXT_PUBLIC_API_URL）
+- [ ] 线上端到端验证
 
 ---
 

@@ -1,0 +1,27 @@
+{
+  "nav": {
+    "signIn": "Sign In",
+    "signOut": "Sign Out",
+    "myAccount": "My Account"
+  },
+  "menu": {
+    "all": "All",
+    "markets": "Markets",
+    "economy": "Economy",
+    "policy": "Policy & Central Banks",
+    "stocks": "Stocks",
+    "commodities": "Commodities",
+    "crypto": "Crypto"
+  },
+  "feed": {
+    "loadMore": "Load more",
+    "loading": "Loading…",
+    "noArticles": "No articles yet. Check back soon.",
+    "error": "Failed to load articles. Please try again.",
+    "retry": "Retry",
+    "justNow": "Just now",
+    "minutesAgo": "{minutes}m ago",
+    "hoursAgo": "{hours}h ago",
+    "daysAgo": "{days}d ago"
+  }
+}

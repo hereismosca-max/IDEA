@@ -1,0 +1,27 @@
+{
+  "nav": {
+    "signIn": "登录",
+    "signOut": "退出",
+    "myAccount": "我的账户"
+  },
+  "menu": {
+    "all": "全部",
+    "markets": "市场",
+    "economy": "经济",
+    "policy": "政策与央行",
+    "stocks": "股票",
+    "commodities": "大宗商品",
+    "crypto": "加密货币"
+  },
+  "feed": {
+    "loadMore": "加载更多",
+    "loading": "加载中…",
+    "noArticles": "暂无资讯，请稍后再来。",
+    "error": "加载失败，请重试。",
+    "retry": "重试",
+    "justNow": "刚刚",
+    "minutesAgo": "{minutes}分钟前",
+    "hoursAgo": "{hours}小时前",
+    "daysAgo": "{days}天前"
+  }
+}

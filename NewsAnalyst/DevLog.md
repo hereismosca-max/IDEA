@@ -28,3 +28,51 @@
 - 开始 Phase 1：创建项目目录结构，初始化前后端工程
 
 ---
+
+## 2026-02-26 · 项目目录结构与骨架代码完成
+
+### 本次完成
+
+**后端（backend/）完整骨架写入：**
+- `requirements.txt` — 所有 Python 依赖锁定版本
+- `Dockerfile` — Railway 部署配置
+- `alembic.ini` + `alembic/env.py` — 数据库迁移工具，DATABASE_URL 从环境变量动态读取
+- `app/core/config.py` — pydantic-settings 读取 .env，lru_cache 单例
+- `app/core/database.py` — SQLAlchemy 引擎 + Session + Base + get_db 依赖
+- `app/core/security.py` — bcrypt 密码哈希 + JWT 生成/解码
+- `app/main.py` — FastAPI 应用入口，CORS，路由注册，lifespan 管理调度器
+- `app/models/` — 7 张表的 SQLAlchemy ORM 模型
+- `app/schemas/` — Pydantic 请求/响应格式
+- `app/api/v1/routes/` — auth / articles / sources / categories 路由
+- `app/services/fetcher/` — 插件式 RSS 抓取器（抽象类 + 实现 + 注册表）
+- `app/services/ai/` — AI 占位层（接口 + PassthroughProcessor）
+- `app/services/scheduler.py` — APScheduler 6 小时调度 + 启动时立即执行
+- `app/utils/logger.py` — 统一日志格式
+
+**前端（frontend/）完整骨架写入：**
+- 工具链配置（package.json / next.config.js / tailwind / tsconfig / postcss）
+- next-intl 配置（middleware + i18n.ts + messages/en.json + zh.json）
+- 布局文件（root layout + [locale]/layout.tsx）
+- 核心组件（TopBar / MenuBar / NewsCard / NewsFeed）
+- 工具库（lib/api.ts + lib/auth.ts）
+- TypeScript 类型定义（types/index.ts）
+
+**根目录：**
+- `.gitignore` + `README.md`
+
+### 关键决策记录
+- **Alembic env.py 动态读 DATABASE_URL**：不写死在 alembic.ini，而是在 env.py 里从 settings 读取，开发/生产环境完全隔离
+- **scheduler 启动时立即执行一次**：`start_scheduler()` 末尾调用 `run_fetch_job()`，应用一启动就有数据，不用等 6 小时
+- **RSSFetcher 本地导入**：`run_fetch_job()` 里用 local import，避免 startup 时循环导入
+- **NewsCard fallback**：优先显示 `ai_summary`，没有则显示 `content_snippet`，Phase 3 接 AI 后自动升级，前端不需要改代码
+
+### 遇到的问题
+- `frontend/src/lib/api.ts` 误引入了不存在的 `UserResponse` 类型，已修复为只从 `@/types` 导入存在的类型
+
+### 下一步
+- 创建 Supabase Pro 项目，获取 DATABASE_URL
+- 安装依赖，填写 .env，执行 Alembic 迁移建表
+- 插入种子数据（新闻来源 + 分类标签）
+- 本地启动联调，验证新闻能正常抓取并在前端展示
+
+---
