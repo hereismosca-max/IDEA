@@ -29,6 +29,11 @@ class ArticleResponse(BaseModel):
     ai_tags: Optional[dict] = None   # {"entities":[], "locations":[], "sectors":[], "topics":[], "scale":""}
     ai_score: Optional[float] = None
 
+    # Vote counts — only populated on single-article GET /articles/{id} responses
+    upvotes: int = 0
+    downvotes: int = 0
+    user_vote: Optional[int] = None  # 1, -1, or None
+
     model_config = {"from_attributes": True}
 
 

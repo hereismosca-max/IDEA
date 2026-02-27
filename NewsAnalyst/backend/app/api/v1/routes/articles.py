@@ -1,12 +1,15 @@
 from datetime import datetime, timezone, timedelta
 
 from fastapi import APIRouter, Depends, Query, HTTPException
-from sqlalchemy import or_, text
+from sqlalchemy import or_, text, func
 from sqlalchemy.orm import Session, joinedload
 from typing import Optional
 
 from app.core.database import get_db
+from app.core.security import get_optional_user
 from app.models.article import Article
+from app.models.vote import ArticleVote
+from app.models.user import User
 from app.schemas.article import ArticleListResponse, ArticleResponse
 from app.utils.logger import get_logger
 
@@ -109,8 +112,12 @@ def get_articles(
 
 
 @router.get("/{article_id}", response_model=ArticleResponse)
-def get_article(article_id: str, db: Session = Depends(get_db)):
-    """Fetch a single article by ID."""
+def get_article(
+    article_id: str,
+    db: Session = Depends(get_db),
+    current_user: Optional[User] = Depends(get_optional_user),
+):
+    """Fetch a single article by ID, including vote counts and the caller's vote."""
     article = (
         db.query(Article)
         .options(joinedload(Article.source))
@@ -119,4 +126,35 @@ def get_article(article_id: str, db: Session = Depends(get_db)):
     )
     if not article:
         raise HTTPException(status_code=404, detail="Article not found")
-    return article
+
+    # Count upvotes and downvotes
+    upvotes = (
+        db.query(func.count(ArticleVote.id))
+        .filter(ArticleVote.article_id == article_id, ArticleVote.vote == 1)
+        .scalar() or 0
+    )
+    downvotes = (
+        db.query(func.count(ArticleVote.id))
+        .filter(ArticleVote.article_id == article_id, ArticleVote.vote == -1)
+        .scalar() or 0
+    )
+
+    # Determine the caller's current vote (None if unauthenticated)
+    user_vote = None
+    if current_user:
+        existing = (
+            db.query(ArticleVote)
+            .filter(
+                ArticleVote.user_id == current_user.id,
+                ArticleVote.article_id == article_id,
+            )
+            .first()
+        )
+        user_vote = existing.vote if existing else None
+
+    # Build response manually so we can attach the computed vote fields
+    response = ArticleResponse.model_validate(article)
+    response.upvotes = upvotes
+    response.downvotes = downvotes
+    response.user_vote = user_vote
+    return response

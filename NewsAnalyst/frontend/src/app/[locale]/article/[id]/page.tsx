@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import type { Article } from '@/types';
+import VoteButtons from '@/components/article/VoteButtons';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
@@ -81,102 +82,116 @@ export default async function ArticlePage({
         </Link>
       </div>
 
-      {/* Article header */}
-      <article className="bg-white border border-gray-200 rounded-xl p-8">
+      {/* Two-column layout: vote sidebar + article content */}
+      <div className="flex gap-4 items-start">
 
-        {/* Source + date */}
-        <div className="flex items-center gap-2 mb-4">
-          <span className="text-xs font-semibold text-blue-600 uppercase tracking-wide">
-            {article.source.name}
-          </span>
-          <span className="text-gray-300">·</span>
-          <span className="text-xs text-gray-400">{formatDate(article.published_at)}</span>
+        {/* ── Vote sidebar ─────────────────────────────────────────────── */}
+        <div className="sticky top-20 flex-none">
+          <VoteButtons
+            articleId={article.id}
+            initialUpvotes={article.upvotes ?? 0}
+            initialDownvotes={article.downvotes ?? 0}
+            initialUserVote={article.user_vote ?? null}
+          />
         </div>
 
-        {/* Title */}
-        <h1 className="text-xl font-bold text-gray-900 leading-snug mb-6">
-          {article.title}
-        </h1>
+        {/* ── Article content ──────────────────────────────────────────── */}
+        <article className="flex-1 bg-white border border-gray-200 rounded-xl p-8 min-w-0">
 
-        {/* Tags */}
-        {tags && (
-          <div className="mb-6 space-y-3">
-            {/* Sectors + Topics as pills */}
-            {((tags.sectors?.length ?? 0) > 0 || (tags.topics?.length ?? 0) > 0) && (
-              <div className="flex flex-wrap gap-2">
-                {tags.sectors?.map((s) => (
-                  <span
-                    key={s}
-                    className="px-2.5 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-100"
-                  >
-                    {s}
-                  </span>
-                ))}
-                {tags.topics?.map((t) => (
-                  <span
-                    key={t}
-                    className="px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600"
-                  >
-                    {t.replace(/_/g, ' ')}
-                  </span>
-                ))}
+          {/* Source + date */}
+          <div className="flex items-center gap-2 mb-4">
+            <span className="text-xs font-semibold text-blue-600 uppercase tracking-wide">
+              {article.source.name}
+            </span>
+            <span className="text-gray-300">·</span>
+            <span className="text-xs text-gray-400">{formatDate(article.published_at)}</span>
+          </div>
+
+          {/* Title */}
+          <h1 className="text-xl font-bold text-gray-900 leading-snug mb-6">
+            {article.title}
+          </h1>
+
+          {/* Tags */}
+          {tags && (
+            <div className="mb-6 space-y-3">
+              {/* Sectors + Topics as pills */}
+              {((tags.sectors?.length ?? 0) > 0 || (tags.topics?.length ?? 0) > 0) && (
+                <div className="flex flex-wrap gap-2">
+                  {tags.sectors?.map((s) => (
+                    <span
+                      key={s}
+                      className="px-2.5 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-100"
+                    >
+                      {s}
+                    </span>
+                  ))}
+                  {tags.topics?.map((t) => (
+                    <span
+                      key={t}
+                      className="px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600"
+                    >
+                      {t.replace(/_/g, ' ')}
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              {/* Entities + Locations as metadata rows */}
+              <div className="text-xs text-gray-400 space-y-1">
+                {(tags.entities?.length ?? 0) > 0 && (
+                  <p>
+                    <span className="font-medium text-gray-500">Companies / People: </span>
+                    {tags.entities!.join(', ')}
+                  </p>
+                )}
+                {(tags.locations?.length ?? 0) > 0 && (
+                  <p>
+                    <span className="font-medium text-gray-500">Locations: </span>
+                    {tags.locations!.join(', ')}
+                  </p>
+                )}
+                {tags.scale && (
+                  <p>
+                    <span className="font-medium text-gray-500">Scale: </span>
+                    {tags.scale}
+                  </p>
+                )}
               </div>
-            )}
-
-            {/* Entities + Locations as metadata rows */}
-            <div className="text-xs text-gray-400 space-y-1">
-              {(tags.entities?.length ?? 0) > 0 && (
-                <p>
-                  <span className="font-medium text-gray-500">Companies / People: </span>
-                  {tags.entities!.join(', ')}
-                </p>
-              )}
-              {(tags.locations?.length ?? 0) > 0 && (
-                <p>
-                  <span className="font-medium text-gray-500">Locations: </span>
-                  {tags.locations!.join(', ')}
-                </p>
-              )}
-              {tags.scale && (
-                <p>
-                  <span className="font-medium text-gray-500">Scale: </span>
-                  {tags.scale}
-                </p>
-              )}
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Divider */}
-        <hr className="border-gray-100 mb-6" />
+          {/* Divider */}
+          <hr className="border-gray-100 mb-6" />
 
-        {/* Summary / Content */}
-        {bodyText ? (
-          <p className="text-sm text-gray-700 leading-relaxed">{bodyText}</p>
-        ) : (
-          <p className="text-sm text-gray-400 italic">No summary available for this article.</p>
-        )}
+          {/* Summary / Content */}
+          {bodyText ? (
+            <p className="text-sm text-gray-700 leading-relaxed">{bodyText}</p>
+          ) : (
+            <p className="text-sm text-gray-400 italic">No summary available for this article.</p>
+          )}
 
-        {/* Divider */}
-        <hr className="border-gray-100 mt-8 mb-6" />
+          {/* Divider */}
+          <hr className="border-gray-100 mt-8 mb-6" />
 
-        {/* Source link card */}
-        <a
-          href={article.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center justify-between p-4 rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-all group"
-        >
-          <div>
-            <p className="text-sm font-medium text-gray-800 group-hover:text-blue-700 transition-colors">
-              Read original article
-            </p>
-            <p className="text-xs text-gray-400 mt-0.5">{getDomain(article.url)}</p>
-          </div>
-          <span className="text-gray-400 group-hover:text-blue-500 transition-colors text-lg">→</span>
-        </a>
+          {/* Source link card */}
+          <a
+            href={article.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-between p-4 rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-all group"
+          >
+            <div>
+              <p className="text-sm font-medium text-gray-800 group-hover:text-blue-700 transition-colors">
+                Read original article
+              </p>
+              <p className="text-xs text-gray-400 mt-0.5">{getDomain(article.url)}</p>
+            </div>
+            <span className="text-gray-400 group-hover:text-blue-500 transition-colors text-lg">→</span>
+          </a>
 
-      </article>
+        </article>
+      </div>
     </div>
   );
 }

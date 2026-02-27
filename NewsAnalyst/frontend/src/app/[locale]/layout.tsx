@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
 import TopBar from '@/components/layout/TopBar';
+import { AuthProvider } from '@/providers/AuthProvider';
 import '../globals.css';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -25,8 +26,10 @@ export default async function LocaleLayout({
     <html lang={locale}>
       <body className={`${inter.className} bg-gray-50 min-h-screen`}>
         <NextIntlClientProvider messages={messages}>
-          <TopBar />
-          <main className="max-w-7xl mx-auto px-4 py-6">{children}</main>
+          <AuthProvider>
+            <TopBar />
+            <main className="max-w-7xl mx-auto px-4 py-6">{children}</main>
+          </AuthProvider>
         </NextIntlClientProvider>
       </body>
     </html>

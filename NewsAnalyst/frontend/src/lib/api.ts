@@ -1,13 +1,16 @@
-import { Article, ArticleListResponse, TokenResponse } from '@/types';
+import { Article, ArticleListResponse, TokenResponse, User, VoteCounts } from '@/types';
+import { getToken } from '@/lib/auth';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 // ── Core request helper ───────────────────────────────────────────────────────
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
+  const token = getToken();
   const res = await fetch(`${API_BASE}${path}`, {
     headers: {
       'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...options?.headers,
     },
     ...options,
@@ -64,6 +67,25 @@ export function registerUser(
     method: 'POST',
     body: JSON.stringify({ email, password, display_name }),
   });
+}
+
+// ── User ──────────────────────────────────────────────────────────────────────
+
+export function getCurrentUser(): Promise<User> {
+  return request('/api/v1/auth/me');
+}
+
+// ── Votes ─────────────────────────────────────────────────────────────────────
+
+export function castVote(articleId: string, vote: 1 | -1): Promise<VoteCounts> {
+  return request(`/api/v1/articles/${articleId}/vote`, {
+    method: 'POST',
+    body: JSON.stringify({ vote }),
+  });
+}
+
+export function getVoteCounts(articleId: string): Promise<VoteCounts> {
+  return request(`/api/v1/articles/${articleId}/votes`);
 }
 
 // ── Categories ────────────────────────────────────────────────────────────────

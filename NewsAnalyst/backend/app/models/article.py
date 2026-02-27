@@ -45,6 +45,9 @@ class Article(Base):
     saved_by_users: Mapped[list["UserSavedArticle"]] = relationship(
         "UserSavedArticle", back_populates="article"
     )
+    votes: Mapped[list["ArticleVote"]] = relationship(  # type: ignore[name-defined]
+        "ArticleVote", back_populates="article"
+    )
 
 
 class UserSavedArticle(Base):

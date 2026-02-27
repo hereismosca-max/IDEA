@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
-from app.api.v1.routes import auth, articles, sources, categories
+from app.api.v1.routes import auth, articles, sources, categories, votes
 from app.services.scheduler import start_scheduler, stop_scheduler
 from app.utils.logger import get_logger
 
@@ -44,6 +44,7 @@ app.add_middleware(
 # ── Routers ───────────────────────────────────────────────────────────────────
 app.include_router(auth.router,       prefix="/api/v1/auth",       tags=["auth"])
 app.include_router(articles.router,   prefix="/api/v1/articles",   tags=["articles"])
+app.include_router(votes.router,      prefix="/api/v1/articles",   tags=["votes"])
 app.include_router(sources.router,    prefix="/api/v1/sources",    tags=["sources"])
 app.include_router(categories.router, prefix="/api/v1/categories", tags=["categories"])
 

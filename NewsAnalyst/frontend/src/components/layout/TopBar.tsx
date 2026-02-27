@@ -3,11 +3,13 @@
 import Link from 'next/link';
 import { useLocale } from 'next-intl';
 import { usePathname, useRouter } from 'next/navigation';
+import { useAuth } from '@/providers/AuthProvider';
 
 export default function TopBar() {
   const locale = useLocale();
   const pathname = usePathname();
   const router = useRouter();
+  const { user, logout, isLoading } = useAuth();
 
   const switchLocale = (newLocale: string) => {
     const newPath = pathname.replace(`/${locale}`, `/${newLocale}`);
@@ -54,10 +56,32 @@ export default function TopBar() {
             </button>
           </div>
 
-          {/* User — placeholder for Phase 2 */}
-          <button className="text-sm text-gray-600 hover:text-gray-900 border border-gray-200 px-3 py-1.5 rounded-md transition-colors hover:border-gray-400">
-            Sign In
-          </button>
+          {/* User section */}
+          {isLoading ? (
+            // Skeleton while checking session
+            <div className="h-8 w-20 bg-gray-100 rounded-md animate-pulse" />
+          ) : user ? (
+            // Logged in: show display name + logout
+            <div className="flex items-center gap-3">
+              <span className="text-sm font-medium text-gray-700">
+                {user.display_name}
+              </span>
+              <button
+                onClick={logout}
+                className="text-sm text-gray-500 hover:text-gray-900 border border-gray-200 px-3 py-1.5 rounded-md transition-colors hover:border-gray-400"
+              >
+                Sign Out
+              </button>
+            </div>
+          ) : (
+            // Not logged in: Sign In link
+            <Link
+              href={`/${locale}/login`}
+              className="text-sm text-gray-600 hover:text-gray-900 border border-gray-200 px-3 py-1.5 rounded-md transition-colors hover:border-gray-400"
+            >
+              Sign In
+            </Link>
+          )}
 
         </div>
       </div>

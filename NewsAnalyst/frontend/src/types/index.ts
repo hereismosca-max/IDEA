@@ -27,6 +27,16 @@ export interface Article {
   ai_summary: string | null;
   ai_tags: AiTags | null;
   ai_score: number | null;
+  // Vote counts — present on single-article responses
+  upvotes?: number;
+  downvotes?: number;
+  user_vote?: 1 | -1 | null;
+}
+
+export interface VoteCounts {
+  upvotes: number;
+  downvotes: number;
+  user_vote: 1 | -1 | null;
 }
 
 export interface ArticleListResponse {
