@@ -10,9 +10,9 @@
 | 版本 | 对应Phase | 预期内容 | 状态 |
 |------|-----------|---------|------|
 | v0.1.0 | Phase 1 | 地基：新闻抓取 + 基础展示 + 用户认证后端 | ✅ 已发布 |
-| v0.2.0 | Phase 2 | 基础功能：登录UI + 收藏 + 筛选 + 搜索 | 📋 待启动 |
-| v0.3.0 | Phase 3 | AI接入：自动摘要 + 分类 + 评分 | 📋 待启动 |
-| v1.0.0 | Phase 4 | 完整产品：双语支持 + 中文板块上线 | 📋 待启动 |
+| v0.2.0 | Phase 2 | AI分析 + 日期导航 + 分类筛选 + 用户认证 + 文章投票 | ✅ 已发布 |
+| v0.3.0 | Phase 2+ | 搜索 + 收藏 + 移动端适配 | 🔨 进行中 |
+| v1.0.0 | Phase 3+4 | AI 重要性评分 + 智能推荐 + 中文板块 | 📋 待启动 |
 
 ---
 
@@ -48,4 +48,49 @@
 
 ---
 
-_最后更新：2026-02-27（v0.1.0 发布）_
+## v0.2.0 · 核心功能版本 — 2026-02-27
+
+**线上地址**
+- 前端：https://idea-brown.vercel.app
+- 后端 API：https://idea-production.up.railway.app
+
+**本次交付**
+
+**AI 分析层**
+- trafilatura + httpx 抓取文章全文，GPT-4o-mini 单次调用同时生成摘要（2-3 句客观中立）+ 结构化标签
+- 标签结构：`entities`（公司/人物）/ `locations`（地区）/ `sectors`（行业）/ `topics`（事件类型）/ `scale`（影响范围）
+- 历史文章 backfill 脚本补全所有 `ai_summary` 和 `ai_tags`
+
+**内容导航**
+- 日期导航栏（← 日期标签 → 箭头 + 日历弹窗），按 UTC 日期筛选文章
+- MenuBar 6 板块真实联动（All / Markets / Technology / Economy / Energy / Crypto），基于 PostgreSQL JSONB `@>` 查询
+
+**文章详情页**
+- 内部路由 `/[locale]/article/[id]`（Server Component，SEO generateMetadata + 5 min revalidate）
+- 全面展示 AI 分析：sector/topic 标签、entities/locations/scale 元数据、完整 AI 摘要、原文链接卡片
+
+**用户认证系统**
+- 后端：`GET /api/v1/auth/me` 端点；`get_current_user` / `get_optional_user` FastAPI 依赖
+- 前端：AuthProvider Context（login / logout / register / 会话自动恢复）
+- 登录页 + 注册页（表单验证 + 错误提示）
+- TopBar 动态：登录后显示用户名 + Sign Out，未登录显示 Sign In 链接
+
+**文章投票**
+- `article_votes` 表（`UNIQUE(user_id, article_id)`，`vote ±1`）
+- toggle 投票逻辑（同方向再投 = 撤票，反方向 = 切换）
+- 文章详情页左栏 sticky ▲/▼ 按钮，乐观更新，首屏无额外请求
+- 未登录点击自动跳转 `/login`
+
+**关键技术决策**
+- AI 摘要 + 标签合并为单次 API 调用（节省 50% 成本和延迟）
+- 投票初始值在 Server Component 服务端获取并通过 props 传入，首屏零请求
+- `get_optional_user` 模式处理公开端点，无需强制登录
+
+**已知限制（v0.3.0 解决）**
+- 暂无搜索功能
+- 暂无用户收藏功能
+- 移动端响应式未完整适配
+
+---
+
+_最后更新：2026-02-27（v0.2.0 发布）_

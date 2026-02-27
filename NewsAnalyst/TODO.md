@@ -72,7 +72,7 @@
 - [x] content_fetcher.py：trafilatura + httpx 抓取文章全文（解决 Yahoo Finance 无摘要问题）
 - [x] OpenAIProcessor 扩展：单次 API 调用同时返回 summary + tags
 - [x] scheduler 更新：传入 url，保存 ai_summary 到数据库
-- [x] backfill_ai_summaries.py：对全部历史文章补全 ai_summary（进行中）
+- [x] backfill_ai_summaries.py：对全部历史文章补全 ai_summary
 
 ### 日期导航
 - [x] 后端 `/articles?date=YYYY-MM-DD` 按 UTC 日期过滤
@@ -80,9 +80,32 @@
 - [x] 日历弹窗（react-day-picker v9，未来日期禁用）
 - [x] NewsFeed 按日切换，加载到底停止，显示"End of articles for this day"
 
+### 文章详情页
+- [x] NewsCard 改为内部路由（`/[locale]/article/[id]`）
+- [x] 文章详情 Server Component：标题、来源、AI 标签（sectors/topics/entities/locations/scale）、AI 摘要、原文链接卡片
+- [x] SEO generateMetadata + revalidate 缓存
+
+### 用户认证系统（Phase 1 Auth）
+- [x] `get_current_user` / `get_optional_user` FastAPI 依赖（security.py）
+- [x] `GET /api/v1/auth/me` 端点
+- [x] `AuthProvider` React Context（login / logout / register / 会话恢复）
+- [x] api.ts 自动注入 Authorization 头
+- [x] 登录页 `/[locale]/login`
+- [x] 注册页 `/[locale]/register`
+- [x] TopBar 动态用户 UI（已登录显示用户名 + Sign Out，未登录显示 Sign In 链接）
+- [x] layout.tsx 包裹 AuthProvider
+
+### 文章投票系统（Phase 2 Voting）
+- [x] `ArticleVote` 数据库模型（`vote ±1`，`UNIQUE(user_id, article_id)`）
+- [x] Alembic 迁移：创建 `article_votes` 表
+- [x] `POST /articles/{id}/vote` 端点（toggle / 切换 / 新增，需认证）
+- [x] `GET /articles/{id}/votes` 端点（投票计数，认证可选）
+- [x] `GET /articles/{id}` 响应附带 `upvotes / downvotes / user_vote`
+- [x] `VoteButtons` 客户端组件（▲/▼，乐观更新，未登录跳转 /login）
+- [x] 文章详情页两栏布局（左侧 sticky VoteButtons + 右侧文章内容）
+
 ### 待完成
 - [ ] 搜索功能
-- [ ] 前端登录 / 注册页面
 - [ ] 用户收藏新闻功能
 - [ ] 抓取日志管理页
 - [ ] 移动端响应式适配
@@ -107,4 +130,4 @@
 
 ---
 
-_最后更新：2026-02-27（Phase 2 进行中：AI 标签 + 日期导航 + MenuBar 筛选 + AI 摘要生成完成）_
+_最后更新：2026-02-27（Phase 2 进行中：AI 标签 + 日期导航 + MenuBar 筛选 + AI 摘要 + 文章详情页 + 用户认证 + 文章投票 完成）_

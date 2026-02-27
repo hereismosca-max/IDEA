@@ -5,6 +5,77 @@
 
 ---
 
+## 2026-02-27 · 用户认证系统 + 文章投票功能上线 · Phase 1 Auth + Phase 2 Voting
+
+### 背景
+用户希望在文章详情页添加 ▲/▼ 投票按钮，记录用户赞同/反对并统计结果。投票需要绑定真实用户账号，因此先建立完整的认证系统（Phase 1），再在此基础上实现投票（Phase 2）。
+
+### Phase 1 — 认证系统
+
+**后端：**
+- `security.py` 新增 `get_current_user`（无效 token 返回 401）和 `get_optional_user`（无效 token 返回 None）两个 FastAPI 依赖函数，使用 `HTTPBearer` 从 Authorization header 提取 token
+- `auth.py` 新增 `GET /api/v1/auth/me` 端点，返回当前已登录用户的完整 profile
+
+**前端：**
+- 新建 `providers/AuthProvider.tsx`：React Context，提供 `login / logout / register` 方法，挂载时自动从 `localStorage` 读取 token → 调用 `/me` 恢复会话；token 过期时自动清除
+- `lib/api.ts` 更新：`request()` 函数自动在所有请求中注入 `Authorization: Bearer <token>` 头；新增 `getCurrentUser()` 函数
+- `app/[locale]/layout.tsx` 用 `<AuthProvider>` 包裹整个应用
+- `TopBar.tsx` 更新为动态认证 UI：已登录显示 `display_name` + `Sign Out` 按钮，未登录显示 `Sign In` 链接；session 检查期间显示骨架 pulse 动画
+- 新建 `app/[locale]/login/page.tsx`：邮箱 + 密码登录表单，含错误提示和跳转注册的链接
+- 新建 `app/[locale]/register/page.tsx`：显示名 + 邮箱 + 密码（最少 8 位）注册表单，注册成功后自动登录并跳转首页
+
+### Phase 2 — 文章投票
+
+**后端：**
+- 新建 `models/vote.py`：`ArticleVote` 表，字段 `user_id / article_id / vote(+1/-1)`，`UNIQUE(user_id, article_id)` 约束防止重复投票
+- 运行 `alembic revision --autogenerate` + `upgrade head`，在 Supabase 上创建 `article_votes` 表
+- 新建 `api/v1/routes/votes.py`：
+  - `POST /api/v1/articles/{id}/vote`（需认证）：toggle 逻辑——同方向再次投 = 撤票，反方向 = 切换，新投票 = 插入
+  - `GET /api/v1/articles/{id}/votes`（认证可选）：返回 `upvotes / downvotes / user_vote`
+- `articles.py` 单篇文章接口（`GET /articles/{id}`）新增 vote count 查询，返回 `upvotes / downvotes / user_vote`
+- `ArticleResponse` schema 新增 `upvotes: int = 0 / downvotes: int = 0 / user_vote: Optional[int] = None`
+- `main.py` 注册 votes router
+
+**前端：**
+- 新建 `components/article/VoteButtons.tsx`：Client Component，▲ 绿色激活 / ▼ 红色激活；乐观更新（先改 UI 再等 API 确认，失败则回滚）；未登录点击跳转 `/login`
+- `app/[locale]/article/[id]/page.tsx` 改为左右两栏布局：左栏 sticky `<VoteButtons>`，右栏文章正文；vote 初始值从 Server Component 服务端直接获取（无首屏请求）
+- `types/index.ts` 新增 `VoteCounts` 接口；`Article` 接口新增可选 vote 字段
+
+### 遇到的问题与修复
+- SQLAlchemy 循环导入：`get_current_user` 需要 `User` 模型，但 `security.py` 在应用启动早期就被加载。解决：在函数体内部 local import `from app.models.user import User`
+- `[locale]` 路径含方括号：`mkdir` 需要加引号，`git add` 同理
+
+### 关键决策记录
+- **乐观更新（Optimistic UI）**：投票按钮点击后立即更新计数，API 响应后用服务端真实值同步（而非等 API 再更新），保证交互零延迟感
+- **Server Component 传初始 votes**：文章详情页是 Server Component，直接在服务端把 `upvotes/downvotes/user_vote` 塞入 ArticleResponse，VoteButtons 收到 `initialXxx` props 后无需再发请求，首屏无额外 API 调用
+- **两栏布局**：vote 按钮放左侧固定列（sticky），视觉上类似 Hacker News / Reddit 风格，比内联更自然
+- **`get_optional_user` 处理匿名访问**：文章详情和投票计数页不要求登录，用 `get_optional_user` 拿到 None 时也能正常返回，不返回 401
+
+### 当前状态
+- 注册 / 登录 / 登出全链路通畅
+- TopBar 动态展示用户名
+- 文章详情页左侧 ▲/▼ 按钮，乐观更新，数值同步
+- Railway + Vercel 已通过 git push 触发自动重部署
+
+---
+
+## 2026-02-27 · 文章详情页上线 · 内部路由 + AI 标签全展示
+
+### 本次完成
+- `NewsCard.tsx` 改为 `'use client'`，使用 `useLocale()` + `next/link` 将点击链接从外部原文 URL 改为内部路由 `/[locale]/article/[id]`
+- `lib/api.ts` 新增 `fetchArticle(id)` 函数
+- `types/index.ts` 新增 `AiTags` 接口（`entities / locations / sectors / topics / scale`），修复 `ai_tags` 类型（原为 `string[] | null`，实际是 dict）
+- 新建 `app/[locale]/article/[id]/page.tsx`（Server Component）：
+  - `generateMetadata()` 动态设置 SEO 标题和描述
+  - `revalidate: 300`（5 分钟缓存）
+  - 展示：来源名 + 发布时间、大标题、sector 蓝色标签、topic 灰色标签、entities/locations/scale 元数据行、完整 AI 摘要、底部原文链接卡片
+
+### 关键决策记录
+- **内部路由而非外跳**：用户点卡片后进入站内详情页，可展示完整 AI 分析结果；直接跳外站则 AI 分析无处展示，体验割裂
+- **Server Component**：详情页数据为只读，无需 client-side state，Server Component 更快（无 JS bundle 膨胀）+ SEO 友好
+
+---
+
 ## 2026-02-27 · AI 摘要生成上线 · trafilatura 全文抓取 + GPT-4o-mini 摘要
 
 ### 背景
