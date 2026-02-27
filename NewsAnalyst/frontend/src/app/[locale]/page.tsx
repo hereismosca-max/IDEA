@@ -1,5 +1,5 @@
-import NewsFeed from '@/components/news/NewsFeed';
+import HomeFeed from '@/components/news/HomeFeed';
 
 export default function HomePage() {
-  return <NewsFeed />;
+  return <HomeFeed />;
 }

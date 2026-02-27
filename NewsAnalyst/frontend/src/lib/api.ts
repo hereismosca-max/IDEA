@@ -27,15 +27,17 @@ export interface FetchArticlesParams {
   page_size?: number;
   language?: string;
   category_slug?: string;
+  date?: string;   // "YYYY-MM-DD" — filter to a single UTC calendar day
 }
 
 export function fetchArticles(params: FetchArticlesParams = {}): Promise<ArticleListResponse> {
-  const { page = 1, page_size = 20, language = 'en', category_slug } = params;
+  const { page = 1, page_size = 20, language = 'en', category_slug, date } = params;
   const query = new URLSearchParams({
     page: String(page),
     page_size: String(page_size),
     language,
     ...(category_slug ? { category_slug } : {}),
+    ...(date        ? { date }           : {}),
   });
   return request(`/api/v1/articles?${query}`);
 }

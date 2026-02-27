@@ -1,3 +1,5 @@
+from datetime import datetime, timezone, timedelta
+
 from fastapi import APIRouter, Depends, Query, HTTPException
 from sqlalchemy.orm import Session, joinedload
 from typing import Optional
@@ -17,11 +19,13 @@ def get_articles(
     page_size: int = Query(20, ge=1, le=100, description="Items per page"),
     language: str = Query("en", description="Language filter"),
     category_slug: Optional[str] = Query(None, description="Category slug filter"),
+    date: Optional[str] = Query(None, description="Filter by date (YYYY-MM-DD, UTC)"),
     db: Session = Depends(get_db),
 ):
     """
     Fetch a paginated list of articles.
     Ordered by published_at descending (newest first).
+    Optionally filtered to a single UTC calendar day via ?date=YYYY-MM-DD.
     """
     query = (
         db.query(Article)
@@ -29,6 +33,18 @@ def get_articles(
         .filter(Article.is_active == True, Article.language == language)
         .order_by(Article.published_at.desc())
     )
+
+    # Date filter — restrict to a single UTC calendar day
+    if date:
+        try:
+            day_start = datetime.strptime(date, "%Y-%m-%d").replace(tzinfo=timezone.utc)
+            day_end = day_start + timedelta(days=1)
+            query = query.filter(
+                Article.published_at >= day_start,
+                Article.published_at < day_end,
+            )
+        except ValueError:
+            raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD.")
 
     # Category filter — wired up in Phase 2/3 when AI tagging is active
     # if category_slug and category_slug != "all":

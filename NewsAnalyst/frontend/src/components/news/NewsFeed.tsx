@@ -5,7 +5,11 @@ import NewsCard from './NewsCard';
 import { fetchArticles } from '@/lib/api';
 import { Article, ArticleListResponse } from '@/types';
 
-export default function NewsFeed() {
+interface NewsFeedProps {
+  date: string; // "YYYY-MM-DD" — only show articles from this UTC day
+}
+
+export default function NewsFeed({ date }: NewsFeedProps) {
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -16,7 +20,7 @@ export default function NewsFeed() {
   const loadArticles = async (pageNum: number, reset = false) => {
     try {
       reset ? setLoading(true) : setLoadingMore(true);
-      const data: ArticleListResponse = await fetchArticles({ page: pageNum });
+      const data: ArticleListResponse = await fetchArticles({ page: pageNum, date });
       setArticles((prev) => (reset ? data.items : [...prev, ...data.items]));
       setHasNext(data.has_next);
       setPage(pageNum);
@@ -28,11 +32,14 @@ export default function NewsFeed() {
     }
   };
 
+  // Reset and reload from page 1 whenever the selected date changes
   useEffect(() => {
+    setError(null);
     loadArticles(1, true);
-  }, []);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [date]);
 
-  // ── Error state ────────────────────────────────────────────────────────────
+  // ── Error state ─────────────────────────────────────────────────────────────
   if (error) {
     return (
       <div className="text-center py-16">
@@ -47,7 +54,7 @@ export default function NewsFeed() {
     );
   }
 
-  // ── Initial loading skeleton ───────────────────────────────────────────────
+  // ── Initial loading skeleton ─────────────────────────────────────────────────
   if (loading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -64,16 +71,17 @@ export default function NewsFeed() {
     );
   }
 
-  // ── Empty state ────────────────────────────────────────────────────────────
+  // ── Empty state ──────────────────────────────────────────────────────────────
   if (articles.length === 0) {
     return (
-      <div className="text-center py-16">
-        <p className="text-gray-400 text-sm">No articles yet. Check back soon.</p>
+      <div className="text-center py-20">
+        <p className="text-gray-400 text-sm">No articles found for this date.</p>
+        <p className="text-gray-300 text-xs mt-1">Try navigating to another day.</p>
       </div>
     );
   }
 
-  // ── Main feed ──────────────────────────────────────────────────────────────
+  // ── Main feed ────────────────────────────────────────────────────────────────
   return (
     <div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -82,7 +90,7 @@ export default function NewsFeed() {
         ))}
       </div>
 
-      {/* Load more */}
+      {/* Load more — only shows if there are more articles for this day */}
       {hasNext && (
         <div className="text-center mt-8">
           <button
@@ -92,6 +100,13 @@ export default function NewsFeed() {
           >
             {loadingMore ? 'Loading…' : 'Load more'}
           </button>
+        </div>
+      )}
+
+      {/* End of day indicator */}
+      {!hasNext && articles.length > 0 && (
+        <div className="text-center mt-8 text-gray-300 text-xs">
+          — End of articles for this day —
         </div>
       )}
     </div>

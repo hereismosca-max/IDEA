@@ -10,9 +10,10 @@
   },
   "dependencies": {
     "next": "14.1.0",
+    "next-intl": "^3.9.0",
     "react": "^18",
-    "react-dom": "^18",
-    "next-intl": "^3.9.0"
+    "react-day-picker": "^9.14.0",
+    "react-dom": "^18"
   },
   "devDependencies": {
     "@types/node": "^20",
