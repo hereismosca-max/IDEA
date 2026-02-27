@@ -6,10 +6,11 @@ import { fetchArticles } from '@/lib/api';
 import { Article, ArticleListResponse } from '@/types';
 
 interface NewsFeedProps {
-  date: string; // "YYYY-MM-DD" — only show articles from this UTC day
+  date: string;      // "YYYY-MM-DD" — only show articles from this UTC day
+  category?: string; // section slug ("all" | "markets" | "technology" | ...)
 }
 
-export default function NewsFeed({ date }: NewsFeedProps) {
+export default function NewsFeed({ date, category }: NewsFeedProps) {
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -20,7 +21,11 @@ export default function NewsFeed({ date }: NewsFeedProps) {
   const loadArticles = async (pageNum: number, reset = false) => {
     try {
       reset ? setLoading(true) : setLoadingMore(true);
-      const data: ArticleListResponse = await fetchArticles({ page: pageNum, date });
+      const data: ArticleListResponse = await fetchArticles({
+        page: pageNum,
+        date,
+        category_slug: category && category !== 'all' ? category : undefined,
+      });
       setArticles((prev) => (reset ? data.items : [...prev, ...data.items]));
       setHasNext(data.has_next);
       setPage(pageNum);
@@ -32,12 +37,12 @@ export default function NewsFeed({ date }: NewsFeedProps) {
     }
   };
 
-  // Reset and reload from page 1 whenever the selected date changes
+  // Reset and reload from page 1 whenever the selected date or category changes
   useEffect(() => {
     setError(null);
     loadArticles(1, true);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [date]);
+  }, [date, category]);
 
   // ── Error state ─────────────────────────────────────────────────────────────
   if (error) {

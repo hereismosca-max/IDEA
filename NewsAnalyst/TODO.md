@@ -65,8 +65,8 @@
 - [x] OpenAIProcessor 实现（结构化事实提取：entities / locations / sectors / topics / scale）
 - [x] 调度器优化：只对新增文章调用 AI，避免重复处理
 - [x] 历史文章 backfill（313 篇全部打标签）
-- [ ] 分析标签分布，确定 MenuBar 板块方案
-- [ ] MenuBar 分类筛选真实联动（基于 AI 标签）
+- [x] 分析标签分布，确定 MenuBar 板块方案（All / Markets / Technology / Economy / Energy / Crypto）
+- [x] MenuBar 分类筛选真实联动（基于 AI 标签 JSONB 查询）
 
 ### 日期导航
 - [x] 后端 `/articles?date=YYYY-MM-DD` 按 UTC 日期过滤
@@ -101,4 +101,4 @@
 
 ---
 
-_最后更新：2026-02-27（Phase 2 进行中：AI 标签系统 + 日期导航完成）_
+_最后更新：2026-02-27（Phase 2 进行中：AI 标签系统 + 日期导航 + MenuBar 分类筛选完成）_

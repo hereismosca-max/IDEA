@@ -5,6 +5,33 @@
 
 ---
 
+## 2026-02-27 · MenuBar 分类筛选上线 · AI 标签驱动的板块联动
+
+### 本次完成
+- 分析 337 篇已打标文章的标签分布，数据驱动确定 5 个板块方案
+  - Technology 29.1%、earnings 20.5%、Finance 9.5%、Crypto 独立板块
+- 后端 `articles.py` 新增 SECTION_FILTERS：基于 JSONB `@>` 运算符的 PostgreSQL 查询
+  - `_s(sector)` / `_t(topic)` / `_scale(scale)` 三个辅助函数
+  - 5 个板块：markets / technology / economy / energy / crypto
+  - 未知 slug 返回空结果（`filter(text("false"))`），不报 400
+- 重构 `MenuBar.tsx`：从固定渲染改为接受 props（`activeCategory` + `onCategoryChange`）
+  - 板块定义更新为 All / Markets / Technology / Economy / Energy / Crypto
+- 重构 `HomeFeed.tsx`：新增 `selectedCategory` 状态，内部渲染 `<MenuBar>` 实现状态共享
+- 更新 `NewsFeed.tsx`：新增 `category` prop，切换板块时重置并从第 1 页重新加载
+- 从 `layout.tsx` 移除 `<MenuBar />`：MenuBar 迁入 HomeFeed 层，避免跨布局边界传 state
+
+### 关键决策记录
+- **数据驱动板块划分**：先分析真实标签分布，再定板块，而非主观拍脑袋
+- **状态下移到 HomeFeed**：MenuBar 必须和 NewsFeed 共享 category 状态；layout.tsx 是 Server Component，无法持有 state；因此将两者都收进 HomeFeed（Client Component）统一管理
+- **`category !== 'all'` 过滤**：前端不传 `category_slug` 给 "all"，后端收不到此参数时不加过滤，返回全部文章，逻辑简洁
+
+### 当前状态
+- MenuBar 六个板块（All / Markets / Technology / Economy / Energy / Crypto）全部联动正常
+- 切换板块 + 切换日期双维度过滤，互相独立，同时生效
+- Railway 后端、Vercel 前端已部署，等待本次 push 自动触发重部署
+
+---
+
 ## 2026-02-27 · 日期导航功能上线 · DateNavigator + 按日过滤
 
 ### 本次完成

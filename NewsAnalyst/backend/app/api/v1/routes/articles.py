@@ -1,6 +1,7 @@
 from datetime import datetime, timezone, timedelta
 
 from fastapi import APIRouter, Depends, Query, HTTPException
+from sqlalchemy import or_, text
 from sqlalchemy.orm import Session, joinedload
 from typing import Optional
 
@@ -11,6 +12,46 @@ from app.utils.logger import get_logger
 
 router = APIRouter()
 logger = get_logger(__name__)
+
+# ── Section filter definitions (JSONB queries on ai_tags) ────────────────────
+# Each section maps to an OR of JSONB containment conditions.
+# Uses PostgreSQL @> operator: ai_tags->'field' @> '["value"]'::jsonb
+def _s(sector: str):
+    """Match articles whose ai_tags.sectors array contains `sector`."""
+    return text(f"ai_tags->'sectors' @> '[\"{sector}\"]'::jsonb")
+
+def _t(topic: str):
+    """Match articles whose ai_tags.topics array contains `topic`."""
+    return text(f"ai_tags->'topics' @> '[\"{topic}\"]'::jsonb")
+
+def _scale(scale: str):
+    """Match articles whose ai_tags.scale equals `scale`."""
+    return text(f"ai_tags->>'scale' = '{scale}'")
+
+SECTION_FILTERS = {
+    # Finance sector + high-signal market-activity topics
+    "markets": or_(
+        _s("Finance"),
+        _t("earnings"), _t("investment"), _t("ipo"),
+        _t("merger"), _t("acquisition"),
+        _t("stock_buyback"), _t("dividend"),
+    ),
+    # Technology sector
+    "technology": _s("Technology"),
+    # Macro-economic: national/global events + macro topics
+    "economy": or_(
+        _scale("national"), _scale("global"),
+        _t("policy"), _t("employment"), _t("gdp"),
+        _t("inflation"), _t("trade"),
+        _t("regulation"), _t("interest_rate"),
+    ),
+    # Energy + Commodities + Agriculture sectors
+    "energy": or_(
+        _s("Energy"), _s("Commodities"), _s("Agriculture"),
+    ),
+    # Crypto sector
+    "crypto": _s("Crypto"),
+}
 
 
 @router.get("", response_model=ArticleListResponse)
@@ -46,9 +87,14 @@ def get_articles(
         except ValueError:
             raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD.")
 
-    # Category filter — wired up in Phase 2/3 when AI tagging is active
-    # if category_slug and category_slug != "all":
-    #     query = query.join(ArticleCategory).join(Category).filter(Category.slug == category_slug)
+    # Section filter — uses JSONB containment queries on ai_tags
+    if category_slug and category_slug != "all":
+        section_filter = SECTION_FILTERS.get(category_slug)
+        if section_filter is not None:
+            query = query.filter(section_filter)
+        # Unknown slug → return empty result set rather than error
+        else:
+            query = query.filter(text("false"))
 
     total = query.count()
     items = query.offset((page - 1) * page_size).limit(page_size).all()

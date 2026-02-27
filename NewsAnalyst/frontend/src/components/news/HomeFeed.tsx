@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import DateNavigator from './DateNavigator';
 import NewsFeed from './NewsFeed';
+import MenuBar from '@/components/layout/MenuBar';
 
 /** Format a Date object as "YYYY-MM-DD" (UTC) for the API */
 function toUTCDateString(date: Date): string {
@@ -14,11 +15,13 @@ function toUTCDateString(date: Date): string {
 
 export default function HomeFeed() {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
   return (
     <div>
+      <MenuBar activeCategory={selectedCategory} onCategoryChange={setSelectedCategory} />
       <DateNavigator selectedDate={selectedDate} onDateChange={setSelectedDate} />
-      <NewsFeed date={toUTCDateString(selectedDate)} />
+      <NewsFeed date={toUTCDateString(selectedDate)} category={selectedCategory} />
     </div>
   );
 }
