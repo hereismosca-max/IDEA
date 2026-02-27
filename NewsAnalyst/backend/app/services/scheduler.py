@@ -3,6 +3,7 @@ from datetime import datetime, timezone
 
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.interval import IntervalTrigger
+from sqlalchemy import update as sa_update
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 
 from app.core.config import settings
@@ -53,17 +54,10 @@ def run_fetch_job():
                 )
                 fetched = fetcher.fetch()
                 new_count = 0
+                new_items = []  # track truly new articles for AI processing
 
+                # ── Phase 1: INSERT all fetched items, skip existing URLs ─────
                 for item in fetched:
-                    # AI processing (passthrough for Phase 1/2)
-                    ai_result = ai_processor.process(
-                        item.title, item.content_snippet or ""
-                    )
-
-                    # Use INSERT ... ON CONFLICT DO NOTHING to safely skip duplicates
-                    ai_processed_at = (
-                        datetime.now(timezone.utc) if ai_result.tags else None
-                    )
                     stmt = (
                         pg_insert(Article)
                         .values(
@@ -75,18 +69,37 @@ def run_fetch_job():
                             published_at=item.published_at,
                             language=item.language,
                             is_active=True,
-                            ai_summary=ai_result.summary,
-                            ai_tags=ai_result.tags,
-                            ai_score=ai_result.score,
-                            ai_processed_at=ai_processed_at,
+                            ai_summary=None,
+                            ai_tags=None,
+                            ai_score=None,
+                            ai_processed_at=None,
                         )
                         .on_conflict_do_nothing(index_elements=["url"])
                     )
                     result = db.execute(stmt)
                     if result.rowcount > 0:
                         new_count += 1
+                        new_items.append(item)  # only newly inserted
 
                 db.commit()
+
+                # ── Phase 2: AI tagging only for new articles ─────────────────
+                if new_items:
+                    for item in new_items:
+                        ai_result = ai_processor.process(
+                            item.title, item.content_snippet or ""
+                        )
+                        if ai_result.tags:
+                            db.execute(
+                                sa_update(Article)
+                                .where(Article.url == item.url)
+                                .values(
+                                    ai_tags=ai_result.tags,
+                                    ai_processed_at=datetime.now(timezone.utc),
+                                )
+                            )
+                    db.commit()
+                    logger.info(f"  AI tagged {len(new_items)} new articles")
 
                 # Update fetch log — success
                 log.finished_at = datetime.now(timezone.utc)
