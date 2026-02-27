@@ -74,6 +74,10 @@ def cast_vote(
       - Opposite vote   → switches to new value
       - New vote        → inserts
     """
+    # Require verified email to vote
+    if not current_user.email_verified:
+        raise HTTPException(status_code=403, detail="email_not_verified")
+
     # Verify article exists
     article = db.query(Article).filter(Article.id == article_id, Article.is_active == True).first()
     if not article:

@@ -2,13 +2,11 @@
 
 import { useState, FormEvent } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useLocale } from 'next-intl';
 import { useAuth } from '@/providers/AuthProvider';
 
 export default function RegisterPage() {
   const locale = useLocale();
-  const router = useRouter();
   const { register } = useAuth();
 
   const [displayName, setDisplayName] = useState('');
@@ -16,6 +14,7 @@ export default function RegisterPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [registered, setRegistered] = useState(false);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -27,18 +26,44 @@ export default function RegisterPage() {
     setIsSubmitting(true);
     try {
       await register(email, password, displayName);
-      router.push(`/${locale}`);
+      setRegistered(true); // show success state instead of redirecting
     } catch (err: unknown) {
-      const message =
-        err instanceof Error ? err.message : 'Registration failed. Please try again.';
-      setError(
-        message.includes('400') ? 'Email is already registered.' : message
-      );
+      const message = err instanceof Error ? err.message : 'Registration failed. Please try again.';
+      setError(message === 'Email already registered' ? 'That email is already registered.' : message);
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  // ── Success state ─────────────────────────────────────────────────────────
+  if (registered) {
+    return (
+      <div className="min-h-[70vh] flex items-center justify-center">
+        <div className="w-full max-w-sm text-center">
+          <div className="text-4xl mb-4">✉️</div>
+          <h1 className="text-xl font-bold text-gray-900 mb-2">Check your inbox!</h1>
+          <p className="text-sm text-gray-500 mb-1">
+            We sent a verification email to
+          </p>
+          <p className="text-sm font-semibold text-gray-800 mb-6 break-all">{email}</p>
+          <p className="text-xs text-gray-400 mb-8">
+            Click the link in the email to verify your account. The link expires in 24 hours.
+          </p>
+          <Link
+            href={`/${locale}`}
+            className="inline-block bg-gray-900 text-white py-2 px-6 rounded-md text-sm font-medium hover:bg-gray-700 transition-colors"
+          >
+            Continue browsing →
+          </Link>
+          <p className="mt-4 text-xs text-gray-400">
+            Can&apos;t find it? Check your spam folder.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Registration form ─────────────────────────────────────────────────────
   return (
     <div className="min-h-[70vh] flex items-center justify-center">
       <div className="w-full max-w-sm">
@@ -105,10 +130,7 @@ export default function RegisterPage() {
 
         <p className="mt-4 text-center text-sm text-gray-500">
           Already have an account?{' '}
-          <Link
-            href={`/${locale}/login`}
-            className="text-gray-900 font-medium hover:underline"
-          >
+          <Link href={`/${locale}/login`} className="text-gray-900 font-medium hover:underline">
             Sign in
           </Link>
         </p>

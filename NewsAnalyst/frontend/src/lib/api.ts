@@ -1,4 +1,4 @@
-import { Article, ArticleListResponse, TokenResponse, User, VoteCounts } from '@/types';
+import { Article, ArticleListResponse, MessageResponse, TokenResponse, User, VoteCounts } from '@/types';
 import { getToken } from '@/lib/auth';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
@@ -17,7 +17,15 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
   });
 
   if (!res.ok) {
-    throw new Error(`API error ${res.status}: ${res.statusText}`);
+    // Try to surface the backend's detail message
+    let detail = res.statusText;
+    try {
+      const body = await res.json();
+      if (body?.detail) detail = body.detail;
+    } catch { /* ignore */ }
+    const err = new Error(detail) as Error & { status: number };
+    err.status = res.status;
+    throw err;
   }
 
   return res.json();
@@ -86,6 +94,36 @@ export function castVote(articleId: string, vote: 1 | -1): Promise<VoteCounts> {
 
 export function getVoteCounts(articleId: string): Promise<VoteCounts> {
   return request(`/api/v1/articles/${articleId}/votes`);
+}
+
+// ── Email verification + password reset ───────────────────────────────────────
+
+export function verifyEmail(token: string): Promise<MessageResponse> {
+  return request('/api/v1/auth/verify-email', {
+    method: 'POST',
+    body: JSON.stringify({ token }),
+  });
+}
+
+export function resendVerification(): Promise<MessageResponse> {
+  return request('/api/v1/auth/resend-verification', { method: 'POST' });
+}
+
+export function forgotPassword(email: string): Promise<MessageResponse> {
+  return request('/api/v1/auth/forgot-password', {
+    method: 'POST',
+    body: JSON.stringify({ email }),
+  });
+}
+
+export function resetPassword(
+  token: string,
+  new_password: string
+): Promise<MessageResponse> {
+  return request('/api/v1/auth/reset-password', {
+    method: 'POST',
+    body: JSON.stringify({ token, new_password }),
+  });
 }
 
 // ── Categories ────────────────────────────────────────────────────────────────

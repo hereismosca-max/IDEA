@@ -23,6 +23,11 @@ class Settings(BaseSettings):
     # AI — Phase 3, leave empty for now
     OPENAI_API_KEY: str = ""
 
+    # Email (Resend)
+    RESEND_API_KEY: str = ""
+    EMAIL_FROM: str = "NewsAnalyst <onboarding@resend.dev>"
+    FRONTEND_BASE_URL: str = "https://idea-brown.vercel.app"
+
 
 @lru_cache()
 def get_settings() -> Settings:

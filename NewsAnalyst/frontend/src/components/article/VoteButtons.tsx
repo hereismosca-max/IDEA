@@ -1,10 +1,11 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useLocale } from 'next-intl';
 import { useAuth } from '@/providers/AuthProvider';
-import { castVote } from '@/lib/api';
+import { castVote, resendVerification } from '@/lib/api';
 
 interface VoteButtonsProps {
   articleId: string;
@@ -27,6 +28,8 @@ export default function VoteButtons({
   const [downvotes, setDownvotes] = useState(initialDownvotes);
   const [userVote, setUserVote] = useState<1 | -1 | null>(initialUserVote);
   const [isLoading, setIsLoading] = useState(false);
+  const [showVerifyPrompt, setShowVerifyPrompt] = useState(false);
+  const [resendState, setResendState] = useState<'idle' | 'sending' | 'sent'>('idle');
 
   const handleVote = async (value: 1 | -1) => {
     if (!user) {
@@ -41,12 +44,10 @@ export default function VoteButtons({
     const prevUserVote = userVote;
 
     if (userVote === value) {
-      // Toggle off
       setUserVote(null);
       if (value === 1) setUpvotes((n) => n - 1);
       else setDownvotes((n) => n - 1);
     } else {
-      // Switch or new vote
       if (userVote === 1) setUpvotes((n) => n - 1);
       if (userVote === -1) setDownvotes((n) => n - 1);
       setUserVote(value);
@@ -57,17 +58,30 @@ export default function VoteButtons({
     setIsLoading(true);
     try {
       const result = await castVote(articleId, value);
-      // Sync with actual server counts
       setUpvotes(result.upvotes);
       setDownvotes(result.downvotes);
       setUserVote(result.user_vote);
-    } catch {
+    } catch (err: unknown) {
+      const detail = err instanceof Error ? err.message : '';
+      if (detail === 'email_not_verified') {
+        setShowVerifyPrompt(true);
+      }
       // Revert on error
       setUpvotes(prevUpvotes);
       setDownvotes(prevDownvotes);
       setUserVote(prevUserVote);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleResend = async () => {
+    setResendState('sending');
+    try {
+      await resendVerification();
+      setResendState('sent');
+    } catch {
+      setResendState('idle');
     }
   };
 
@@ -130,6 +144,34 @@ export default function VoteButtons({
           />
         </svg>
       </button>
+
+      {/* Email-not-verified prompt */}
+      {showVerifyPrompt && (
+        <div className="mt-2 w-28 p-2 rounded-lg bg-amber-50 border border-amber-200 text-center">
+          <p className="text-[10px] text-amber-700 font-medium leading-tight mb-1.5">
+            Verify your email to vote
+          </p>
+          {resendState === 'sent' ? (
+            <p className="text-[10px] text-emerald-600">Email sent!</p>
+          ) : (
+            <button
+              onClick={handleResend}
+              disabled={resendState === 'sending'}
+              className="text-[10px] text-amber-600 font-semibold hover:text-amber-800 transition-colors underline underline-offset-1 disabled:opacity-50"
+            >
+              {resendState === 'sending' ? 'Sending…' : 'Resend email'}
+            </button>
+          )}
+          <div className="mt-1">
+            <Link
+              href={`/${locale}/verify-email`}
+              className="text-[10px] text-amber-500 hover:text-amber-700 block"
+            >
+              Already verified?
+            </Link>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

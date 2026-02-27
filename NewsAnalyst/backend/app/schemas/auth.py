@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 
 
 class RegisterRequest(BaseModel):
@@ -15,3 +15,26 @@ class LoginRequest(BaseModel):
 class TokenResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
+
+
+# ── Email verification ─────────────────────────────────────────────────────────
+
+class VerifyEmailRequest(BaseModel):
+    token: str
+
+
+# ── Password reset ─────────────────────────────────────────────────────────────
+
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
+
+
+class ResetPasswordRequest(BaseModel):
+    token: str
+    new_password: str = Field(min_length=8)
+
+
+# ── Generic success response ───────────────────────────────────────────────────
+
+class MessageResponse(BaseModel):
+    message: str

@@ -1,4 +1,6 @@
 import uuid
+from datetime import datetime
+from typing import Optional
 
 from sqlalchemy import String, Boolean, DateTime
 from sqlalchemy.dialects.postgresql import UUID
@@ -23,14 +25,33 @@ class User(Base):
         String(10), nullable=False, default="en"
     )
     is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
-    created_at: Mapped[DateTime] = mapped_column(
+    created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
-    updated_at: Mapped[DateTime] = mapped_column(
+    updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         server_default=func.now(),
         onupdate=func.now(),
         nullable=False,
+    )
+
+    # ── Email verification ────────────────────────────────────────────────────
+    email_verified: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=False
+    )
+    email_verification_token: Mapped[Optional[str]] = mapped_column(
+        String(64), nullable=True
+    )
+    email_verification_expires_at: Mapped[Optional[datetime]] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+
+    # ── Password reset ────────────────────────────────────────────────────────
+    password_reset_token: Mapped[Optional[str]] = mapped_column(
+        String(64), nullable=True
+    )
+    password_reset_expires_at: Mapped[Optional[datetime]] = mapped_column(
+        DateTime(timezone=True), nullable=True
     )
 
     # Relationships

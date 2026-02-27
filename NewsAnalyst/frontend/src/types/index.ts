@@ -61,7 +61,12 @@ export interface User {
   display_name: string;
   preferred_lang: string;
   is_active: boolean;
+  email_verified: boolean;
   created_at: string;
+}
+
+export interface MessageResponse {
+  message: string;
 }
 
 export interface TokenResponse {
