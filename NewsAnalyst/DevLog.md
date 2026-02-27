@@ -5,6 +5,29 @@
 
 ---
 
+## 2026-02-27 · 线上部署完成 · Railway + Vercel 上线
+
+### 本次完成
+- Railway 部署后端成功：添加所有环境变量后服务正常启动（ACTIVE · Online）
+- 生成 Railway 公开域名：`https://idea-production.up.railway.app` → Port 8000
+- Vercel 部署前端成功：Root Directory = `NewsAnalyst/frontend`，`NEXT_PUBLIC_API_URL` 指向 Railway
+- 前端域名：`https://idea-brown.vercel.app`
+- 修复 CORS 配置：`"https://*.vercel.app"` 通配符字符串在 FastAPI CORSMiddleware 中无效，改用 `allow_origin_regex=r"https://.*\.vercel\.app"` + 显式列出正式域名
+
+### 遇到的问题与修复
+- **Railway 环境变量未配置**：首次部署 crashed，`DATABASE_URL` 为空导致 SQLAlchemy 报错。在 Variables 标签页补全所有环境变量后自动重部署成功。
+- **Railway 服务未暴露**：部署成功后显示 "Unexposed service"，在 Settings → Networking 生成 Domain（Port 8000）后解决。
+- **CORS 通配符无效**：FastAPI/Starlette 的 `allow_origins` 只支持精确匹配或 `"*"`，不支持 `"https://*.vercel.app"` 这类 glob 模式。改用 `allow_origin_regex` 参数解决，同时保持 `allow_credentials=True`。
+
+### 关键决策记录
+- **`allow_origin_regex` 处理 Vercel 预览 URL**：Vercel 每次 PR 预览都会生成新的子域名（如 `idea-git-feature-xxx.vercel.app`），用正则 `https://.*\.vercel\.app` 一次性覆盖所有预览域名，避免每次都要手动加白名单。
+
+### 下一步
+- 推送 CORS 修复到 GitHub（Railway 自动重部署）
+- 端到端验证线上前端能正常加载新闻文章
+
+---
+
 ## 2026-02-26 · 本地联调完成 · 后端全链路打通
 
 ### 本次完成

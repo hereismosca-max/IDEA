@@ -51,8 +51,9 @@
 - [x] 验证前端能正常渲染新闻卡片 ✅
 
 ### 部署
-- [ ] 部署后端至 Railway（配置环境变量）
-- [ ] 部署前端至 Vercel（配置 NEXT_PUBLIC_API_URL）
+- [x] 部署后端至 Railway（配置环境变量）— https://idea-production.up.railway.app
+- [x] 部署前端至 Vercel（配置 NEXT_PUBLIC_API_URL）— https://idea-brown.vercel.app
+- [ ] 修复 CORS（`allow_origin_regex` 替代通配符字符串，已修改待 push）
 - [ ] 线上端到端验证
 
 ---
@@ -89,4 +90,4 @@
 
 ---
 
-_最后更新：2026-02-26（数据库上线，种子数据写入完成）_
+_最后更新：2026-02-27（Railway + Vercel 部署完成，CORS 修复中）_
