@@ -5,6 +5,31 @@
 
 ---
 
+## 2026-02-27 · AI 摘要生成上线 · trafilatura 全文抓取 + GPT-4o-mini 摘要
+
+### 背景
+Yahoo Finance RSS 条目几乎不包含文章正文（`content_snippet` 为空或极短），导致新闻卡片无内容显示。用户希望 AI 读取原文后生成客观摘要展示在卡片上。
+
+### 本次完成
+- 新建 `app/services/fetcher/content_fetcher.py`：httpx + trafilatura 从文章 URL 抓取并提取正文（最多 4000 字符），任何失败均静默返回 None
+- 扩展 `OpenAIProcessor.process()`：新增 `url` 参数，优先用全文，回退到 RSS snippet；单次 API 调用同时返回 `summary`（2-3句客观摘要）+ `tags`（原结构化标签）
+- `max_tokens` 从 300 增至 500 以容纳摘要输出
+- 更新 `BaseAIProcessor` 和 `PassthroughProcessor` 签名，新增 `url` 可选参数
+- 更新 `scheduler.py` Phase 2：传入 `url=item.url`，将 `ai_result.summary` 和 `ai_result.tags` 一起保存
+- 新增 `scripts/backfill_ai_summaries.py`：对历史无摘要文章补全，支持 `--limit` 和 `--dry-run`
+- 新增依赖：`trafilatura>=1.12.0` + `lxml>=5.0.0`
+
+### 关键决策记录
+- **单次 API 调用（summary + tags 合并）**：节省 50% API 费用和延迟，且同一次"阅读"生成的摘要和标签语义一致
+- **trafilatura 而非 newspaper3k**：trafilatura 在金融新闻网站提取质量更高，内置 lxml 解析器，失败率更低
+- **前端零改动**：`NewsCard` 早在 Phase 1 就实现了 `ai_summary ?? content_snippet` 回退，这次功能上线前端完全不用动
+
+### 当前状态
+- 新抓取文章自动全文抓取 + GPT 摘要
+- 历史文章 backfill 后台运行中（`/tmp/backfill_summaries.log`）
+
+---
+
 ## 2026-02-27 · MenuBar 分类筛选上线 · AI 标签驱动的板块联动
 
 ### 本次完成

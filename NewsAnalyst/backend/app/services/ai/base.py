@@ -35,13 +35,14 @@ class BaseAIProcessor(ABC):
     """Abstract base class for AI processors."""
 
     @abstractmethod
-    def process(self, title: str, content: str) -> AIProcessingResult:
+    def process(self, title: str, content: str, url: Optional[str] = None) -> AIProcessingResult:
         """
         Process a single article.
 
         Args:
             title:   Article headline
-            content: Article body or snippet
+            content: Article body or snippet (fallback if URL fetch fails)
+            url:     Article URL — used to fetch full text when snippet is sparse
 
         Returns:
             AIProcessingResult with summary, tags, and score.

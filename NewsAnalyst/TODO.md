@@ -68,6 +68,12 @@
 - [x] 分析标签分布，确定 MenuBar 板块方案（All / Markets / Technology / Economy / Energy / Crypto）
 - [x] MenuBar 分类筛选真实联动（基于 AI 标签 JSONB 查询）
 
+### AI 摘要生成
+- [x] content_fetcher.py：trafilatura + httpx 抓取文章全文（解决 Yahoo Finance 无摘要问题）
+- [x] OpenAIProcessor 扩展：单次 API 调用同时返回 summary + tags
+- [x] scheduler 更新：传入 url，保存 ai_summary 到数据库
+- [x] backfill_ai_summaries.py：对全部历史文章补全 ai_summary（进行中）
+
 ### 日期导航
 - [x] 后端 `/articles?date=YYYY-MM-DD` 按 UTC 日期过滤
 - [x] DateNavigator 组件（← 日期标签 → 箭头导航）
@@ -86,7 +92,7 @@
 
 ## 🤖 Phase 3 · AI 深度接入（待启动）
 
-- [ ] 自动摘要（AI 生成客观摘要替换 content_snippet）
+- [x] 自动摘要（AI 生成客观摘要，已前移至 Phase 2 完成）
 - [ ] 重要性评分（填入 ai_score）
 - [ ] 基于标签的智能推荐
 
@@ -101,4 +107,4 @@
 
 ---
 
-_最后更新：2026-02-27（Phase 2 进行中：AI 标签系统 + 日期导航 + MenuBar 分类筛选完成）_
+_最后更新：2026-02-27（Phase 2 进行中：AI 标签 + 日期导航 + MenuBar 筛选 + AI 摘要生成完成）_

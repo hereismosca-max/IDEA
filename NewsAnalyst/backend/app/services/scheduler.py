@@ -83,23 +83,26 @@ def run_fetch_job():
 
                 db.commit()
 
-                # ── Phase 2: AI tagging only for new articles ─────────────────
+                # ── Phase 2: AI tagging + summary only for new articles ───────
                 if new_items:
                     for item in new_items:
                         ai_result = ai_processor.process(
-                            item.title, item.content_snippet or ""
+                            item.title,
+                            item.content_snippet or "",
+                            url=item.url,
                         )
-                        if ai_result.tags:
+                        if ai_result.tags or ai_result.summary:
                             db.execute(
                                 sa_update(Article)
                                 .where(Article.url == item.url)
                                 .values(
+                                    ai_summary=ai_result.summary,
                                     ai_tags=ai_result.tags,
                                     ai_processed_at=datetime.now(timezone.utc),
                                 )
                             )
                     db.commit()
-                    logger.info(f"  AI tagged {len(new_items)} new articles")
+                    logger.info(f"  AI processed {len(new_items)} new articles (tags + summaries)")
 
                 # Update fetch log — success
                 log.finished_at = datetime.now(timezone.utc)

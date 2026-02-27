@@ -9,6 +9,8 @@ This file is the single place that decides which AI backend is active.
 The rest of the codebase just imports `ai_processor` and calls .process().
 """
 
+from typing import Optional
+
 from app.services.ai.base import BaseAIProcessor, AIProcessingResult
 from app.core.config import settings
 from app.utils.logger import get_logger
@@ -19,7 +21,7 @@ logger = get_logger(__name__)
 class PassthroughProcessor(BaseAIProcessor):
     """No-op fallback: returns null for all AI fields. No external calls."""
 
-    def process(self, title: str, content: str) -> AIProcessingResult:
+    def process(self, title: str, content: str, url: Optional[str] = None) -> AIProcessingResult:
         return AIProcessingResult(summary=None, tags=None, score=None)
 
 
