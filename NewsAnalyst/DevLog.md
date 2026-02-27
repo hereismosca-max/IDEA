@@ -5,6 +5,36 @@
 
 ---
 
+## 2026-02-27 · AI 标签提取上线 · OpenAIProcessor (GPT-4o-mini)
+
+### 本次完成
+- 实现 `OpenAIProcessor`：调用 GPT-4o-mini 对每篇文章做结构化事实提取
+- 标签结构：`entities`（公司/人物）/ `locations`（地区）/ `sectors`（行业）/ `topics`（事件类型）/ `scale`（影响范围）
+- 更新 `processor.py` 智能切换：有 `OPENAI_API_KEY` 用 OpenAI，无则降级为 Passthrough
+- 更新 `AIProcessingResult.tags` 类型从 `List[str]` 改为 `dict`（匹配 JSONB 存储）
+- 更新 `scheduler.py`：INSERT 时同时记录 `ai_processed_at` 时间戳
+- 更新 `ArticleResponse` schema：`ai_tags` 类型从 `list` 改为 `dict`
+- 新增 `scripts/backfill_ai_tags.py`：支持 `--limit` 和 `--dry-run` 的批量补标签脚本
+- 对数据库现有 313 篇文章执行 backfill，全部成功（0 失败）
+- 添加 `openai>=1.0.0` 依赖
+
+### 遇到的问题与修复
+- **JSONB + psycopg3 的 null 陷阱**：`None` 存入 JSONB 列时被 psycopg3 编码为 JSON `'null'`（而非 SQL `NULL`），导致 `Article.ai_tags.is_(None)` 过滤返回 0 条。修复：改用 `text("ai_tags IS NULL OR ai_tags::text = 'null'")` 同时覆盖两种情况。
+
+### 关键决策记录
+- **AI 只做事实提取，不做分析**：prompt 明确禁止市场预测和趋势判断，保证标签客观中立
+- **受控词汇表**：sectors 和 topics 使用固定词汇，防止 AI 自由发挥导致标签混乱
+- **`temperature=0` + JSON mode**：确保输出确定性和可解析性
+- **graceful fallback**：API 调用失败时返回空结果，文章照常保存，不中断抓取流程
+- **板块定义推迟**：先看全部文章的标签分布，再确定 MenuBar 的板块划分——这样板块是数据驱动的，而不是拍脑袋定的
+
+### 当前状态
+- 所有新抓取的文章都会自动经过 AI 打标签
+- 现有 313 篇历史文章已补全标签
+- 待办：Railway 环境变量加上 `OPENAI_API_KEY`；分析标签分布后确定板块方案；实现 MenuBar 分类联动
+
+---
+
 ## 2026-02-27 · 线上部署完成 · Railway + Vercel 上线
 
 ### 本次完成
