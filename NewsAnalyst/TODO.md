@@ -58,26 +58,37 @@
 
 ---
 
-## 📋 Phase 2 · 基础功能完善（待启动）
+## 🔨 Phase 2 · 基础功能完善（进行中）
 
+### AI 标签系统
+- [x] AI 服务商选定（OpenAI GPT-4o-mini）
+- [x] OpenAIProcessor 实现（结构化事实提取：entities / locations / sectors / topics / scale）
+- [x] 调度器优化：只对新增文章调用 AI，避免重复处理
+- [x] 历史文章 backfill（313 篇全部打标签）
+- [ ] 分析标签分布，确定 MenuBar 板块方案
+- [ ] MenuBar 分类筛选真实联动（基于 AI 标签）
+
+### 日期导航
+- [x] 后端 `/articles?date=YYYY-MM-DD` 按 UTC 日期过滤
+- [x] DateNavigator 组件（← 日期标签 → 箭头导航）
+- [x] 日历弹窗（react-day-picker v9，未来日期禁用）
+- [x] NewsFeed 按日切换，加载到底停止，显示"End of articles for this day"
+
+### 待完成
+- [ ] 搜索功能
 - [ ] 前端登录 / 注册页面
 - [ ] 用户收藏新闻功能
-- [ ] 分类筛选联动
-- [ ] 搜索功能
-- [ ] 无限滚动 / 分页
 - [ ] 抓取日志管理页
 - [ ] 移动端响应式适配
 - [ ] 错误处理与友好提示
 
 ---
 
-## 🤖 Phase 3 · AI接入（待启动）
+## 🤖 Phase 3 · AI 深度接入（待启动）
 
-- [ ] 选定AI服务商
-- [ ] 替换AI占位层
-- [ ] 自动摘要
-- [ ] 自动分类标签
-- [ ] 重要性评分
+- [ ] 自动摘要（AI 生成客观摘要替换 content_snippet）
+- [ ] 重要性评分（填入 ai_score）
+- [ ] 基于标签的智能推荐
 
 ---
 
@@ -90,4 +101,4 @@
 
 ---
 
-_最后更新：2026-02-27（Phase 1 全部完成！Railway + Vercel 线上端到端验证通过）_
+_最后更新：2026-02-27（Phase 2 进行中：AI 标签系统 + 日期导航完成）_

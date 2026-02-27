@@ -5,6 +5,27 @@
 
 ---
 
+## 2026-02-27 · 日期导航功能上线 · DateNavigator + 按日过滤
+
+### 本次完成
+- 后端 `GET /articles` 新增 `?date=YYYY-MM-DD` 参数，按 UTC 日历天过滤文章
+- 新建 `DateNavigator` 组件：← 上一天 / 日期标签 / → 下一天箭头导航
+- 日期标签点击弹出 react-day-picker v9 日历，可选年月日，未来日期禁用
+- 点击日历外部自动关闭弹窗
+- `NewsFeed` 接受 `date` prop，切换日期时清空重载，到底显示"End of articles for this day"
+- 无该日文章时显示"No articles found for this date"友好提示
+- `HomeFeed` 作为 client wrapper 管理日期状态，`page.tsx` 保持 Server Component 身份
+
+### 遇到的问题与修复
+- `git add` 对含方括号的路径（`[locale]`）需要加引号，否则 shell glob 展开失败
+
+### 关键决策记录
+- **UTC 日期过滤**：`published_at` 存储为 UTC，前端用 `toUTCDateString()` 转换保持一致性；时区问题留 Phase 3 处理
+- **每天到底就停**：`has_next: false` 时不显示"Load more"，自然截止；底部加分割线提示用户已到当天末尾
+- **不可选未来**：日历和右箭头双重限制，体验一致
+
+---
+
 ## 2026-02-27 · AI 标签提取上线 · OpenAIProcessor (GPT-4o-mini)
 
 ### 本次完成
