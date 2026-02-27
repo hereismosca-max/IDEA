@@ -24,9 +24,9 @@ class ArticleResponse(BaseModel):
     language: str
     source: SourceBrief
 
-    # AI fields — null until Phase 3
+    # AI fields — structured tags extracted by OpenAIProcessor
     ai_summary: Optional[str] = None
-    ai_tags: Optional[list] = None
+    ai_tags: Optional[dict] = None   # {"entities":[], "locations":[], "sectors":[], "topics":[], "scale":""}
     ai_score: Optional[float] = None
 
     model_config = {"from_attributes": True}

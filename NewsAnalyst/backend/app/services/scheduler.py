@@ -61,6 +61,9 @@ def run_fetch_job():
                     )
 
                     # Use INSERT ... ON CONFLICT DO NOTHING to safely skip duplicates
+                    ai_processed_at = (
+                        datetime.now(timezone.utc) if ai_result.tags else None
+                    )
                     stmt = (
                         pg_insert(Article)
                         .values(
@@ -75,6 +78,7 @@ def run_fetch_job():
                             ai_summary=ai_result.summary,
                             ai_tags=ai_result.tags,
                             ai_score=ai_result.score,
+                            ai_processed_at=ai_processed_at,
                         )
                         .on_conflict_do_nothing(index_elements=["url"])
                     )
