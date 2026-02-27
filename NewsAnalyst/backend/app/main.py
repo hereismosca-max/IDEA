@@ -58,3 +58,14 @@ def root():
 @app.get("/health", tags=["health"])
 def health():
     return {"status": "healthy", "env": settings.APP_ENV}
+
+
+@app.get("/debug/email-config", tags=["health"])
+def debug_email_config():
+    """Temporary: check whether email env vars are loaded (does NOT expose key value)."""
+    return {
+        "RESEND_API_KEY_set": bool(settings.RESEND_API_KEY),
+        "RESEND_API_KEY_prefix": settings.RESEND_API_KEY[:6] + "..." if settings.RESEND_API_KEY else None,
+        "EMAIL_FROM": settings.EMAIL_FROM,
+        "FRONTEND_BASE_URL": settings.FRONTEND_BASE_URL,
+    }
