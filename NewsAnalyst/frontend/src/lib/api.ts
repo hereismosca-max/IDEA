@@ -1,4 +1,4 @@
-import { ArticleListResponse, TokenResponse } from '@/types';
+import { Article, ArticleListResponse, TokenResponse } from '@/types';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
@@ -40,6 +40,10 @@ export function fetchArticles(params: FetchArticlesParams = {}): Promise<Article
     ...(date        ? { date }           : {}),
   });
   return request(`/api/v1/articles?${query}`);
+}
+
+export function fetchArticle(id: string): Promise<Article> {
+  return request(`/api/v1/articles/${id}`);
 }
 
 // ── Auth ──────────────────────────────────────────────────────────────────────

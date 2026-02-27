@@ -7,6 +7,14 @@ export interface Source {
   language: string;
 }
 
+export interface AiTags {
+  entities?: string[];
+  locations?: string[];
+  sectors?: string[];
+  topics?: string[];
+  scale?: string | null;
+}
+
 export interface Article {
   id: string;
   title: string;
@@ -16,9 +24,8 @@ export interface Article {
   fetched_at: string;
   language: string;
   source: Source;
-  // AI fields — null until Phase 3
   ai_summary: string | null;
-  ai_tags: string[] | null;
+  ai_tags: AiTags | null;
   ai_score: number | null;
 }
 

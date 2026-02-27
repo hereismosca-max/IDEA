@@ -1,3 +1,7 @@
+'use client';
+
+import Link from 'next/link';
+import { useLocale } from 'next-intl';
 import { Article } from '@/types';
 
 interface NewsCardProps {
@@ -15,14 +19,14 @@ function timeAgo(dateStr: string): string {
 }
 
 export default function NewsCard({ article }: NewsCardProps) {
+  const locale = useLocale();
+
   // Show AI summary if available, otherwise fall back to raw snippet
   const displayText = article.ai_summary || article.content_snippet;
 
   return (
-    <a
-      href={article.url}
-      target="_blank"
-      rel="noopener noreferrer"
+    <Link
+      href={`/${locale}/article/${article.id}`}
       className="block bg-white border border-gray-200 rounded-lg p-4 hover:border-gray-400 hover:shadow-sm transition-all group"
     >
       {/* Source + Time */}
@@ -56,6 +60,6 @@ export default function NewsCard({ article }: NewsCardProps) {
           </div>
         </div>
       )}
-    </a>
+    </Link>
   );
 }
