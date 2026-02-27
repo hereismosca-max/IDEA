@@ -30,8 +30,9 @@
 │                                                          │
 │  ┌───────────────────────────────┐                       │
 │  │        新闻抓取模块            │                       │
-│  │  Reuters │ CNBC │ AP News     │                       │
-│  │  Yahoo Finance │ MarketWatch  │                       │
+│  │  Financial Times │ CNBC       │                       │
+│  │  BBC Business │ Yahoo Finance │                       │
+│  │  MarketWatch                  │                       │
 │  └───────────────────────────────┘                       │
 └─────────────────────┬───────────────────────────────────┘
                       │ SQLAlchemy ORM
@@ -141,31 +142,31 @@ news-aggregator/                    ← GitHub仓库根目录
 
 ## 开发阶段规划 Development Roadmap
 
-### Phase 1 · 地基 Foundation（第1-3周）
+### Phase 1 · 地基 Foundation ✅ 已完成（2026-02-27）
 > 目标：项目可以跑起来，能抓到新闻并在页面上展示
 
 **后端**
-- [ ] 项目初始化，目录结构搭建
-- [ ] 数据库全部表结构创建（含迁移脚本）
-- [ ] 用户认证系统（注册 / 登录 / JWT）
-- [ ] RSS抓取器（5个来源，插件式）
-- [ ] APScheduler定时调度（每6小时）
-- [ ] 基础API接口（获取新闻列表、单篇详情）
-- [ ] AI占位层接口搭建
+- [x] 项目初始化，目录结构搭建
+- [x] 数据库全部表结构创建（含迁移脚本）
+- [x] 用户认证系统（注册 / 登录 / JWT）
+- [x] RSS抓取器（5个来源，插件式）
+- [x] APScheduler定时调度（每6小时）
+- [x] 基础API接口（获取新闻列表、单篇详情）
+- [x] AI占位层接口搭建
 
 **前端**
-- [ ] Next.js项目初始化（含i18n配置）
-- [ ] TopBar组件
-- [ ] MenuBar组件（分类tabs，placeholder）
-- [ ] NewsCard组件
-- [ ] NewsFeed组件（分页加载）
-- [ ] 前后端本地联调跑通
+- [x] Next.js项目初始化（含i18n配置）
+- [x] TopBar组件
+- [x] MenuBar组件（分类tabs，placeholder）
+- [x] NewsCard组件
+- [x] NewsFeed组件（分页加载）
+- [x] 前后端本地联调跑通
 
 **部署**
-- [ ] 部署后端至 Railway
-- [ ] 部署前端至 Vercel
-- [ ] 配置 Supabase Pro 数据库
-- [ ] 线上环境联调验证
+- [x] 部署后端至 Railway（https://idea-production.up.railway.app）
+- [x] 部署前端至 Vercel（https://idea-brown.vercel.app）
+- [x] 配置 Supabase Pro 数据库
+- [x] 线上环境联调验证
 
 ---
 

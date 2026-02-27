@@ -2,9 +2,11 @@
 
 Economic & Financial News Aggregator and Analyst
 
+**Live:** https://idea-brown.vercel.app | **API:** https://idea-production.up.railway.app/docs
+
 ## Overview
 
-NewsAnalyst aggregates financial news from top English-language sources (Reuters, CNBC, AP News, Yahoo Finance, MarketWatch), filters relevant content, and presents objective summaries — cutting through clickbait to deliver real economic intelligence.
+NewsAnalyst aggregates financial news from top English-language sources (Financial Times, CNBC, BBC Business, Yahoo Finance, MarketWatch), filters relevant content, and presents objective summaries — cutting through clickbait to deliver real economic intelligence.
 
 ## Project Structure
 
@@ -53,8 +55,16 @@ API docs available at: `http://localhost:8000/docs`
 
 ## Deployment
 
-| Service | Provider | Cost |
-|---------|----------|------|
-| Frontend | Vercel | Free |
-| Backend | Railway | ~$10/mo |
-| Database | Supabase Pro | $25/mo |
+| Service | Provider | URL | Cost |
+|---------|----------|-----|------|
+| Frontend | Vercel | https://idea-brown.vercel.app | Free |
+| Backend | Railway | https://idea-production.up.railway.app | ~$10/mo |
+| Database | Supabase Pro | — | $25/mo |
+
+## Current Status
+
+**v0.1.0** — Phase 1 complete (2026-02-27)
+- 5 news sources fetching every 6 hours (164+ articles)
+- REST API with pagination
+- Basic frontend with news card grid
+- Full deployment live

@@ -147,8 +147,8 @@ backend/app/
 ## 环境变量说明 Environment Variables
 
 ```
-# 数据库
-DATABASE_URL=postgresql://user:password@host:port/dbname
+# 数据库（使用 psycopg3，注意前缀为 postgresql+psycopg://）
+DATABASE_URL=postgresql+psycopg://user:password@host:port/dbname?sslmode=require
 
 # JWT认证
 JWT_SECRET_KEY=your_secret_key_here
@@ -165,4 +165,4 @@ OPENAI_API_KEY=
 
 ---
 
-_最后更新：2026-02-26_
+_最后更新：2026-02-27（v0.1.0 发布，更新 psycopg3 连接串说明）_
