@@ -5,6 +5,58 @@
 
 ---
 
+## 2026-02-26 · 本地联调完成 · 后端全链路打通
+
+### 本次完成
+- 修复 `email-validator` 缺失：pydantic `EmailStr` 需要此包，加入 `requirements.txt`（改为 `pydantic[email]>=2.10.0`）
+- 修复 macOS Python SSL 证书：feedparser 请求 HTTPS RSS 时 SSL 验证失败，运行 `Install Certificates.command` 解决
+- 替换失效新闻来源：Reuters（`feeds.reuters.com` 2023年停用）→ Financial Times；AP News（rsshub 403）→ BBC Business；同步更新 DB、`registry.py`、`seed.py`
+- 修复调度器重复插入 Bug：改用 `INSERT ... ON CONFLICT DO NOTHING`（PostgreSQL `pg_insert`），替代应用层 select-then-insert
+- 本地成功启动后端（uvicorn port 8000）+ 前端（Next.js port 3000）
+- 抓取验证：5个来源共 164 篇文章入库，API 正常响应
+
+### 遇到的问题与修复
+- **email-validator 缺失** → `pydantic[email]>=2.10.0` + `email-validator>=2.0.0`
+- **macOS SSL 证书** → `Install Certificates.command`
+- **Reuters / AP News RSS 失效** → Financial Times + BBC Business
+- **调度器 PendingRollbackError** → `pg_insert().on_conflict_do_nothing()`
+
+### 关键决策记录
+- **`ON CONFLICT DO NOTHING` 替代 exists 检查**：DB 层原子操作，避免应用层竞态条件
+
+### 下一步
+- 验证前端渲染新闻卡片（http://localhost:3000）
+- 验证 API 文档（http://localhost:8000/docs）
+
+---
+
+## 2026-02-26 · 数据库上线 · 种子数据写入
+
+### 本次完成
+- 创建 Supabase Pro 项目，获取 DATABASE_URL
+- 解决 Python 3.13 依赖问题：`psycopg2-binary` 无预编译轮子，改用 `psycopg[binary]>=3.2.0`（psycopg3），URL 前缀同步改为 `postgresql+psycopg://`
+- 解决 pydantic 兼容问题：所有依赖从固定版本改为 `>=` 最低版本约束
+- 补全遗漏文件 `alembic/script.py.mako`（项目骨架阶段漏写）
+- 执行 `alembic revision --autogenerate -m "init"`，成功检测并生成 7 张表的迁移脚本
+- 执行 `alembic upgrade head`，在 Supabase 上完成建表
+- 执行 `python scripts/seed.py`，写入 5 个新闻来源 + 7 个分类标签
+
+### 遇到的问题
+- **Supabase 直连地址（`db.xxx.supabase.co`）IPv6-only**：本机网络（Visitor WiFi）的 DPI 策略屏蔽了 PostgreSQL 协议数据，TCP 握手通但数据包超时。切换到普通网络后，改用 Session Pooler URL（`aws-1-us-west-1.pooler.supabase.com:5432`）解决。
+- **`alembic/script.py.mako` 缺失**：骨架阶段只创建了目录结构，未写入 Alembic 迁移模板文件，已补全。
+
+### 关键决策记录
+- **切换至 Session Pooler 连接串**：Supabase 直连地址（`db.xxx.supabase.co`）为 IPv6-only，Session Pooler（`pooler.supabase.com`）支持 IPv4，兼容性更好，后续 Railway 部署也推荐使用此地址。
+
+### 下一步
+- 填写 `frontend/.env.local`（NEXT_PUBLIC_API_URL=http://localhost:8000）
+- 安装前端依赖（`npm install`）
+- 本地启动后端（`uvicorn app.main:app --reload`）
+- 本地启动前端（`npm run dev`）
+- 验证 API 文档与新闻抓取
+
+---
+
 ## 2026-02-26 · 项目启动 Project Kickoff
 
 ### 本次完成

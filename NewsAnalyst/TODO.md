@@ -30,25 +30,25 @@
 - [x] 日志系统（utils/logger.py，统一格式）
 - [x] 前端核心组件（TopBar / MenuBar / NewsCard / NewsFeed）
 - [x] i18n 配置（middleware + next-intl + en.json + zh.json）
+- [x] 创建 Supabase Pro 项目，获取 DATABASE_URL
+- [x] 填写 `backend/.env`（DATABASE_URL + JWT_SECRET_KEY）
+- [x] 安装 Python 依赖（`pip install -r requirements.txt`）
+- [x] 生成 Alembic 初始迁移（`alembic revision --autogenerate -m "init"`）
+- [x] 执行迁移，创建所有表（`alembic upgrade head`）
+- [x] 插入种子数据（5个新闻来源 + 7个分类标签）
 
 ---
 
 ## 🔨 Phase 1 · 地基（当前阶段）
 
-### ⬇️ 下一步：数据库配置与本地启动
-- [ ] 创建 Supabase Pro 项目，获取 DATABASE_URL
-- [ ] 填写 `backend/.env`（DATABASE_URL + JWT_SECRET_KEY）
-- [ ] 安装 Python 依赖（`pip install -r requirements.txt`）
-- [ ] 生成 Alembic 初始迁移（`alembic revision --autogenerate -m "init"`）
-- [ ] 执行迁移，创建所有表（`alembic upgrade head`）
-- [ ] 插入种子数据（5个新闻来源 + 7个分类标签）
-- [ ] 填写 `frontend/.env.local`（NEXT_PUBLIC_API_URL）
-- [ ] 安装前端依赖（`npm install`）
-- [ ] 本地启动后端（`uvicorn app.main:app --reload`）
-- [ ] 本地启动前端（`npm run dev`）
-- [ ] 验证后端 API 文档（http://localhost:8000/docs）
-- [ ] 验证新闻抓取任务正常运行（查看 FetchLog）
-- [ ] 验证前端能正常渲染新闻卡片
+### ⬇️ 下一步：验证与部署
+- [x] 填写 `frontend/.env.local`（NEXT_PUBLIC_API_URL=http://localhost:8000）
+- [x] 安装前端依赖（`npm install`）
+- [x] 本地启动后端（`uvicorn app.main:app --reload`）— 164篇文章抓取成功
+- [x] 本地启动前端（`npm run dev`）
+- [x] 验证后端 API 文档（http://localhost:8000/docs）
+- [x] 验证新闻抓取任务正常运行（5来源 164篇文章入库）
+- [x] 验证前端能正常渲染新闻卡片 ✅
 
 ### 部署
 - [ ] 部署后端至 Railway（配置环境变量）
@@ -89,4 +89,4 @@
 
 ---
 
-_最后更新：2026-02-26_
+_最后更新：2026-02-26（数据库上线，种子数据写入完成）_

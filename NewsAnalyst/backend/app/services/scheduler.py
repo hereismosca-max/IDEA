@@ -1,7 +1,9 @@
+import uuid
 from datetime import datetime, timezone
 
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.interval import IntervalTrigger
+from sqlalchemy.dialects.postgresql import insert as pg_insert
 
 from app.core.config import settings
 from app.utils.logger import get_logger
@@ -53,29 +55,32 @@ def run_fetch_job():
                 new_count = 0
 
                 for item in fetched:
-                    # Skip duplicates (url is unique index)
-                    exists = db.query(Article).filter(Article.url == item.url).first()
-                    if exists:
-                        continue
-
                     # AI processing (passthrough for Phase 1/2)
                     ai_result = ai_processor.process(
                         item.title, item.content_snippet or ""
                     )
 
-                    article = Article(
-                        source_id=source.id,
-                        title=item.title,
-                        url=item.url,
-                        content_snippet=item.content_snippet,
-                        published_at=item.published_at,
-                        language=item.language,
-                        ai_summary=ai_result.summary,
-                        ai_tags=ai_result.tags,
-                        ai_score=ai_result.score,
+                    # Use INSERT ... ON CONFLICT DO NOTHING to safely skip duplicates
+                    stmt = (
+                        pg_insert(Article)
+                        .values(
+                            id=uuid.uuid4(),
+                            source_id=source.id,
+                            title=item.title,
+                            url=item.url,
+                            content_snippet=item.content_snippet,
+                            published_at=item.published_at,
+                            language=item.language,
+                            is_active=True,
+                            ai_summary=ai_result.summary,
+                            ai_tags=ai_result.tags,
+                            ai_score=ai_result.score,
+                        )
+                        .on_conflict_do_nothing(index_elements=["url"])
                     )
-                    db.add(article)
-                    new_count += 1
+                    result = db.execute(stmt)
+                    if result.rowcount > 0:
+                        new_count += 1
 
                 db.commit()
 
@@ -92,6 +97,7 @@ def run_fetch_job():
 
             except Exception as e:
                 logger.error(f"✗ {source.name}: fetch failed — {e}")
+                db.rollback()
                 log.status = "failed"
                 log.error_message = str(e)
                 log.finished_at = datetime.now(timezone.utc)

@@ -13,9 +13,9 @@ Fields:
 
 NEWS_SOURCES = [
     {
-        "name": "Reuters",
-        "rss_url": "https://feeds.reuters.com/reuters/businessNews",
-        "base_url": "https://www.reuters.com",
+        "name": "Financial Times",
+        "rss_url": "https://www.ft.com/rss/home/uk",
+        "base_url": "https://www.ft.com",
         "language": "en",
     },
     {
@@ -25,9 +25,9 @@ NEWS_SOURCES = [
         "language": "en",
     },
     {
-        "name": "AP News",
-        "rss_url": "https://rsshub.app/apnews/topics/financial-markets",
-        "base_url": "https://apnews.com",
+        "name": "BBC Business",
+        "rss_url": "https://feeds.bbci.co.uk/news/business/rss.xml",
+        "base_url": "https://www.bbc.com/news/business",
         "language": "en",
     },
     {
