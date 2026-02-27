@@ -61,15 +61,19 @@ def _send(*, to: str, subject: str, html: str) -> None:
         )
         return
     resend.api_key = settings.RESEND_API_KEY
-    resend.Emails.send(
-        {
-            "from": settings.EMAIL_FROM,
-            "to": [to],
-            "subject": subject,
-            "html": html,
-        }
-    )
-    logger.info("Email sent to %s — %s", to, subject)
+    try:
+        result = resend.Emails.send(
+            {
+                "from": settings.EMAIL_FROM,
+                "to": [to],
+                "subject": subject,
+                "html": html,
+            }
+        )
+        logger.info("Email sent to %s — %s | Resend id: %s", to, subject, getattr(result, "id", result))
+    except Exception as exc:
+        logger.error("Resend API error sending to %s: %s", to, exc)
+        raise  # re-raise so caller can handle/log
 
 
 def send_verification_email(to_email: str, token: str) -> None:
