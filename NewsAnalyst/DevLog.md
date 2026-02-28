@@ -5,6 +5,122 @@
 
 ---
 
+## 2026-02-28 · 邮箱验证 + 忘记密码功能上线 · v0.3.0 准备
+
+### 背景
+v0.2.0 上线后，用户希望：① 确保注册邮箱是真实存在的，防止随意填写假邮箱；② 新增忘记密码功能，让用户通过邮件找回账号。
+
+**策略：软性强制（Soft Enforcement）**
+- 注册/登录不受任何限制，降低注册摩擦
+- 投票等核心互动操作需先验证邮箱（后端返回 `403 email_not_verified`）
+- 邮件服务选用 **Resend**（现代 API，免费 3000 封/月，`pip install resend`）
+- 本地无 API key 时优雅降级：记录 warning，跳过发送，注册照常成功
+
+### 后端变更
+
+**数据库（User 模型新增 5 个字段）**
+- `email_verified`（bool, default=False）
+- `email_verification_token` / `email_verification_expires_at`（24 小时有效）
+- `password_reset_token` / `password_reset_expires_at`（1 小时有效）
+- Alembic 迁移：`add_email_verification_and_password_reset_fields_to_users`
+  - 注意：autogenerate 时产生了多余的 `drop_index` 操作（手动建表遗留 index 未被追踪），手动删除后再运行 `upgrade head`
+
+**新增 `app/core/email.py`**
+- `_send()` 内部函数：无 API key → warning + 跳过；有 key → Resend API 发送；失败则 re-raise，不静默吞掉错误
+- `send_verification_email()` + `send_password_reset_email()`，HTML 模板邮件
+
+**`app/core/config.py` 新增三个设置**
+- `RESEND_API_KEY`、`EMAIL_FROM`（默认 `onboarding@resend.dev`）、`FRONTEND_BASE_URL`
+
+**`auth.py` 新增 4 个端点**
+- `POST /register`（更新）：生成验证 token，异步发送验证邮件（try/except 包裹，邮件失败不阻断注册）
+- `POST /verify-email`（公开）：验证 token，设置 `email_verified=True`，清除 token
+- `POST /resend-verification`（需认证）：重新生成 token 并重发
+- `POST /forgot-password`（公开）：生成重置 token，**始终返回 200**（防止攻击者枚举邮箱）
+- `POST /reset-password`（公开）：验证重置 token，更新密码 hash，清除 token
+
+**`votes.py` 更新**
+- 投票前检查 `current_user.email_verified`，否则 `raise HTTPException(403, "email_not_verified")`
+
+### 前端变更
+
+**`src/lib/api.ts`**：新增 `verifyEmail / resendVerification / forgotPassword / resetPassword` 四个函数；改进错误处理，从 `detail` 字段提取后端错误信息
+
+**`src/types/index.ts`**：`User` 新增 `email_verified: boolean`；新增 `MessageResponse` 接口
+
+**新增页面**
+- `verify-email/page.tsx`：读取 URL `?token`，自动调用 API，三态展示（loading → 成功/失败）
+- `forgot-password/page.tsx`：邮箱输入 + 提交后始终显示安全成功提示
+- `reset-password/page.tsx`：新密码 + 确认密码，验证 token，成功后跳转登录
+
+**更新页面**
+- `register/page.tsx`：注册成功后展示"请查收邮件"提示，不再直接跳转首页
+- `login/page.tsx`：密码行旁边新增"Forgot password?"链接
+
+**`VoteButtons.tsx`**：捕获 `email_not_verified` 错误时展示 amber 色内联提示框，含"Resend email"按钮和"Already verified?"链接
+
+### 遇到的问题与调试
+
+**问题：发验证邮件后收不到**
+- 表现：API 调用成功（Resend 返回 email id），但收件箱没有邮件
+- 诊断：添加临时 `/debug/email-config` 端点，确认 Railway 上 `RESEND_API_KEY` 已正确配置（`re_A9o...` 前缀），排除 key 未设置的可能
+- 根本原因：`onboarding@resend.dev` 是 Resend 的共享测试发件地址，**只能向 Resend 账号注册时使用的邮箱发送**，发给其他地址时 Resend 静默丢弃（不报错）
+- 另外发现：`newsanalyst.com` 域名早在 1999 年已被他人注册，无法配置 DNS，因此无法用 `@newsanalyst.com` 作发件域名
+
+**解决方案（分阶段）**
+- 测试阶段：用 Resend 账号邮箱注册 NewsAnalyst，可正常收到所有邮件，功能验证完整
+- 上线前：购买新域名 → Resend 控制台添加域名并配置 DNS（DKIM + SPF + DMARC）→ 更新 Railway `EMAIL_FROM` 环境变量，**无需改任何代码**
+
+### 关键决策记录
+- **软性强制**：不强制"验证后才能登录"，降低注册摩擦；投票/互动需验证，有足够激励驱动用户完成验证
+- **邮件失败不阻断注册**：邮件服务故障不导致注册失败，用户可通过"重新发送"补救
+- **忘记密码始终返回 200**：防止攻击者通过请求结果判断某邮箱是否已注册（用户枚举攻击）
+- **临时 debug 端点**：确认配置后立即删除，不留在生产代码中
+
+### 当前状态
+- 邮箱验证全流程（注册 → 邮件 → 验证页 → 投票解锁）使用 Resend 账号邮箱验证通过
+- 忘记/重置密码全流程验证通过
+- 投票未验证提示在前端正常显示
+- Railway + Vercel 通过 git push 自动重部署完成
+
+---
+
+## 2026-02-28 · Bug 修复：passlib 兼容性 + Alembic 空迁移
+
+### 背景
+v0.2.0 上线后发现两个生产问题：
+1. 文章详情页崩溃（`UndefinedTable: article_votes` 报错），投票功能完全不可用
+2. 用户登录 / 注册报错（`ValueError: password cannot be longer than 72 bytes`）
+
+### 修复 1：Alembic 空迁移（article_votes 表缺失）
+
+**根本原因**：`alembic revision --autogenerate` 生成了只有 `pass` 的空迁移，因为 `ArticleVote` 模型没有在 `app/models/__init__.py` 中 import，Alembic 扫描不到该模型，误以为没有变化。
+
+**修复步骤**：
+- `app/models/__init__.py` 补充 `from app.models.vote import ArticleVote`
+- 手动在 Supabase 通过 SQL 直接建 `article_votes` 表（紧急修复生产）
+- 将已生成的空迁移文件手动填入正确的 `op.create_table` DDL
+- 删除 autogenerate 产生的多余 `drop_index` 操作后执行 `alembic upgrade head`
+
+### 修复 2：passlib + bcrypt 5.0.0 不兼容
+
+**根本原因**：`passlib 1.7.4` 与 bcrypt 4.0+ 已有兼容问题，bcrypt 5.0.0 彻底报错（`detect_wrap_bug` 中抛出 `ValueError`）。passlib 项目已多年未维护。
+
+**修复方式**：
+- `requirements.txt`：移除 `passlib[bcrypt]`，改为 `bcrypt>=4.0.0`
+- `app/core/security.py`：用 `bcrypt.hashpw` / `bcrypt.checkpw` 直接替换 `CryptContext`，API 接口不变，调用方无感知
+
+### 关键决策记录
+- **直接用 bcrypt 而非换 passlib 版本**：passlib 有历史负担且不再维护，直接调用 bcrypt 更轻量、更稳定
+- **Alembic 经验教训**：每次新增 model 文件后，必须在 `models/__init__.py` 中 import，否则 autogenerate 检测不到，生成空迁移
+
+### 当前状态
+- 文章详情页投票功能恢复正常
+- 注册 / 登录全链路恢复正常
+- Railway + Vercel 通过 git push 自动重部署完成
+
+---
+
 ## 2026-02-27 · 用户认证系统 + 文章投票功能上线 · Phase 1 Auth + Phase 2 Voting
 
 ### 背景

@@ -104,6 +104,26 @@
 - [x] `VoteButtons` 客户端组件（▲/▼，乐观更新，未登录跳转 /login）
 - [x] 文章详情页两栏布局（左侧 sticky VoteButtons + 右侧文章内容）
 
+### 邮箱验证 + 忘记密码（Email Verification + Password Reset）
+- [x] passlib 替换为 bcrypt 直接调用（兼容 bcrypt 5.0.0）
+- [x] Alembic 空迁移 Bug 修复（`ArticleVote` 未在 `models/__init__.py` import 导致表未生成）
+- [x] Resend 邮件服务接入（`app/core/email.py`，无 API key 时优雅降级）
+- [x] `app/core/config.py` 新增 `RESEND_API_KEY` / `EMAIL_FROM` / `FRONTEND_BASE_URL`
+- [x] User 模型新增 5 个字段（`email_verified` + 验证 token/过期时间 + 重置 token/过期时间）
+- [x] Alembic 迁移：`add_email_verification_and_password_reset_fields_to_users`
+- [x] 注册流程更新：生成验证 token，发送验证邮件（邮件失败不阻断注册）
+- [x] `POST /verify-email`：验证 token，设置 `email_verified=True`
+- [x] `POST /resend-verification`（需登录）：重新生成 token 并重发
+- [x] `POST /forgot-password`（公开）：生成重置 token，始终返回 200（安全）
+- [x] `POST /reset-password`（公开）：验证重置 token，更新密码
+- [x] 投票前检查 `email_verified`（403 `email_not_verified` → 前端提示）
+- [x] 前端：注册成功后展示"查收邮件"提示（不再直接跳转）
+- [x] 前端：登录页新增"Forgot password?"链接
+- [x] 前端：新增 `/verify-email` 页（自动读 token 验证，三态展示）
+- [x] 前端：新增 `/forgot-password` 页（邮箱输入 + 安全成功提示）
+- [x] 前端：新增 `/reset-password` 页（新密码 + 确认密码 + token 验证）
+- [x] `VoteButtons` 新增未验证提示框（amber 色，含 Resend email 按钮）
+
 ### 待完成
 - [ ] 搜索功能
 - [ ] 用户收藏新闻功能
@@ -130,4 +150,4 @@
 
 ---
 
-_最后更新：2026-02-27（Phase 2 进行中：AI 标签 + 日期导航 + MenuBar 筛选 + AI 摘要 + 文章详情页 + 用户认证 + 文章投票 完成）_
+_最后更新：2026-02-28（Phase 2 进行中：AI 标签 + 日期导航 + MenuBar 筛选 + AI 摘要 + 文章详情页 + 用户认证 + 文章投票 + 邮箱验证 + 忘记密码 完成，v0.3.0 准备中）_

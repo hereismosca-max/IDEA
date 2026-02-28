@@ -3,6 +3,7 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 import type { Article } from '@/types';
 import VoteButtons from '@/components/article/VoteButtons';
+import SaveButton from '@/components/article/SaveButton';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
@@ -85,14 +86,16 @@ export default async function ArticlePage({
       {/* Two-column layout: vote sidebar + article content */}
       <div className="flex gap-4 items-start">
 
-        {/* ── Vote sidebar ─────────────────────────────────────────────── */}
-        <div className="sticky top-20 flex-none">
+        {/* ── Vote + Save sidebar ───────────────────────────────────────── */}
+        <div className="sticky top-20 flex-none flex flex-col items-center gap-2">
           <VoteButtons
             articleId={article.id}
             initialUpvotes={article.upvotes ?? 0}
             initialDownvotes={article.downvotes ?? 0}
             initialUserVote={article.user_vote ?? null}
           />
+          <hr className="w-8 border-gray-200" />
+          <SaveButton articleId={article.id} />
         </div>
 
         {/* ── Article content ──────────────────────────────────────────── */}

@@ -6,8 +6,8 @@ from sqlalchemy.orm import Session, joinedload
 from typing import Optional
 
 from app.core.database import get_db
-from app.core.security import get_optional_user
-from app.models.article import Article
+from app.core.security import get_current_user, get_optional_user
+from app.models.article import Article, UserSavedArticle
 from app.models.vote import ArticleVote
 from app.models.user import User
 from app.schemas.article import ArticleListResponse, ArticleResponse
@@ -98,6 +98,39 @@ def get_articles(
         # Unknown slug → return empty result set rather than error
         else:
             query = query.filter(text("false"))
+
+    total = query.count()
+    items = query.offset((page - 1) * page_size).limit(page_size).all()
+
+    return ArticleListResponse(
+        items=items,
+        total=total,
+        page=page,
+        page_size=page_size,
+        has_next=(page * page_size) < total,
+    )
+
+
+@router.get("/saved", response_model=ArticleListResponse)
+def get_saved_articles(
+    page: int = Query(1, ge=1),
+    page_size: int = Query(20, ge=1, le=100),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """
+    Return a paginated list of the current user's saved articles,
+    ordered by saved_at descending (most recently saved first).
+    Must be defined BEFORE /{article_id} so FastAPI matches 'saved'
+    as a literal path segment, not as a UUID parameter.
+    """
+    query = (
+        db.query(Article)
+        .options(joinedload(Article.source))
+        .join(UserSavedArticle, UserSavedArticle.article_id == Article.id)
+        .filter(UserSavedArticle.user_id == current_user.id, Article.is_active == True)
+        .order_by(UserSavedArticle.saved_at.desc())
+    )
 
     total = query.count()
     items = query.offset((page - 1) * page_size).limit(page_size).all()

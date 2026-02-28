@@ -43,3 +43,7 @@ class ArticleListResponse(BaseModel):
     page: int
     page_size: int
     has_next: bool
+
+
+class SaveStatusResponse(BaseModel):
+    is_saved: bool

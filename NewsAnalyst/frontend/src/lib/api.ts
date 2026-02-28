@@ -1,4 +1,4 @@
-import { Article, ArticleListResponse, MessageResponse, TokenResponse, User, VoteCounts } from '@/types';
+import { Article, ArticleListResponse, MessageResponse, SaveStatus, TokenResponse, User, VoteCounts } from '@/types';
 import { getToken } from '@/lib/auth';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
@@ -124,6 +124,22 @@ export function resetPassword(
     method: 'POST',
     body: JSON.stringify({ token, new_password }),
   });
+}
+
+// ── Saves (bookmarks) ─────────────────────────────────────────────────────────
+
+export function toggleSave(articleId: string): Promise<SaveStatus> {
+  return request(`/api/v1/articles/${articleId}/save`, { method: 'POST' });
+}
+
+export function getSaveStatus(articleId: string): Promise<SaveStatus> {
+  return request(`/api/v1/articles/${articleId}/save`);
+}
+
+export function fetchSavedArticles(params: { page?: number; page_size?: number } = {}): Promise<ArticleListResponse> {
+  const { page = 1, page_size = 20 } = params;
+  const query = new URLSearchParams({ page: String(page), page_size: String(page_size) });
+  return request(`/api/v1/articles/saved?${query}`);
 }
 
 // ── Categories ────────────────────────────────────────────────────────────────

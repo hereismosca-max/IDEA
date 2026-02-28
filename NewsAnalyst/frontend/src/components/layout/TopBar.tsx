@@ -61,8 +61,15 @@ export default function TopBar() {
             // Skeleton while checking session
             <div className="h-8 w-20 bg-gray-100 rounded-md animate-pulse" />
           ) : user ? (
-            // Logged in: show display name + logout
+            // Logged in: show Saved link + display name + logout
             <div className="flex items-center gap-3">
+              <Link
+                href={`/${locale}/saved`}
+                className="text-sm text-gray-500 hover:text-gray-900 transition-colors"
+              >
+                Saved
+              </Link>
+              <span className="text-gray-300">|</span>
               <span className="text-sm font-medium text-gray-700">
                 {user.display_name}
               </span>

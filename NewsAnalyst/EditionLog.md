@@ -11,7 +11,7 @@
 |------|-----------|---------|------|
 | v0.1.0 | Phase 1 | 地基：新闻抓取 + 基础展示 + 用户认证后端 | ✅ 已发布 |
 | v0.2.0 | Phase 2 | AI分析 + 日期导航 + 分类筛选 + 用户认证 + 文章投票 | ✅ 已发布 |
-| v0.3.0 | Phase 2+ | 搜索 + 收藏 + 移动端适配 | 🔨 进行中 |
+| v0.3.0 | Phase 2+ | 邮箱验证 + 忘记密码 + 搜索 + 收藏 + 移动端适配 | 🔨 进行中 |
 | v1.0.0 | Phase 3+4 | AI 重要性评分 + 智能推荐 + 中文板块 | 📋 待启动 |
 
 ---
@@ -93,4 +93,42 @@
 
 ---
 
-_最后更新：2026-02-27（v0.2.0 发布）_
+## v0.3.0 · 进行中 — 2026-02-28 起
+
+**线上地址**
+- 前端：https://idea-brown.vercel.app
+- 后端 API：https://idea-production.up.railway.app
+
+**已完成（部分交付）**
+
+**Bug 修复**
+- passlib 替换为 bcrypt 直接调用，解决 bcrypt 5.0.0 兼容问题
+- 修复 Alembic 空迁移导致的 `article_votes` 表缺失（根因：`ArticleVote` 未在 `models/__init__.py` import）
+
+**邮箱验证系统**
+- 注册后自动发送验证邮件（Resend API，邮件失败不阻断注册）
+- `POST /verify-email`：Token 验证，设置 `email_verified=True`
+- `POST /resend-verification`：重新发送验证邮件（需登录）
+- 软性强制策略：登录不受限，投票等核心操作需先验证邮箱
+- 前端：注册成功 → "请查收邮件"提示页；`/verify-email` 验证落地页（三态）
+- `VoteButtons`：未验证时展示 amber 提示框 + 一键重发邮件
+
+**忘记密码 / 重置密码**
+- `POST /forgot-password`（公开）：生成重置 token，始终返回 200（防邮箱枚举）
+- `POST /reset-password`（公开）：验证 token，更新密码，清除 token（1 小时有效）
+- 前端：`/forgot-password` 表单页；`/reset-password` 新密码页
+- 登录页新增"Forgot password?"快捷入口
+
+**关键技术说明**
+- 邮件服务：Resend（`pip install resend`，免费 3000 封/月）
+- 测试阶段使用 `onboarding@resend.dev` 作为发件人，**只能向 Resend 账号注册邮箱发送**
+- 生产上线前需购买域名并在 Resend 控制台完成 DNS 验证（DKIM + SPF + DMARC），再更新 `EMAIL_FROM` 环境变量，无需改代码
+
+**待完成（本版本剩余）**
+- 搜索功能
+- 用户收藏新闻功能
+- 移动端响应式适配
+
+---
+
+_最后更新：2026-02-28（v0.3.0 进行中：邮箱验证 + 忘记密码 + bug 修复 完成）_

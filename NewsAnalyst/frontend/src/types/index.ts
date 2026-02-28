@@ -65,6 +65,10 @@ export interface User {
   created_at: string;
 }
 
+export interface SaveStatus {
+  is_saved: boolean;
+}
+
 export interface MessageResponse {
   message: string;
 }
