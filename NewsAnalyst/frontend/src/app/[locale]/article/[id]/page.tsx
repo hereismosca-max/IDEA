@@ -4,6 +4,7 @@ import type { Metadata } from 'next';
 import type { Article } from '@/types';
 import VoteButtons from '@/components/article/VoteButtons';
 import SaveButton from '@/components/article/SaveButton';
+import ShareButton from '@/components/article/ShareButton';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
@@ -12,12 +13,24 @@ const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 async function getArticle(id: string): Promise<Article | null> {
   try {
     const res = await fetch(`${API_BASE}/api/v1/articles/${id}`, {
-      next: { revalidate: 300 }, // revalidate every 5 min
+      next: { revalidate: 300 },
     });
     if (!res.ok) return null;
     return res.json();
   } catch {
     return null;
+  }
+}
+
+async function getRelatedArticles(id: string): Promise<Article[]> {
+  try {
+    const res = await fetch(`${API_BASE}/api/v1/articles/${id}/related?limit=5`, {
+      next: { revalidate: 300 },
+    });
+    if (!res.ok) return [];
+    return res.json();
+  } catch {
+    return [];
   }
 }
 
@@ -49,6 +62,16 @@ function formatDate(dateStr: string): string {
   }).format(new Date(dateStr));
 }
 
+function timeAgo(dateStr: string): string {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const minutes = Math.floor(diff / 60000);
+  if (minutes < 60) return minutes <= 1 ? 'Just now' : `${minutes}m ago`;
+  const hours = Math.floor(diff / 3600000);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  return `${days}d ago`;
+}
+
 function getDomain(url: string): string {
   try {
     return new URL(url).hostname.replace('www.', '');
@@ -64,7 +87,12 @@ export default async function ArticlePage({
 }: {
   params: { id: string; locale: string };
 }) {
-  const article = await getArticle(params.id);
+  // Fetch article + related in parallel
+  const [article, relatedArticles] = await Promise.all([
+    getArticle(params.id),
+    getRelatedArticles(params.id),
+  ]);
+
   if (!article) notFound();
 
   const tags = article.ai_tags;
@@ -99,101 +127,137 @@ export default async function ArticlePage({
         </div>
 
         {/* ── Article content ──────────────────────────────────────────── */}
-        <article className="flex-1 bg-white border border-gray-200 rounded-xl p-8 min-w-0">
+        <div className="flex-1 min-w-0 space-y-4">
+          <article className="bg-white border border-gray-200 rounded-xl p-8">
 
-          {/* Source + date */}
-          <div className="flex items-center gap-2 mb-4">
-            <span className="text-xs font-semibold text-blue-600 uppercase tracking-wide">
-              {article.source.name}
-            </span>
-            <span className="text-gray-300">·</span>
-            <span className="text-xs text-gray-400">{formatDate(article.published_at)}</span>
-          </div>
+            {/* Source + date + share */}
+            <div className="flex items-center justify-between gap-2 mb-4">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-semibold text-blue-600 uppercase tracking-wide">
+                  {article.source.name}
+                </span>
+                <span className="text-gray-300">·</span>
+                <span className="text-xs text-gray-400">{formatDate(article.published_at)}</span>
+              </div>
+              <ShareButton />
+            </div>
 
-          {/* Title */}
-          <h1 className="text-xl font-bold text-gray-900 leading-snug mb-6">
-            {article.title}
-          </h1>
+            {/* Title */}
+            <h1 className="text-xl font-bold text-gray-900 leading-snug mb-6">
+              {article.title}
+            </h1>
 
-          {/* Tags */}
-          {tags && (
-            <div className="mb-6 space-y-3">
-              {/* Sectors + Topics as pills */}
-              {((tags.sectors?.length ?? 0) > 0 || (tags.topics?.length ?? 0) > 0) && (
-                <div className="flex flex-wrap gap-2">
-                  {tags.sectors?.map((s) => (
-                    <span
-                      key={s}
-                      className="px-2.5 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-100"
-                    >
-                      {s}
-                    </span>
-                  ))}
-                  {tags.topics?.map((t) => (
-                    <span
-                      key={t}
-                      className="px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600"
-                    >
-                      {t.replace(/_/g, ' ')}
-                    </span>
-                  ))}
+            {/* Tags */}
+            {tags && (
+              <div className="mb-6 space-y-3">
+                {/* Sectors + Topics as pills */}
+                {((tags.sectors?.length ?? 0) > 0 || (tags.topics?.length ?? 0) > 0) && (
+                  <div className="flex flex-wrap gap-2">
+                    {tags.sectors?.map((s) => (
+                      <span
+                        key={s}
+                        className="px-2.5 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-100"
+                      >
+                        {s}
+                      </span>
+                    ))}
+                    {tags.topics?.map((t) => (
+                      <span
+                        key={t}
+                        className="px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600"
+                      >
+                        {t.replace(/_/g, ' ')}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                {/* Entities + Locations as metadata rows */}
+                <div className="text-xs text-gray-400 space-y-1">
+                  {(tags.entities?.length ?? 0) > 0 && (
+                    <p>
+                      <span className="font-medium text-gray-500">Companies / People: </span>
+                      {tags.entities!.join(', ')}
+                    </p>
+                  )}
+                  {(tags.locations?.length ?? 0) > 0 && (
+                    <p>
+                      <span className="font-medium text-gray-500">Locations: </span>
+                      {tags.locations!.join(', ')}
+                    </p>
+                  )}
+                  {tags.scale && (
+                    <p>
+                      <span className="font-medium text-gray-500">Scale: </span>
+                      {tags.scale}
+                    </p>
+                  )}
                 </div>
-              )}
+              </div>
+            )}
 
-              {/* Entities + Locations as metadata rows */}
-              <div className="text-xs text-gray-400 space-y-1">
-                {(tags.entities?.length ?? 0) > 0 && (
-                  <p>
-                    <span className="font-medium text-gray-500">Companies / People: </span>
-                    {tags.entities!.join(', ')}
-                  </p>
-                )}
-                {(tags.locations?.length ?? 0) > 0 && (
-                  <p>
-                    <span className="font-medium text-gray-500">Locations: </span>
-                    {tags.locations!.join(', ')}
-                  </p>
-                )}
-                {tags.scale && (
-                  <p>
-                    <span className="font-medium text-gray-500">Scale: </span>
-                    {tags.scale}
-                  </p>
-                )}
+            {/* Divider */}
+            <hr className="border-gray-100 mb-6" />
+
+            {/* Summary / Content */}
+            {bodyText ? (
+              <p className="text-sm text-gray-700 leading-relaxed">{bodyText}</p>
+            ) : (
+              <p className="text-sm text-gray-400 italic">No summary available for this article.</p>
+            )}
+
+            {/* Divider */}
+            <hr className="border-gray-100 mt-8 mb-6" />
+
+            {/* Source link card */}
+            <a
+              href={article.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-between p-4 rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-all group"
+            >
+              <div>
+                <p className="text-sm font-medium text-gray-800 group-hover:text-blue-700 transition-colors">
+                  Read original article
+                </p>
+                <p className="text-xs text-gray-400 mt-0.5">{getDomain(article.url)}</p>
+              </div>
+              <span className="text-gray-400 group-hover:text-blue-500 transition-colors text-lg">→</span>
+            </a>
+
+          </article>
+
+          {/* ── Related Articles ─────────────────────────────────────────── */}
+          {relatedArticles.length > 0 && (
+            <div className="bg-white border border-gray-200 rounded-xl p-6">
+              <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-4">
+                Related Articles
+              </h2>
+              <div className="divide-y divide-gray-100">
+                {relatedArticles.map((related) => (
+                  <Link
+                    key={related.id}
+                    href={`/${params.locale}/article/${related.id}`}
+                    className="flex items-start justify-between gap-4 py-3 first:pt-0 last:pb-0 group"
+                  >
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-800 line-clamp-2 group-hover:text-blue-700 transition-colors leading-snug">
+                        {related.title}
+                      </p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className="text-xs text-blue-500 font-medium">{related.source.name}</span>
+                        <span className="text-gray-300">·</span>
+                        <span className="text-xs text-gray-400">{timeAgo(related.published_at)}</span>
+                      </div>
+                    </div>
+                    <span className="text-gray-300 group-hover:text-blue-400 transition-colors text-sm flex-none mt-1">→</span>
+                  </Link>
+                ))}
               </div>
             </div>
           )}
 
-          {/* Divider */}
-          <hr className="border-gray-100 mb-6" />
-
-          {/* Summary / Content */}
-          {bodyText ? (
-            <p className="text-sm text-gray-700 leading-relaxed">{bodyText}</p>
-          ) : (
-            <p className="text-sm text-gray-400 italic">No summary available for this article.</p>
-          )}
-
-          {/* Divider */}
-          <hr className="border-gray-100 mt-8 mb-6" />
-
-          {/* Source link card */}
-          <a
-            href={article.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center justify-between p-4 rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-all group"
-          >
-            <div>
-              <p className="text-sm font-medium text-gray-800 group-hover:text-blue-700 transition-colors">
-                Read original article
-              </p>
-              <p className="text-xs text-gray-400 mt-0.5">{getDomain(article.url)}</p>
-            </div>
-            <span className="text-gray-400 group-hover:text-blue-500 transition-colors text-lg">→</span>
-          </a>
-
-        </article>
+        </div>
       </div>
     </div>
   );

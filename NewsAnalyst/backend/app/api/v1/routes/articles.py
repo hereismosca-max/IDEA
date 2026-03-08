@@ -3,7 +3,7 @@ from datetime import datetime, timezone, timedelta
 from fastapi import APIRouter, Depends, Query, HTTPException
 from sqlalchemy import or_, text, func
 from sqlalchemy.orm import Session, joinedload
-from typing import Optional
+from typing import List, Optional
 
 from app.core.database import get_db
 from app.core.security import get_current_user, get_optional_user
@@ -191,3 +191,54 @@ def get_article(
     response.downvotes = downvotes
     response.user_vote = user_vote
     return response
+
+
+@router.get("/{article_id}/related", response_model=List[ArticleResponse])
+def get_related_articles(
+    article_id: str,
+    limit: int = Query(5, ge=1, le=10),
+    db: Session = Depends(get_db),
+):
+    """
+    Return up to `limit` articles that share at least one sector or topic
+    with the given article, ordered by published_at descending.
+    Returns an empty list if no tags are available.
+    """
+    try:
+        import uuid as _uuid
+        article_uuid = _uuid.UUID(article_id)
+    except ValueError:
+        return []
+
+    article = db.query(Article).filter(Article.id == article_uuid).first()
+    if not article or not article.ai_tags:
+        return []
+
+    tags = article.ai_tags
+    sectors = tags.get("sectors", []) or []
+    topics  = tags.get("topics",  []) or []
+
+    # Build OR of JSONB containment checks for each matching tag
+    conditions = []
+    for s in sectors:
+        conditions.append(text(f"ai_tags->'sectors' @> '[\"{ s }\"]'::jsonb"))
+    for t in topics:
+        conditions.append(text(f"ai_tags->'topics' @> '[\"{ t }\"]'::jsonb"))
+
+    if not conditions:
+        return []
+
+    related = (
+        db.query(Article)
+        .options(joinedload(Article.source))
+        .filter(
+            Article.id != article_uuid,
+            Article.is_active == True,
+            or_(*conditions),
+        )
+        .order_by(Article.published_at.desc())
+        .limit(limit)
+        .all()
+    )
+
+    return [ArticleResponse.model_validate(a) for a in related]
