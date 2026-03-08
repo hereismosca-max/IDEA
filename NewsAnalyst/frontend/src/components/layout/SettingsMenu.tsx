@@ -7,10 +7,9 @@ import { useAuth } from '@/providers/AuthProvider';
 import { updateProfile } from '@/lib/api';
 
 // ── Settings menu (hamburger ≡) ────────────────────────────────────────────────
-// Only renders when the user is logged in.
-// Account section: display_name, email (read-only), bio, pronouns + Save button
-// Language section: Default / English (US) / Chinese (Simplified) radio picker
-//   → On change: saves preferred_lang to backend and navigates to the matching URL locale.
+// Visible to ALL users (guests + logged-in).
+// Language section: always available — guests navigate locale only; logged-in also saves to backend.
+// Account section: only shown when logged in.
 
 export default function SettingsMenu() {
   const { user, refreshUser } = useAuth();
@@ -34,7 +33,7 @@ export default function SettingsMenu() {
     return () => document.removeEventListener('mousedown', handler);
   }, [open]);
 
-  // ── Account form state ───────────────────────────────────────────────────
+  // ── Account form state (only used when logged in) ────────────────────────
   const [displayName, setDisplayName] = useState('');
   const [bio, setBio] = useState('');
   const [pronouns, setPronouns] = useState('');
@@ -43,16 +42,20 @@ export default function SettingsMenu() {
   // ── Language state ───────────────────────────────────────────────────────
   const [lang, setLang] = useState<'default' | 'en' | 'zh'>('default');
 
-  // Sync form fields with user data every time the menu opens
+  // Sync state whenever the menu opens
   useEffect(() => {
-    if (user && open) {
+    if (!open) return;
+    if (user) {
       setDisplayName(user.display_name);
       setBio(user.bio ?? '');
       setPronouns(user.pronouns ?? '');
       setLang((user.preferred_lang as 'default' | 'en' | 'zh') ?? 'default');
       setSaveStatus('idle');
+    } else {
+      // Guest: reflect current URL locale so the right radio appears selected
+      setLang(locale === 'en' ? 'en' : locale === 'zh' ? 'zh' : 'default');
     }
-  }, [user, open]);
+  }, [open, user, locale]);
 
   // ── Save account changes ─────────────────────────────────────────────────
   const handleSaveAccount = useCallback(async () => {
@@ -77,23 +80,24 @@ export default function SettingsMenu() {
   const handleLangChange = useCallback(
     async (newLang: 'default' | 'en' | 'zh') => {
       setLang(newLang);
-      try {
-        await updateProfile({ preferred_lang: newLang });
-        await refreshUser();
-      } catch { /* silent */ }
 
-      // Navigate to the matching URL locale
+      // Only save to backend when logged in
+      if (user) {
+        try {
+          await updateProfile({ preferred_lang: newLang });
+          await refreshUser();
+        } catch { /* silent */ }
+      }
+
+      // Navigate locale for everyone
       if (newLang === 'en' && locale !== 'en') router.push('/en');
       else if (newLang === 'zh' && locale !== 'zh') router.push('/zh');
       // 'default' → no forced navigation; board drives content language
 
       setOpen(false);
     },
-    [locale, router, refreshUser]
+    [user, locale, router, refreshUser]
   );
-
-  // Don't render for guests
-  if (!user) return null;
 
   // ── Save button label ────────────────────────────────────────────────────
   const saveLabel =
@@ -127,74 +131,78 @@ export default function SettingsMenu() {
       {open && (
         <div className="absolute right-0 top-full mt-2 w-72 bg-white border border-gray-200 rounded-xl shadow-xl z-50 overflow-hidden">
 
-          {/* ── Account section ─────────────────────────────────────────────── */}
-          <div className="px-4 pt-4 pb-3">
-            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3">
-              {t('account')}
-            </p>
+          {/* ── Account section — logged-in only ────────────────────────────── */}
+          {user && (
+            <>
+              <div className="px-4 pt-4 pb-3">
+                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3">
+                  {t('account')}
+                </p>
 
-            {/* Display name */}
-            <div className="mb-2.5">
-              <label className="block text-xs text-gray-500 mb-1">{t('displayName')}</label>
-              <input
-                value={displayName}
-                onChange={(e) => setDisplayName(e.target.value)}
-                className="w-full px-2.5 py-1.5 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-gray-400 bg-white"
-              />
-            </div>
+                {/* Display name */}
+                <div className="mb-2.5">
+                  <label className="block text-xs text-gray-500 mb-1">{t('displayName')}</label>
+                  <input
+                    value={displayName}
+                    onChange={(e) => setDisplayName(e.target.value)}
+                    className="w-full px-2.5 py-1.5 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-gray-400 bg-white"
+                  />
+                </div>
 
-            {/* Email (read-only) */}
-            <div className="mb-2.5">
-              <label className="block text-xs text-gray-500 mb-1">{t('email')}</label>
-              <input
-                value={user.email}
-                readOnly
-                tabIndex={-1}
-                className="w-full px-2.5 py-1.5 text-sm border border-gray-100 rounded-md bg-gray-50 text-gray-400 cursor-default select-all"
-              />
-            </div>
+                {/* Email (read-only) */}
+                <div className="mb-2.5">
+                  <label className="block text-xs text-gray-500 mb-1">{t('email')}</label>
+                  <input
+                    value={user.email}
+                    readOnly
+                    tabIndex={-1}
+                    className="w-full px-2.5 py-1.5 text-sm border border-gray-100 rounded-md bg-gray-50 text-gray-400 cursor-default select-all"
+                  />
+                </div>
 
-            {/* Bio */}
-            <div className="mb-2.5">
-              <label className="block text-xs text-gray-500 mb-1">{t('bio')}</label>
-              <textarea
-                value={bio}
-                onChange={(e) => setBio(e.target.value)}
-                rows={2}
-                placeholder="…"
-                className="w-full px-2.5 py-1.5 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-gray-400 resize-none bg-white"
-              />
-            </div>
+                {/* Bio */}
+                <div className="mb-2.5">
+                  <label className="block text-xs text-gray-500 mb-1">{t('bio')}</label>
+                  <textarea
+                    value={bio}
+                    onChange={(e) => setBio(e.target.value)}
+                    rows={2}
+                    placeholder="…"
+                    className="w-full px-2.5 py-1.5 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-gray-400 resize-none bg-white"
+                  />
+                </div>
 
-            {/* Pronouns */}
-            <div className="mb-4">
-              <label className="block text-xs text-gray-500 mb-1">{t('pronouns')}</label>
-              <input
-                value={pronouns}
-                onChange={(e) => setPronouns(e.target.value)}
-                placeholder={t('pronounsPlaceholder')}
-                className="w-full px-2.5 py-1.5 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-gray-400 bg-white"
-              />
-            </div>
+                {/* Pronouns */}
+                <div className="mb-4">
+                  <label className="block text-xs text-gray-500 mb-1">{t('pronouns')}</label>
+                  <input
+                    value={pronouns}
+                    onChange={(e) => setPronouns(e.target.value)}
+                    placeholder={t('pronounsPlaceholder')}
+                    className="w-full px-2.5 py-1.5 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-gray-400 bg-white"
+                  />
+                </div>
 
-            {/* Save button */}
-            <button
-              onClick={handleSaveAccount}
-              disabled={saveStatus === 'saving'}
-              className={`w-full py-1.5 text-sm font-semibold rounded-md transition-colors disabled:opacity-50 ${
-                saveStatus === 'saved'
-                  ? 'bg-emerald-600 text-white'
-                  : saveStatus === 'error'
-                  ? 'bg-red-500 text-white'
-                  : 'bg-gray-900 text-white hover:bg-gray-700'
-              }`}
-            >
-              {saveLabel}
-            </button>
-          </div>
+                {/* Save button */}
+                <button
+                  onClick={handleSaveAccount}
+                  disabled={saveStatus === 'saving'}
+                  className={`w-full py-1.5 text-sm font-semibold rounded-md transition-colors disabled:opacity-50 ${
+                    saveStatus === 'saved'
+                      ? 'bg-emerald-600 text-white'
+                      : saveStatus === 'error'
+                      ? 'bg-red-500 text-white'
+                      : 'bg-gray-900 text-white hover:bg-gray-700'
+                  }`}
+                >
+                  {saveLabel}
+                </button>
+              </div>
 
-          {/* Divider */}
-          <div className="border-t border-gray-100" />
+              {/* Divider between Account and Language */}
+              <div className="border-t border-gray-100" />
+            </>
+          )}
 
           {/* ── Language section ─────────────────────────────────────────────── */}
           <div className="px-4 pt-3 pb-4">

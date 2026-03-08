@@ -109,13 +109,16 @@ export default function TopBar() {
               </button>
             </div>
           ) : (
-            // Not logged in
-            <Link
-              href={`/${locale}/login`}
-              className="text-sm text-gray-600 hover:text-gray-900 border border-gray-200 px-3 py-1.5 rounded-md transition-colors hover:border-gray-400"
-            >
-              Sign In
-            </Link>
+            // Not logged in: Settings (language) + Sign In
+            <div className="flex items-center gap-2">
+              <SettingsMenu />
+              <Link
+                href={`/${locale}/login`}
+                className="text-sm text-gray-600 hover:text-gray-900 border border-gray-200 px-3 py-1.5 rounded-md transition-colors hover:border-gray-400"
+              >
+                Sign In
+              </Link>
+            </div>
           )}
         </div>
 
