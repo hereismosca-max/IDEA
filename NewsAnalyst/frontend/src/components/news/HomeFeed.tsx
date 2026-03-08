@@ -4,7 +4,6 @@ import { useState } from 'react';
 import DateNavigator from './DateNavigator';
 import NewsFeed from './NewsFeed';
 import SearchBar from './SearchBar';
-import SortPicker from './SortPicker';
 import MenuBar from '@/components/layout/MenuBar';
 
 /** Format a Date object as "YYYY-MM-DD" (UTC) for the API */
@@ -16,10 +15,9 @@ function toUTCDateString(date: Date): string {
 }
 
 export default function HomeFeed() {
-  const [selectedDate, setSelectedDate]     = useState<Date>(new Date());
+  const [selectedDate, setSelectedDate]         = useState<Date>(new Date());
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [search, setSearch]                 = useState('');
-  const [sort, setSort]                     = useState<'latest' | 'popular'>('latest');
+  const [search, setSearch]                     = useState('');
 
   const isSearching = search.trim().length > 0;
 
@@ -30,7 +28,8 @@ export default function HomeFeed() {
     <div>
       <MenuBar activeCategory={selectedCategory} onCategoryChange={setSelectedCategory} />
 
-      {/* ── Navigation row: [SearchBar] [DateNavigator] [SortPicker] ── */}
+      {/* ── Navigation row: [SearchBar] [DateNavigator] ── */}
+      {/* Right flex-1 spacer keeps DateNavigator visually centered */}
       <div className="flex items-center gap-3 px-4 border-b border-gray-100">
 
         {/* Left: search input — flex-1 */}
@@ -45,10 +44,8 @@ export default function HomeFeed() {
           disabled={isSearching}
         />
 
-        {/* Right: sort picker — flex-1, right-aligned */}
-        <div className="flex-1 flex justify-end py-2">
-          <SortPicker value={sort} onChange={setSort} />
-        </div>
+        {/* Right spacer — keeps DateNavigator centered (mirrors left flex-1) */}
+        <div className="flex-1" />
 
       </div>
 
@@ -57,7 +54,6 @@ export default function HomeFeed() {
         date={dateForFeed}
         category={selectedCategory}
         search={isSearching ? search.trim() : undefined}
-        sort={sort}
       />
     </div>
   );
