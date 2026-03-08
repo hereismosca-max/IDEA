@@ -11,12 +11,85 @@ interface NewsCardProps {
 
 function timeAgo(dateStr: string): string {
   const diff = Date.now() - new Date(dateStr).getTime();
-  const minutes = Math.floor(diff / 60000);
-  if (minutes < 60) return minutes <= 1 ? 'Just now' : `${minutes}m ago`;
-  const hours = Math.floor(diff / 3600000);
-  if (hours < 24) return `${hours}h ago`;
-  const days = Math.floor(hours / 24);
-  return `${days}d ago`;
+  if (diff < 0) return 'Just now';
+
+  const totalMins = Math.floor(diff / 60_000);
+  const totalHrs  = Math.floor(diff / 3_600_000);
+  const totalDays = Math.floor(diff / 86_400_000);
+
+  // Helper: pluralise units ("day"→"days", "week"→"weeks", etc.)
+  const pl = (n: number, unit: string) => `${n} ${unit}${n !== 1 ? 's' : ''}`;
+
+  // < 1 min
+  if (totalMins < 1) return 'Just now';
+
+  // 1–59 min → "X min ago"
+  if (totalMins < 60) return `${totalMins} min ago`;
+
+  // 1–23 h → "X h Y min ago"  (e.g. "23 h 39 min ago")
+  if (totalHrs < 24) {
+    const h = totalHrs;
+    const m = totalMins % 60;
+    return m > 0 ? `${h} h ${m} min ago` : `${h} h ago`;
+  }
+
+  // 1–6 days → "X days Y h Z min ago"  (e.g. "5 days 10 h 38 min ago")
+  if (totalDays < 7) {
+    const d = totalDays;
+    const h = totalHrs % 24;
+    const m = totalMins % 60;
+    let s = pl(d, 'day');
+    if (h > 0) s += ` ${h} h`;
+    if (m > 0) s += ` ${m} min`;
+    return s + ' ago';
+  }
+
+  // 1–3 weeks (7–27 days) → "X weeks Y days Z h W min ago"
+  // At 4 weeks (28 days) we switch to months.
+  if (totalDays < 28) {
+    const w = Math.floor(totalDays / 7);
+    const d = totalDays % 7;
+    const h = totalHrs % 24;
+    const m = totalMins % 60;
+    let s = pl(w, 'week');
+    if (d > 0) s += ` ${pl(d, 'day')}`;
+    if (h > 0) s += ` ${h} h`;
+    if (m > 0) s += ` ${m} min`;
+    return s + ' ago';
+  }
+
+  // 1–11 months (28–364 days) → "X months Y weeks Z days H h M min ago"
+  if (totalDays < 365) {
+    const mo = Math.max(1, Math.floor(totalDays / 30));
+    const remDays = Math.max(0, totalDays - mo * 30);
+    const w = Math.floor(remDays / 7);
+    const d = remDays % 7;
+    const h = totalHrs % 24;
+    const m = totalMins % 60;
+    let s = pl(mo, 'month');
+    if (w > 0) s += ` ${pl(w, 'week')}`;
+    if (d > 0) s += ` ${pl(d, 'day')}`;
+    if (h > 0) s += ` ${h} h`;
+    if (m > 0) s += ` ${m} min`;
+    return s + ' ago';
+  }
+
+  // ≥ 1 year → "X years Y months Z weeks D days H h M min ago"
+  const yr = Math.floor(totalDays / 365);
+  const remAfterYears = totalDays % 365;
+  const mo = Math.floor(remAfterYears / 30);
+  const remAfterMonths = remAfterYears % 30;
+  const w = Math.floor(remAfterMonths / 7);
+  const d = remAfterMonths % 7;
+  const h = totalHrs % 24;
+  const m = totalMins % 60;
+  let s = pl(yr, 'year');
+  if (mo > 0) s += ` ${pl(mo, 'month')}`;
+  if (w > 0) s += ` ${pl(w, 'week')}`;
+  if (d > 0) s += ` ${pl(d, 'day')}`;
+  if (h > 0) s += ` ${h} h`;
+  if (m > 0) s += ` ${m} min`;
+  return s + ' ago';
 }
 
 export default function NewsCard({ article }: NewsCardProps) {

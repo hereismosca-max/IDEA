@@ -17,8 +17,8 @@ class Settings(BaseSettings):
     JWT_ALGORITHM: str = "HS256"
     JWT_EXPIRE_MINUTES: int = 10080  # 7 days
 
-    # Scheduler
-    FETCH_INTERVAL_HOURS: int = 6
+    # Scheduler — how often to fetch & AI-process new articles
+    FETCH_INTERVAL_MINUTES: int = 5
 
     # AI — Phase 3, leave empty for now
     OPENAI_API_KEY: str = ""

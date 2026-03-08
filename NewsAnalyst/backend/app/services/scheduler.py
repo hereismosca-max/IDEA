@@ -15,8 +15,9 @@ scheduler = BackgroundScheduler()
 
 def run_fetch_job():
     """
-    Core scheduled job: fetches news from all active sources.
-    Runs every FETCH_INTERVAL_HOURS hours (default: 6).
+    Core scheduled job: fetches news from all active sources and immediately
+    runs AI tagging + summary on any newly inserted articles.
+    Runs every FETCH_INTERVAL_MINUTES minutes (default: 5).
     Also runs once immediately on application startup.
     """
     # Local imports to avoid circular dependency issues at startup
@@ -147,13 +148,13 @@ def run_fetch_job():
 def start_scheduler():
     scheduler.add_job(
         run_fetch_job,
-        trigger=IntervalTrigger(hours=settings.FETCH_INTERVAL_HOURS),
+        trigger=IntervalTrigger(minutes=settings.FETCH_INTERVAL_MINUTES),
         id="fetch_news",
         replace_existing=True,
     )
     scheduler.start()
     logger.info(
-        f"Scheduler started — interval: every {settings.FETCH_INTERVAL_HOURS}h"
+        f"Scheduler started — interval: every {settings.FETCH_INTERVAL_MINUTES} min"
     )
     # Run once immediately so news is available right after startup
     run_fetch_job()
