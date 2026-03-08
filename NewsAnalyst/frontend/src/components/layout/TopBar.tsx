@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useLocale } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { useAuth } from '@/providers/AuthProvider';
 import { useBoard, Board } from '@/providers/BoardProvider';
 import SettingsMenu from '@/components/layout/SettingsMenu';
@@ -19,8 +19,9 @@ const BOARD_LABELS: Record<Board, { american: string; chinese: string }> = {
 export default function TopBar() {
   const locale               = useLocale();
   const router               = useRouter();
-  const { user, logout, isLoading } = useAuth();
+  const { user, isLoading }  = useAuth();
   const { board, setBoard }  = useBoard();
+  const t                    = useTranslations('nav');
 
   const labels = BOARD_LABELS[board];
 
@@ -87,26 +88,20 @@ export default function TopBar() {
             // Skeleton while checking session
             <div className="h-8 w-20 bg-gray-100 rounded-md animate-pulse" />
           ) : user ? (
-            // Logged in: Saved link + display name + Settings + Sign Out
+            // Logged in: Saved link + display name + Settings (contains Sign Out)
             <div className="flex items-center gap-3">
               <Link
                 href={`/${locale}/saved`}
                 className="text-sm text-gray-500 hover:text-gray-900 transition-colors"
               >
-                Saved
+                {t('saved')}
               </Link>
               <span className="text-gray-300">|</span>
               <span className="text-sm font-medium text-gray-700">
                 {user.display_name}
               </span>
-              {/* Settings hamburger menu */}
+              {/* Settings hamburger menu (contains Sign Out) */}
               <SettingsMenu />
-              <button
-                onClick={logout}
-                className="text-sm text-gray-500 hover:text-gray-900 border border-gray-200 px-3 py-1.5 rounded-md transition-colors hover:border-gray-400"
-              >
-                Sign Out
-              </button>
             </div>
           ) : (
             // Not logged in: Settings (language) + Sign In
@@ -116,7 +111,7 @@ export default function TopBar() {
                 href={`/${locale}/login`}
                 className="text-sm text-gray-600 hover:text-gray-900 border border-gray-200 px-3 py-1.5 rounded-md transition-colors hover:border-gray-400"
               >
-                Sign In
+                {t('signIn')}
               </Link>
             </div>
           )}

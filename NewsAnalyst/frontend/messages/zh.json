@@ -2,7 +2,10 @@
   "nav": {
     "signIn": "登录",
     "signOut": "退出",
-    "myAccount": "我的账户"
+    "myAccount": "我的账户",
+    "saved": "已收藏",
+    "today": "今天",
+    "yesterday": "昨天"
   },
   "menu": {
     "all": "全部",
@@ -36,8 +39,11 @@
     "saved": "已保存！",
     "saveError": "保存失败，请重试。",
     "language": "语言",
-    "langDefault": "默认（跟随板块）",
     "langEn": "英语（美国）",
-    "langZh": "中文（简体）"
+    "langZh": "中文（简体）",
+    "notifications": "通知",
+    "display": "外观",
+    "soon": "即将推出",
+    "signOut": "退出登录"
   }
 }

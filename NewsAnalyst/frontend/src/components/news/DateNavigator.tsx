@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import { useLocale, useTranslations } from 'next-intl';
 import { DayPicker } from 'react-day-picker';
 import 'react-day-picker/style.css';
 
@@ -12,6 +13,9 @@ interface DateNavigatorProps {
 }
 
 export default function DateNavigator({ selectedDate, onDateChange, disabled = false }: DateNavigatorProps) {
+  const locale = useLocale();
+  const t      = useTranslations('nav');
+
   const [calendarOpen, setCalendarOpen] = useState(false);
   const popoverRef = useRef<HTMLDivElement>(null);
 
@@ -22,6 +26,9 @@ export default function DateNavigator({ selectedDate, onDateChange, disabled = f
   selected.setHours(0, 0, 0, 0);
 
   const isToday = selected.getTime() === today.getTime();
+
+  // Map next-intl locale code → Intl locale string for date formatting
+  const intlLocale = locale === 'zh' ? 'zh-CN' : 'en-US';
 
   // Close calendar when clicking outside
   useEffect(() => {
@@ -48,10 +55,10 @@ export default function DateNavigator({ selectedDate, onDateChange, disabled = f
     const d = new Date(date);
     d.setHours(0, 0, 0, 0);
     const diffDays = Math.round((today.getTime() - d.getTime()) / 86_400_000);
-    const short = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-    if (diffDays === 0) return `Today · ${short}`;
-    if (diffDays === 1) return `Yesterday · ${short}`;
-    return date.toLocaleDateString('en-US', {
+    const short = date.toLocaleDateString(intlLocale, { month: 'short', day: 'numeric' });
+    if (diffDays === 0) return `${t('today')} · ${short}`;
+    if (diffDays === 1) return `${t('yesterday')} · ${short}`;
+    return date.toLocaleDateString(intlLocale, {
       weekday: 'short', month: 'short', day: 'numeric', year: 'numeric',
     });
   };

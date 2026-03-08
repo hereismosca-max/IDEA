@@ -2,7 +2,10 @@
   "nav": {
     "signIn": "Sign In",
     "signOut": "Sign Out",
-    "myAccount": "My Account"
+    "myAccount": "My Account",
+    "saved": "Saved",
+    "today": "Today",
+    "yesterday": "Yesterday"
   },
   "menu": {
     "all": "All",
@@ -36,8 +39,11 @@
     "saved": "Saved!",
     "saveError": "Save failed. Try again.",
     "language": "Language",
-    "langDefault": "Default (follows board)",
     "langEn": "English (US)",
-    "langZh": "Chinese (Simplified)"
+    "langZh": "Chinese (Simplified)",
+    "notifications": "Notifications",
+    "display": "Display",
+    "soon": "Soon",
+    "signOut": "Sign Out"
   }
 }
