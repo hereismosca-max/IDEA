@@ -139,6 +139,47 @@ def run_fetch_job():
                 log.finished_at = datetime.now(timezone.utc)
                 db.commit()
 
+        # ── Catch-up: back-fill articles that have no summary yet ──────────
+        # Handles articles that existed before OPENAI_API_KEY was active, or
+        # whose AI phase was skipped / errored in a previous run.
+        # Capped at 20 per run so we comfortably finish within the 5-min window.
+        try:
+            orphans = (
+                db.query(Article)
+                .filter(
+                    Article.ai_summary.is_(None),
+                    Article.ai_processed_at.is_(None),
+                    Article.is_active == True,
+                )
+                .order_by(Article.published_at.desc())
+                .limit(20)
+                .all()
+            )
+            if orphans:
+                logger.info(f"Catch-up: {len(orphans)} articles need AI tagging")
+                no_content_orphans = 0
+                for article in orphans:
+                    ai_result = ai_processor.process(
+                        article.title,
+                        article.content_snippet or "",
+                        url=article.url,
+                    )
+                    if ai_result.summary or ai_result.tags:
+                        article.ai_summary = ai_result.summary
+                        article.ai_tags = ai_result.tags
+                    else:
+                        no_content_orphans += 1
+                    article.ai_processed_at = datetime.now(timezone.utc)
+                db.commit()
+                logger.info(
+                    f"Catch-up done: "
+                    f"{len(orphans) - no_content_orphans} tagged, "
+                    f"{no_content_orphans} no-content filtered"
+                )
+        except Exception as e:
+            logger.error(f"Catch-up failed: {e}")
+            db.rollback()
+
     finally:
         db.close()
 
