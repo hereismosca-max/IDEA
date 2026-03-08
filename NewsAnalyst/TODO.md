@@ -180,6 +180,28 @@
 - [x] `frontend/src/components/news/HomeFeed.tsx` 读取 `useBoard()`，传 `language` 给 NewsFeed
 - [x] 中文板块空状态："暂无资讯 / 中文板块即将上线，敬请期待。"
 
+### 滚动标题词条栏（2026-03-08）
+- [x] `MarketTicker.tsx` 重构左右两栏（mini cards | HeadlineTicker）
+- [x] HeadlineTicker：fade+slide 动画切换、来源名 + X/N 计数、标题可点击
+- [x] 前端轮询从 60s 降至 15s
+
+### Settings 菜单 + Smart Headlines + i18n（2026-03-08 第二轮）
+- [x] User 模型新增 `bio` (Text, nullable) + `pronouns` (String 50, nullable)
+- [x] Alembic 迁移 `3a7f82c1d905`：添加 bio + pronouns 列
+- [x] `UpdateProfileRequest` schema（全字段可选）
+- [x] `PATCH /api/v1/auth/me`：局部更新 display_name / bio / pronouns / preferred_lang
+- [x] `GET /api/v1/articles/headlines`：smart 端点，global/national scale 优先，fallback 最新
+- [x] `User` interface 加 `bio? / pronouns?`
+- [x] `api.ts` 新增 `updateProfile()` + `fetchHeadlines()`
+- [x] `AuthProvider` 新增 `refreshUser()`（重新拉 /me，更新 user state）
+- [x] 新建 `SettingsMenu.tsx`（汉堡图标，点击展开，点外关闭）
+  - Account 区块：display_name / email(只读) / bio / pronouns + Save 按钮三态
+  - Language 区块：Default / English / Chinese 单选，切换后保存 + 导航 locale
+- [x] `TopBar` 集成 SettingsMenu；login 后同步 preferred_lang → URL locale
+- [x] `MenuBar` 标签改为 `useTranslations('menu')` 动态翻译（切语言自动生效）
+- [x] `messages/en.json` + `zh.json`：menu.* 对齐后端板块，新增完整 `settings.*`
+- [x] `HeadlineTicker` 改用 `fetchHeadlines(board, 5)` 展示重要国际事件
+
 ### 待完成
 - [ ] 移动端响应式适配
 - [ ] 抓取日志管理页
@@ -203,4 +225,4 @@
 
 ---
 
-_最后更新：2026-03-08（搜索 + 市场行情栏 + 板块切换器 + Feed 调度器优化 全部完成并已上线）_
+_最后更新：2026-03-08（搜索 + 市场行情栏 + 板块切换器 + Settings 菜单 + Smart Headlines + i18n + 用户 Profile 扩展 全部完成并已上线）_

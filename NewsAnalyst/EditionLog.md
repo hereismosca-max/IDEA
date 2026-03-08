@@ -178,10 +178,32 @@
 - 切换立即触发 `language` 参数更新，Feed 重新加载对应语言的文章
 - 中文板块当前显示"暂无资讯"占位（框架已就绪，待接入中文新闻源）
 
+**滚动标题词条栏（Headline Ticker）**
+- MarketTicker 行情栏右侧新增词条轮播区：展示重要文章标题，每 4.5 秒切换一条
+- fade+slide 入场动画、来源名 + X/N 计数器、标题可点击跳转详情页
+- 前端刷新从 60s 降至 15s
+
+**Settings 菜单（2026-03-08 第二轮）**
+- 右上角汉堡图标（仅登录可见），点击展开/关闭设置面板
+- **Account** 区块：显示名称（可编辑）、邮箱（只读）、Bio 简介、Pronouns 称谓，Save 按钮（三态反馈）
+- **Language** 区块：Default（跟随板块）/ English (US) / Chinese (Simplified) 单选；切换后保存到后端并跳转对应 URL locale
+
+**Smart Headlines**
+- 新增 `GET /api/v1/articles/headlines` 端点：优先展示 `ai_tags.scale = global/national` 且 7 天内的重要事件（最多 5 条）
+- 数量不足时 fallback 到最新文章补足，保证词条栏始终有内容
+
+**用户 Profile 扩展**
+- User 表新增 `bio`（Text）和 `pronouns`（String 50）字段
+- 新增 `PATCH /api/v1/auth/me`：局部更新 display_name / bio / pronouns / preferred_lang
+- `preferred_lang` 合法值：`default | en | zh`；登录后自动将偏好语言同步到 URL locale
+
+**MenuBar i18n**
+- 所有分类标签改为 next-intl 翻译，切换语言后 Tab 标签即时生效（Technology→科技 等）
+
 **待完成（本版本剩余）**
 - 移动端响应式适配
 - 中文新闻源接入（Phase 4 开始时）
 
 ---
 
-_最后更新：2026-03-08（v0.3.0 进行中：邮箱验证 + 忘记密码 + 用户收藏 + 文章详情增强 + Feed 质量优化 + AI Prompt 重写 + 付费墙过滤 + 搜索功能 + 市场行情栏 + 板块切换器 全部完成）_
+_最后更新：2026-03-08（v0.3.0 进行中：邮箱验证 + 忘记密码 + 用户收藏 + 文章详情增强 + Feed 质量优化 + 搜索功能 + 市场行情栏 + 板块切换器 + Headline Ticker + Settings 菜单 + Smart Headlines + i18n MenuBar 全部完成并已上线）_
