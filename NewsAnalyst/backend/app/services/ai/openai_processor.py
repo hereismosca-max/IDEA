@@ -59,15 +59,17 @@ You are a financial news information extractor. Your job is to read a news artic
 (1) a concise factual summary, and (2) structured metadata tags.
 
 Rules:
-- Extract ONLY facts stated in the article. Do NOT infer, predict, or analyze.
+- If full article content is provided: extract ONLY facts stated in the article. Do NOT infer, predict, or analyze.
+- If content is marked as [UNAVAILABLE] (paywalled or fetch failed): write a 1-2 sentence factual summary \
+based strictly on what the headline itself states — do not speculate beyond what the title implies.
 - Do NOT make market predictions, investment suggestions, or trend analyses.
 - Be precise and concise. Prefer well-known names (e.g. "Apple" not "Apple Inc.").
 - If a field has no relevant value, return an empty list (or null for scale).
-- The summary must be 2-3 sentences, objective, factual only, no predictions or opinions.
+- When full content is available, the summary must be 2-3 sentences. When only the title is available, 1-2 sentences is fine.
 
 Return a JSON object with exactly these fields:
 {
-  "summary":   "...",   // 2-3 sentence factual summary of the article
+  "summary":   "...",   // factual summary of the article
   "entities":  [...],   // Up to 5 company names, organization names, or person names
   "locations": [...],   // Up to 3 countries or geographic regions
   "sectors":   [...],   // Up to 2 industry sectors from the allowed list
@@ -79,6 +81,9 @@ Allowed sectors: Technology, Finance, Energy, Healthcare, Consumer, Industrial, 
 Allowed topics: earnings, merger, acquisition, ipo, bankruptcy, interest_rate, inflation, gdp, employment, trade, regulation, policy, sanctions, geopolitics, product_launch, partnership, investment, lawsuit, leadership_change, stock_buyback, dividend, debt
 Allowed scale values: company, national, regional, global
 """
+
+# Minimum content length to be considered "available" (avoids paywall login pages, etc.)
+_MIN_CONTENT_CHARS = 150
 
 
 class OpenAIProcessor(BaseAIProcessor):
@@ -114,7 +119,15 @@ class OpenAIProcessor(BaseAIProcessor):
         full_text = fetch_article_text(url) if url else None
         input_text = full_text or content or ""
 
-        user_message = f"Title: {title}\n\nContent: {input_text}"
+        # If content is too short (empty RSS + failed fetch, or paywall page), tell
+        # the AI explicitly so it falls back to title-only mode rather than returning
+        # an empty summary.
+        if len(input_text.strip()) < _MIN_CONTENT_CHARS:
+            content_block = "[UNAVAILABLE]"
+        else:
+            content_block = input_text
+
+        user_message = f"Title: {title}\n\nContent: {content_block}"
 
         # ── Step 2: Call GPT-4o-mini ─────────────────────────────────────────
         try:
