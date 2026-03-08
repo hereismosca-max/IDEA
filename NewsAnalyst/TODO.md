@@ -149,10 +149,40 @@
 - [x] related articles API：仅推荐有真实摘要的文章
 - [~] 大规模 backfill：补全 2000 篇无摘要文章（本地运行中，预计 2026-03-08 完成）
 
+### Feed 质量与调度器优化（2026-03-08）
+- [x] 调度器间隔从 6 小时改为 5 分钟（`FETCH_INTERVAL_MINUTES: int = 5`）
+- [x] 调度器新增"兜底补全"步骤：每轮最多处理 20 篇无摘要遗留文章
+- [x] Feed 过滤改为严格的 `ai_summary IS NOT NULL`（消灭空卡片）
+- [x] NewsCard `timeAgo()` 改为精细格式（时/分/天/周/月/年逐级展开，零分量省略）
+
+### 搜索功能（2026-03-08）
+- [x] 后端 `GET /articles?search=` 支持 `ILIKE` 跨 `title` + `ai_summary` 搜索，搜索时忽略日期过滤
+- [x] 后端 `?sort=popular` 支持按净票数（`SUM(ArticleVote.vote)`）排序（backend 保留，前端暂不展示）
+- [x] `SearchBar` 组件（防抖 350ms，搜索图标 + 清空按钮）
+- [x] `DateNavigator` 新增 `disabled` prop，搜索激活时变灰 + 不可交互
+- [x] `NewsFeed` 新增 `search` prop，空状态文案根据是否在搜索动态切换
+- [x] `HomeFeed` 三列 Flex 布局（SearchBar / DateNavigator 居中 / 占位块）
+
+### 市场行情迷你卡片栏（2026-03-08）
+- [x] `backend/requirements.txt` 新增 `yfinance>=0.2.54`
+- [x] 新建 `backend/app/api/v1/routes/market.py`：`GET /api/v1/market/snapshot`（6 指标 + 5 分钟缓存）
+- [x] `backend/app/main.py` 注册 market router
+- [x] `frontend/src/types/index.ts` 新增 `MarketIndicator` / `MarketSnapshot`
+- [x] `frontend/src/lib/api.ts` 新增 `fetchMarketSnapshot()`
+- [x] 新建 `frontend/src/components/layout/MarketTicker.tsx`（Mini Card B 风格，60s 自动刷新）
+- [x] `HomeFeed` 引入 MarketTicker，放在 MenuBar 正上方
+
+### 板块切换器（取代 EN/中文 语言开关）（2026-03-08）
+- [x] 新建 `frontend/src/providers/BoardProvider.tsx`（React Context，`board: 'en' | 'zh'`，默认 `'en'`）
+- [x] `frontend/src/app/[locale]/layout.tsx` 包裹 `<BoardProvider>`
+- [x] `frontend/src/components/layout/TopBar.tsx` 重构为三列布局 + 板块切换 Pill（双语标签翻转）
+- [x] `frontend/src/components/news/NewsFeed.tsx` 新增 `language` prop，`useEffect` 依赖 language 变化
+- [x] `frontend/src/components/news/HomeFeed.tsx` 读取 `useBoard()`，传 `language` 给 NewsFeed
+- [x] 中文板块空状态："暂无资讯 / 中文板块即将上线，敬请期待。"
+
 ### 待完成
-- [ ] 搜索功能
-- [ ] 抓取日志管理页
 - [ ] 移动端响应式适配
+- [ ] 抓取日志管理页
 - [ ] 错误处理与友好提示
 
 ---
@@ -167,11 +197,10 @@
 
 ## 🌏 Phase 4 · 中文板块（待启动）
 
-- [ ] 中文新闻源调研与接入
-- [ ] i18n中文翻译
-- [ ] 语言切换功能
-- [ ] 中文板块UI
+- [x] 中文板块框架（BoardProvider + 板块切换器 UI + 空状态）已就绪
+- [ ] 中文新闻源调研与接入（RSS fetcher 注册表已插件化，直接加源即可）
+- [ ] i18n 中文界面翻译（next-intl 配置已就绪，填写 zh.json 即可）
 
 ---
 
-_最后更新：2026-03-08（Phase 2 进行中：文章详情增强 + Feed 质量优化 + AI Prompt 重写 + 付费墙过滤 完成；大规模 backfill 运行中）_
+_最后更新：2026-03-08（搜索 + 市场行情栏 + 板块切换器 + Feed 调度器优化 全部完成并已上线）_

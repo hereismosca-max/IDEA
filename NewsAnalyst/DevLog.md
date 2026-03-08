@@ -5,6 +5,143 @@
 
 ---
 
+## 2026-03-08 · Feed 质量优化 + 搜索 + 市场行情栏 + 板块切换
+
+### 背景
+v0.3.0 收尾阶段，本次会话完成了以下几块独立但相互关联的工作：调度器/Feed 可靠性修复、搜索功能、市场行情迷你卡片栏、板块切换器（取代语言切换）。
+
+---
+
+### 一、调度器 & Feed 可靠性修复
+
+**问题描述**：03/08 当天新抓取的文章没有摘要；等了 10 分钟还是没有——原因是旧调度器间隔 6 小时。
+
+**修复方案：**
+
+**`backend/app/core/config.py`**
+- `FETCH_INTERVAL_HOURS: int = 6` → `FETCH_INTERVAL_MINUTES: int = 5`
+
+**`backend/app/services/scheduler.py`**
+- `IntervalTrigger(hours=...)` → `IntervalTrigger(minutes=settings.FETCH_INTERVAL_MINUTES)`
+- 在来源循环结束后新增"兜底补全"步骤：查询 `ai_summary IS NULL AND ai_processed_at IS NULL` 的文章，每次最多处理 20 篇，确保历史遗留/新抓但未 AI 处理的文章能被追上
+
+**`backend/app/api/v1/routes/articles.py`**
+- Feed 过滤条件从 `OR(ai_processed_at IS NULL, ai_summary IS NOT NULL)` 改为严格的 `ai_summary IS NOT NULL`
+- 前者会把"未处理"的空卡片也显示出来，后者只显示已有摘要的文章
+
+**`frontend/src/components/news/NewsCard.tsx`**
+- 完全重写 `timeAgo()` 函数为精细格式：`X h Y min ago`、`X days Y h ago`、`X weeks Y days Z h ago`，以此类推直到年级别，所有零分量自动省略
+
+---
+
+### 二、搜索功能
+
+**`backend/app/api/v1/routes/articles.py`**
+- 新增 `search` 查询参数（`ILIKE %term%` 同时搜 `title` 和 `ai_summary`）
+- 新增 `sort` 参数（`latest` / `popular`，popular 使用相关子查询 `SUM(ArticleVote.vote)` 按净票数排序）
+- 搜索激活时忽略日期过滤，跨所有日期搜索
+
+**`frontend/src/lib/api.ts`**
+- `FetchArticlesParams` 新增 `search?: string` 和 `sort?: 'latest' | 'popular'`
+
+**新建 `frontend/src/components/news/SearchBar.tsx`**
+- 防抖 350ms 的文本输入框，左侧搜索图标，有内容时显示清空 ✕ 按钮
+- 父组件清空时（`value === ''`）同步本地状态
+
+**`frontend/src/components/news/DateNavigator.tsx`**
+- 新增 `disabled?: boolean` prop，搜索激活时外层加 `opacity-40 pointer-events-none` 样式，视觉上提示日期导航已临时停用
+
+**`frontend/src/components/news/NewsFeed.tsx`**
+- props 新增 `search?: string`，`useEffect` 依赖数组加入 `search`
+- 空状态文案根据是否在搜索分别展示："No results for X" vs "No articles for this date"
+
+**`frontend/src/components/news/HomeFeed.tsx`**
+- 三列 Flex 布局：`[flex-1 SearchBar] [flex-none DateNavigator] [flex-1 占位块]`
+- `isSearching` 时 `dateForFeed = undefined`，同时给 DateNavigator 传 `disabled`
+- Popular 排序短暂上线后因目前用户投票数极少而移除，按钮 UI 同步清理
+
+---
+
+### 三、市场行情迷你卡片栏（Market Ticker）
+
+**`backend/requirements.txt`**
+- 新增 `yfinance>=0.2.54`
+
+**新建 `backend/app/api/v1/routes/market.py`**
+- `GET /api/v1/market/snapshot`：返回 6 个指标（S&P 500 / NASDAQ / DJIA / VIX / 10Y Yield / Gold）
+- 每个指标字段：`symbol` / `label` / `price` / `change` / `change_pct`
+- **5 分钟内存缓存**（`threading.Lock` + 时间戳），避免频繁请求 Yahoo Finance
+- 任何单个 ticker 失败时返回 `null` 占位，不影响其他指标
+
+**`backend/app/main.py`**
+- 注册 `market.router`，prefix = `/api/v1/market`
+
+**`frontend/src/types/index.ts`**
+- 新增 `MarketIndicator`、`MarketSnapshot` 接口
+
+**`frontend/src/lib/api.ts`**
+- 新增 `fetchMarketSnapshot(): Promise<MarketSnapshot>`
+
+**新建 `frontend/src/components/layout/MarketTicker.tsx`**
+- 位置：`HomeFeed` 中 MenuBar 上方（即 TopBar 与 MenuBar 之间）
+- Mini Card 样式：上涨绿底/绿字，下跌红底/红字，无数据灰底
+- 每张卡显示：标签、价格（千分位格式）、涨跌幅（▲/▼ 前缀）
+- 首次加载骨架动画；**每 60 秒自动刷新**；单个 ticker 失败不影响其他；全部失败时不渲染（不破坏页面）
+
+---
+
+### 四、板块切换器（取代 EN/中文 语言切换）
+
+**决策背景**：EN/中文 原本设计为 UI 语言切换，但实际上平台核心差异是内容来源（美国英文新闻 vs 中国中文新闻），与 UI 语言无关。改为"板块切换"更符合产品定位。
+
+**新建 `frontend/src/providers/BoardProvider.tsx`**
+- React Context，`board: 'en' | 'zh'`，默认 `'en'`（美国板块）
+- 导出 `BoardProvider`（包裹组件）和 `useBoard()`（消费 hook）
+
+**`frontend/src/app/[locale]/layout.tsx`**
+- 用 `<BoardProvider>` 包裹 `<AuthProvider>` 内层（两层 Provider 共存）
+
+**`frontend/src/components/layout/TopBar.tsx`**
+- 彻底移除 `switchLocale` / `usePathname` / `useRouter` 逻辑
+- 改为三列 Flex 布局：`[flex-1 Logo] [Center 板块切换器] [flex-1 用户区]`
+- 板块切换器：两个 Pill 按钮（同 SortPicker 风格）
+  - 美国板块激活时显示 `American | Chinese`
+  - 中文板块激活时显示 `中文板块 | 英文板块`（双语翻转）
+- 用 `useBoard()` 读写 board 状态
+
+**`frontend/src/components/news/NewsFeed.tsx`**
+- 新增 `language?: string` prop（默认 `'en'`）
+- 传入 `fetchArticles({ language })`
+- `useEffect` 依赖数组加入 `language`，板块切换立即触发重载
+- 中文板块 + 无数据时显示专属空状态：`"暂无资讯"` + `"中文板块即将上线，敬请期待。"`
+
+**`frontend/src/components/news/HomeFeed.tsx`**
+- 引入 `useBoard()`，读取 `board` 传给 `<NewsFeed language={board} />`
+- 引入 `<MarketTicker />` 放在 MenuBar 正上方
+
+---
+
+### 关键决策记录
+
+| 决策 | 理由 |
+|---|---|
+| 调度器改为 5 分钟 | 保证新文章及时有摘要，网络/服务器压力可接受 |
+| Feed 只显示 `ai_summary IS NOT NULL` | 消灭空卡片，用户看到的每篇都有内容 |
+| 搜索激活时忽略日期 | 跨日期搜索比"只搜当天"更符合用户预期 |
+| Popular 排序暂时移除 | 目前投票用户极少，Popular 和 Latest 结果几乎相同，显示出来反而产生困惑 |
+| yfinance + 5 分钟内存缓存 | 免费、无需 API Key、足够实时；缓存避免每次请求都打 Yahoo Finance |
+| 板块切换 vs 语言切换 | 用户关心"看哪个市场的新闻"而非"界面用哪种语言" |
+| 双语 Pill 翻转 | 在中文板块下看到的是中文操作标签，交互语言和内容语言一致 |
+| 中文板块先做框架不接源 | 架构就位，日后接中文新闻源只需加 backend Sources，前端零改动 |
+
+### 当前状态
+- Railway 自动部署后端（含 yfinance）
+- Vercel 自动部署前端（含市场行情栏 + 板块切换器 + 搜索栏）
+- 市场行情栏冷启动第一次请求约 2-3 秒（yfinance 首次拉数据），之后 5 分钟缓存响应极快
+- 中文板块显示"暂无资讯"占位，框架已就绪
+
+---
+
 ## 2026-02-28 · 邮箱验证 + 忘记密码功能上线 · v0.3.0 准备
 
 ### 背景
