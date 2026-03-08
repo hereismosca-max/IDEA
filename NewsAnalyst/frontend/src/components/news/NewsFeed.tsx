@@ -6,11 +6,13 @@ import { fetchArticles } from '@/lib/api';
 import { Article, ArticleListResponse } from '@/types';
 
 interface NewsFeedProps {
-  date: string;      // "YYYY-MM-DD" — only show articles from this UTC day
-  category?: string; // section slug ("all" | "markets" | "technology" | ...)
+  date?: string;      // "YYYY-MM-DD" — filter to one UTC day; omitted when search is active
+  category?: string;  // section slug ("all" | "markets" | "technology" | ...)
+  search?: string;    // free-text search across title + AI summary
+  sort?: 'latest' | 'popular';
 }
 
-export default function NewsFeed({ date, category }: NewsFeedProps) {
+export default function NewsFeed({ date, category, search, sort = 'latest' }: NewsFeedProps) {
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -25,6 +27,8 @@ export default function NewsFeed({ date, category }: NewsFeedProps) {
         page: pageNum,
         date,
         category_slug: category && category !== 'all' ? category : undefined,
+        search: search || undefined,
+        sort,
       });
       setArticles((prev) => (reset ? data.items : [...prev, ...data.items]));
       setHasNext(data.has_next);
@@ -37,12 +41,12 @@ export default function NewsFeed({ date, category }: NewsFeedProps) {
     }
   };
 
-  // Reset and reload from page 1 whenever the selected date or category changes
+  // Reset and reload from page 1 whenever any filter/sort changes
   useEffect(() => {
     setError(null);
     loadArticles(1, true);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [date, category]);
+  }, [date, category, search, sort]);
 
   // ── Error state ─────────────────────────────────────────────────────────────
   if (error) {
@@ -80,8 +84,17 @@ export default function NewsFeed({ date, category }: NewsFeedProps) {
   if (articles.length === 0) {
     return (
       <div className="text-center py-20">
-        <p className="text-gray-400 text-sm">No articles found for this date.</p>
-        <p className="text-gray-300 text-xs mt-1">Try navigating to another day.</p>
+        {search ? (
+          <>
+            <p className="text-gray-400 text-sm">No results for &ldquo;{search}&rdquo;.</p>
+            <p className="text-gray-300 text-xs mt-1">Try different keywords or clear the search.</p>
+          </>
+        ) : (
+          <>
+            <p className="text-gray-400 text-sm">No articles found for this date.</p>
+            <p className="text-gray-300 text-xs mt-1">Try navigating to another day.</p>
+          </>
+        )}
       </div>
     );
   }
@@ -95,7 +108,7 @@ export default function NewsFeed({ date, category }: NewsFeedProps) {
         ))}
       </div>
 
-      {/* Load more — only shows if there are more articles for this day */}
+      {/* Load more */}
       {hasNext && (
         <div className="text-center mt-8">
           <button
@@ -108,10 +121,12 @@ export default function NewsFeed({ date, category }: NewsFeedProps) {
         </div>
       )}
 
-      {/* End of day indicator */}
+      {/* End indicator */}
       {!hasNext && articles.length > 0 && (
         <div className="text-center mt-8 text-gray-300 text-xs">
-          — End of articles for this day —
+          {search
+            ? `— ${articles.length} result${articles.length !== 1 ? 's' : ''} —`
+            : '— End of articles for this day —'}
         </div>
       )}
     </div>

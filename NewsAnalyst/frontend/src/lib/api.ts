@@ -38,17 +38,21 @@ export interface FetchArticlesParams {
   page_size?: number;
   language?: string;
   category_slug?: string;
-  date?: string;   // "YYYY-MM-DD" — filter to a single UTC calendar day
+  date?: string;    // "YYYY-MM-DD" — filter to a single UTC calendar day; ignored when search is set
+  search?: string;  // search in title + AI summary; when present, date filter is ignored
+  sort?: 'latest' | 'popular';  // default: 'latest'
 }
 
 export function fetchArticles(params: FetchArticlesParams = {}): Promise<ArticleListResponse> {
-  const { page = 1, page_size = 20, language = 'en', category_slug, date } = params;
+  const { page = 1, page_size = 20, language = 'en', category_slug, date, search, sort } = params;
   const query = new URLSearchParams({
     page: String(page),
     page_size: String(page_size),
     language,
-    ...(category_slug ? { category_slug } : {}),
-    ...(date        ? { date }           : {}),
+    ...(category_slug             ? { category_slug }  : {}),
+    ...(date                      ? { date }            : {}),
+    ...(search                    ? { search }          : {}),
+    ...(sort && sort !== 'latest' ? { sort }            : {}),
   });
   return request(`/api/v1/articles?${query}`);
 }

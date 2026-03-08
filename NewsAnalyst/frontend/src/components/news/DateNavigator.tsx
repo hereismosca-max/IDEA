@@ -7,9 +7,11 @@ import 'react-day-picker/style.css';
 interface DateNavigatorProps {
   selectedDate: Date;
   onDateChange: (date: Date) => void;
+  /** When true, the navigator is visually dimmed and non-interactive (e.g. when search is active). */
+  disabled?: boolean;
 }
 
-export default function DateNavigator({ selectedDate, onDateChange }: DateNavigatorProps) {
+export default function DateNavigator({ selectedDate, onDateChange, disabled = false }: DateNavigatorProps) {
   const [calendarOpen, setCalendarOpen] = useState(false);
   const popoverRef = useRef<HTMLDivElement>(null);
 
@@ -55,7 +57,7 @@ export default function DateNavigator({ selectedDate, onDateChange }: DateNaviga
   };
 
   return (
-    <div className="relative flex items-center justify-center gap-2 py-3 select-none">
+    <div className={`relative flex items-center justify-center gap-2 py-3 select-none transition-opacity ${disabled ? 'opacity-40 pointer-events-none' : ''}`}>
 
       {/* ← Previous day */}
       <button

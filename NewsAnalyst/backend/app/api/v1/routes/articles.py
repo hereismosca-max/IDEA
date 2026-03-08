@@ -63,13 +63,15 @@ def get_articles(
     page_size: int = Query(20, ge=1, le=100, description="Items per page"),
     language: str = Query("en", description="Language filter"),
     category_slug: Optional[str] = Query(None, description="Category slug filter"),
-    date: Optional[str] = Query(None, description="Filter by date (YYYY-MM-DD, UTC)"),
+    date: Optional[str] = Query(None, description="Filter by date (YYYY-MM-DD, UTC). Ignored when 'search' is present."),
+    search: Optional[str] = Query(None, description="Search in article title and AI summary (case-insensitive). When present, date filter is ignored."),
+    sort: str = Query("latest", description="Sort order: 'latest' (default, newest first) | 'popular' (most voted first)"),
     db: Session = Depends(get_db),
 ):
     """
     Fetch a paginated list of articles.
-    Ordered by published_at descending (newest first).
-    Optionally filtered to a single UTC calendar day via ?date=YYYY-MM-DD.
+    Supports full-text search across title + AI summary, date filtering,
+    section filtering, and sorting by recency or popularity.
     """
     query = (
         db.query(Article)
@@ -77,18 +79,22 @@ def get_articles(
         .filter(
             Article.is_active == True,
             Article.language == language,
-            # Only surface articles that have a real AI summary.
-            # Articles without a summary are either:
-            #   (a) newly fetched, pending the AI phase (hidden until ready), or
-            #   (b) paywalled / unfetchable (permanently filtered out).
-            # The scheduler's catch-up step processes (a) within the next run.
+            # Only surface articles with a real AI summary.
             Article.ai_summary.isnot(None),
         )
-        .order_by(Article.published_at.desc())
     )
 
-    # Date filter — restrict to a single UTC calendar day
-    if date:
+    # ── Search filter — when active, date filter is ignored ─────────────────
+    if search and search.strip():
+        term = f"%{search.strip()}%"
+        query = query.filter(
+            or_(
+                Article.title.ilike(term),
+                Article.ai_summary.ilike(term),
+            )
+        )
+    elif date:
+        # Date filter only applies when not searching
         try:
             day_start = datetime.strptime(date, "%Y-%m-%d").replace(tzinfo=timezone.utc)
             day_end = day_start + timedelta(days=1)
@@ -99,14 +105,27 @@ def get_articles(
         except ValueError:
             raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD.")
 
-    # Section filter — uses JSONB containment queries on ai_tags
+    # ── Section filter — uses JSONB containment queries on ai_tags ───────────
     if category_slug and category_slug != "all":
         section_filter = SECTION_FILTERS.get(category_slug)
         if section_filter is not None:
             query = query.filter(section_filter)
-        # Unknown slug → return empty result set rather than error
         else:
             query = query.filter(text("false"))
+
+    # ── Sort order ────────────────────────────────────────────────────────────
+    if sort == "popular":
+        # Order by net vote score (upvotes − downvotes), then by recency as tiebreaker
+        net_votes = (
+            db.query(func.coalesce(func.sum(ArticleVote.vote), 0))
+            .filter(ArticleVote.article_id == Article.id)
+            .correlate(Article)
+            .scalar_subquery()
+        )
+        query = query.order_by(net_votes.desc(), Article.published_at.desc())
+    else:
+        # "latest" — default: newest published first
+        query = query.order_by(Article.published_at.desc())
 
     total = query.count()
     items = query.offset((page - 1) * page_size).limit(page_size).all()
