@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime
 from typing import Optional
 
-from sqlalchemy import String, Boolean, DateTime
+from sqlalchemy import String, Boolean, DateTime, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship, Mapped, mapped_column
@@ -53,6 +53,10 @@ class User(Base):
     password_reset_expires_at: Mapped[Optional[datetime]] = mapped_column(
         DateTime(timezone=True), nullable=True
     )
+
+    # ── Profile ───────────────────────────────────────────────────────────────
+    bio: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    pronouns: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
 
     # Relationships
     saved_articles: Mapped[list["UserSavedArticle"]] = relationship(

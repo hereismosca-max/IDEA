@@ -87,6 +87,20 @@ export function getCurrentUser(): Promise<User> {
   return request('/api/v1/auth/me');
 }
 
+export interface UpdateProfilePayload {
+  display_name?: string;
+  bio?: string;
+  pronouns?: string;
+  preferred_lang?: string;  // 'default' | 'en' | 'zh'
+}
+
+export function updateProfile(payload: UpdateProfilePayload): Promise<User> {
+  return request('/api/v1/auth/me', {
+    method: 'PATCH',
+    body: JSON.stringify(payload),
+  });
+}
+
 // ── Votes ─────────────────────────────────────────────────────────────────────
 
 export function castVote(articleId: string, vote: 1 | -1): Promise<VoteCounts> {
@@ -156,4 +170,11 @@ export function fetchCategories(language = 'en'): Promise<unknown> {
 
 export function fetchMarketSnapshot(): Promise<MarketSnapshot> {
   return request('/api/v1/market/snapshot');
+}
+
+// ── Headlines (high-impact articles for the ticker) ───────────────────────────
+
+export function fetchHeadlines(language = 'en', limit = 5): Promise<Article[]> {
+  const query = new URLSearchParams({ language, limit: String(limit) });
+  return request(`/api/v1/articles/headlines?${query}`);
 }

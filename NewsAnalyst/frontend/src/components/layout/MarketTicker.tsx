@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useLocale } from 'next-intl';
-import { fetchMarketSnapshot, fetchArticles } from '@/lib/api';
+import { fetchMarketSnapshot, fetchHeadlines } from '@/lib/api';
 import { MarketIndicator, Article } from '@/types';
 import { useBoard } from '@/providers/BoardProvider';
 
@@ -69,13 +69,14 @@ function HeadlineTicker() {
   const [idx, setIdx]        = useState(0);
   const [visible, setVisible] = useState(true);
 
-  // Fetch recent headlines whenever the board (language) changes
+  // Fetch high-impact headlines whenever the board (language) changes.
+  // Uses the /articles/headlines endpoint which prioritises global/national scale events.
   useEffect(() => {
     setItems([]);
     setIdx(0);
     setVisible(true);
-    fetchArticles({ page: 1, page_size: 20, language: board })
-      .then(data => setItems(data.items))
+    fetchHeadlines(board, 5)
+      .then(articles => setItems(articles))
       .catch(() => {});
   }, [board]);
 

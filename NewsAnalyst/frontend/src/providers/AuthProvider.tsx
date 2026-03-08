@@ -21,6 +21,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
   register: (email: string, password: string, displayName: string) => Promise<void>;
+  refreshUser: () => Promise<void>;
 }
 
 // ── Context ───────────────────────────────────────────────────────────────────
@@ -74,8 +75,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [login]
   );
 
+  // Refresh current user from the server (e.g. after a profile update)
+  const refreshUser = useCallback(async () => {
+    try {
+      const me = await getCurrentUser();
+      setUser(me);
+    } catch {
+      // Silent — if the token is invalid, logout will be triggered elsewhere
+    }
+  }, []);
+
   return (
-    <AuthContext.Provider value={{ user, token, isLoading, login, logout, register }}>
+    <AuthContext.Provider value={{ user, token, isLoading, login, logout, register, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );

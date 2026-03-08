@@ -1,9 +1,12 @@
 'use client';
 
 import Link from 'next/link';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { useLocale } from 'next-intl';
 import { useAuth } from '@/providers/AuthProvider';
 import { useBoard, Board } from '@/providers/BoardProvider';
+import SettingsMenu from '@/components/layout/SettingsMenu';
 
 // ── Board labels ──────────────────────────────────────────────────────────────
 // Labels are bilingual: when the Chinese board is active, the toggle flips to Chinese characters.
@@ -15,10 +18,22 @@ const BOARD_LABELS: Record<Board, { american: string; chinese: string }> = {
 
 export default function TopBar() {
   const locale               = useLocale();
+  const router               = useRouter();
   const { user, logout, isLoading } = useAuth();
   const { board, setBoard }  = useBoard();
 
   const labels = BOARD_LABELS[board];
+
+  // ── Sync preferred_lang → URL locale on login ────────────────────────────
+  // When a user logs in (user transitions from null → set) and they have a
+  // saved language preference, navigate to the matching URL locale.
+  useEffect(() => {
+    if (isLoading || !user) return;
+    if (user.preferred_lang === 'en' && locale !== 'en') router.push('/en');
+    else if (user.preferred_lang === 'zh' && locale !== 'zh') router.push('/zh');
+    // 'default' → no navigation; board drives the content language
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id, isLoading]); // only re-run when the user identity changes
 
   return (
     <header className="border-b border-gray-200 bg-white sticky top-0 z-50">
@@ -72,7 +87,7 @@ export default function TopBar() {
             // Skeleton while checking session
             <div className="h-8 w-20 bg-gray-100 rounded-md animate-pulse" />
           ) : user ? (
-            // Logged in: Saved link + display name + Sign Out
+            // Logged in: Saved link + display name + Settings + Sign Out
             <div className="flex items-center gap-3">
               <Link
                 href={`/${locale}/saved`}
@@ -84,6 +99,8 @@ export default function TopBar() {
               <span className="text-sm font-medium text-gray-700">
                 {user.display_name}
               </span>
+              {/* Settings hamburger menu */}
+              <SettingsMenu />
               <button
                 onClick={logout}
                 className="text-sm text-gray-500 hover:text-gray-900 border border-gray-200 px-3 py-1.5 rounded-md transition-colors hover:border-gray-400"

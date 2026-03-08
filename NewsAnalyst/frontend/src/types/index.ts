@@ -63,6 +63,8 @@ export interface User {
   is_active: boolean;
   email_verified: boolean;
   created_at: string;
+  bio?: string | null;
+  pronouns?: string | null;
 }
 
 export interface SaveStatus {

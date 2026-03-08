@@ -22,7 +22,7 @@ from app.schemas.auth import (
     TokenResponse,
     VerifyEmailRequest,
 )
-from app.schemas.user import UserResponse
+from app.schemas.user import UserResponse, UpdateProfileRequest
 from app.utils.logger import get_logger
 
 router = APIRouter()
@@ -91,6 +91,41 @@ def login(payload: LoginRequest, db: Session = Depends(get_db)):
 @router.get("/me", response_model=UserResponse)
 def get_me(current_user: User = Depends(get_current_user)):
     """Return the currently authenticated user's profile."""
+    return current_user
+
+
+@router.patch("/me", response_model=UserResponse)
+def update_me(
+    payload: UpdateProfileRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Update the current user's profile (display_name, bio, pronouns, preferred_lang)."""
+    _ALLOWED_LANGS = {"default", "en", "zh"}
+
+    if payload.display_name is not None:
+        name = payload.display_name.strip()
+        if not name:
+            raise HTTPException(status_code=400, detail="Display name cannot be empty")
+        current_user.display_name = name
+
+    if payload.bio is not None:
+        current_user.bio = payload.bio.strip() or None  # empty string → NULL
+
+    if payload.pronouns is not None:
+        current_user.pronouns = payload.pronouns.strip() or None
+
+    if payload.preferred_lang is not None:
+        if payload.preferred_lang not in _ALLOWED_LANGS:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Invalid language preference. Allowed: {', '.join(_ALLOWED_LANGS)}",
+            )
+        current_user.preferred_lang = payload.preferred_lang
+
+    db.commit()
+    db.refresh(current_user)
+    logger.info("Profile updated for user: %s", current_user.email)
     return current_user
 
 

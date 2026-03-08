@@ -139,6 +139,62 @@ def get_articles(
     )
 
 
+@router.get("/headlines", response_model=List[ArticleResponse])
+def get_headlines(
+    language: str = Query("en", description="Content language"),
+    limit: int = Query(5, ge=1, le=20, description="Max number of headlines"),
+    db: Session = Depends(get_db),
+):
+    """
+    Return the most impactful recent articles for the headline ticker.
+    Prioritises global/national scale events published in the last 7 days.
+    Falls back to the most recent articles if not enough high-scale results exist.
+    Must be defined BEFORE /saved and /{article_id} so FastAPI matches it as a
+    literal path segment.
+    """
+    cutoff = datetime.now(timezone.utc) - timedelta(days=7)
+
+    # ── Primary: global / national scale, last 7 days ────────────────────────
+    primary = (
+        db.query(Article)
+        .options(joinedload(Article.source))
+        .filter(
+            Article.is_active == True,
+            Article.language == language,
+            Article.ai_summary.isnot(None),
+            Article.published_at >= cutoff,
+            or_(_scale("global"), _scale("national")),
+        )
+        .order_by(Article.published_at.desc())
+        .limit(limit)
+        .all()
+    )
+
+    if len(primary) >= limit:
+        return [ArticleResponse.model_validate(a) for a in primary]
+
+    # ── Fallback: supplement with the most recent articles ───────────────────
+    needed = limit - len(primary)
+    exclude_ids = [a.id for a in primary]
+
+    fallback_q = (
+        db.query(Article)
+        .options(joinedload(Article.source))
+        .filter(
+            Article.is_active == True,
+            Article.language == language,
+            Article.ai_summary.isnot(None),
+        )
+        .order_by(Article.published_at.desc())
+    )
+    if exclude_ids:
+        fallback_q = fallback_q.filter(Article.id.notin_(exclude_ids))
+
+    fallback = fallback_q.limit(needed).all()
+
+    return [ArticleResponse.model_validate(a) for a in primary + fallback]
+
+
 @router.get("/saved", response_model=ArticleListResponse)
 def get_saved_articles(
     page: int = Query(1, ge=1),

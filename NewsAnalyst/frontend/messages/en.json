@@ -7,10 +7,9 @@
   "menu": {
     "all": "All",
     "markets": "Markets",
+    "technology": "Technology",
     "economy": "Economy",
-    "policy": "Policy & Central Banks",
-    "stocks": "Stocks",
-    "commodities": "Commodities",
+    "energy": "Energy",
     "crypto": "Crypto"
   },
   "feed": {
@@ -23,5 +22,22 @@
     "minutesAgo": "{minutes}m ago",
     "hoursAgo": "{hours}h ago",
     "daysAgo": "{days}d ago"
+  },
+  "settings": {
+    "title": "Settings",
+    "account": "Account",
+    "displayName": "Display Name",
+    "email": "Email",
+    "bio": "Bio",
+    "pronouns": "Pronouns",
+    "pronounsPlaceholder": "e.g. they/them",
+    "save": "Save",
+    "saving": "Saving…",
+    "saved": "Saved!",
+    "saveError": "Save failed. Try again.",
+    "language": "Language",
+    "langDefault": "Default (follows board)",
+    "langEn": "English (US)",
+    "langZh": "Chinese (Simplified)"
   }
 }
