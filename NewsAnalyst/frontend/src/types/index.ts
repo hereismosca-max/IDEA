@@ -69,6 +69,21 @@ export interface SaveStatus {
   is_saved: boolean;
 }
 
+// ── Market data ───────────────────────────────────────────────────────────────
+
+export interface MarketIndicator {
+  symbol:     string;
+  label:      string;
+  price:      number | null;
+  change:     number | null;
+  change_pct: number | null;
+}
+
+export interface MarketSnapshot {
+  indicators: MarketIndicator[];
+  cached_at:  string | null;
+}
+
 export interface MessageResponse {
   message: string;
 }

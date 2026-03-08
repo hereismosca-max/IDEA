@@ -10,9 +10,10 @@ interface NewsFeedProps {
   category?: string;  // section slug ("all" | "markets" | "technology" | ...)
   search?: string;    // free-text search across title + AI summary
   sort?: 'latest' | 'popular';
+  language?: string;  // content language — 'en' (American board) | 'zh' (Chinese board)
 }
 
-export default function NewsFeed({ date, category, search, sort = 'latest' }: NewsFeedProps) {
+export default function NewsFeed({ date, category, search, sort = 'latest', language = 'en' }: NewsFeedProps) {
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -20,11 +21,14 @@ export default function NewsFeed({ date, category, search, sort = 'latest' }: Ne
   const [hasNext, setHasNext] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
 
+  const isChinese = language === 'zh';
+
   const loadArticles = async (pageNum: number, reset = false) => {
     try {
       reset ? setLoading(true) : setLoadingMore(true);
       const data: ArticleListResponse = await fetchArticles({
         page: pageNum,
+        language,
         date,
         category_slug: category && category !== 'all' ? category : undefined,
         search: search || undefined,
@@ -41,12 +45,12 @@ export default function NewsFeed({ date, category, search, sort = 'latest' }: Ne
     }
   };
 
-  // Reset and reload from page 1 whenever any filter/sort changes
+  // Reset and reload from page 1 whenever any filter/sort/language changes
   useEffect(() => {
     setError(null);
     loadArticles(1, true);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [date, category, search, sort]);
+  }, [date, category, search, sort, language]);
 
   // ── Error state ─────────────────────────────────────────────────────────────
   if (error) {
@@ -82,6 +86,16 @@ export default function NewsFeed({ date, category, search, sort = 'latest' }: Ne
 
   // ── Empty state ──────────────────────────────────────────────────────────────
   if (articles.length === 0) {
+    // Chinese board — no sources connected yet
+    if (isChinese && !search) {
+      return (
+        <div className="text-center py-20">
+          <p className="text-gray-400 text-sm">暂无资讯</p>
+          <p className="text-gray-300 text-xs mt-1">中文板块即将上线，敬请期待。</p>
+        </div>
+      );
+    }
+
     return (
       <div className="text-center py-20">
         {search ? (

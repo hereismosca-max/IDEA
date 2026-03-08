@@ -1,4 +1,4 @@
-import { Article, ArticleListResponse, MessageResponse, SaveStatus, TokenResponse, User, VoteCounts } from '@/types';
+import { Article, ArticleListResponse, MarketSnapshot, MessageResponse, SaveStatus, TokenResponse, User, VoteCounts } from '@/types';
 import { getToken } from '@/lib/auth';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
@@ -150,4 +150,10 @@ export function fetchSavedArticles(params: { page?: number; page_size?: number }
 
 export function fetchCategories(language = 'en'): Promise<unknown> {
   return request(`/api/v1/categories?language=${language}`);
+}
+
+// ── Market data ───────────────────────────────────────────────────────────────
+
+export function fetchMarketSnapshot(): Promise<MarketSnapshot> {
+  return request('/api/v1/market/snapshot');
 }

@@ -2,66 +2,77 @@
 
 import Link from 'next/link';
 import { useLocale } from 'next-intl';
-import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/providers/AuthProvider';
+import { useBoard, Board } from '@/providers/BoardProvider';
+
+// ── Board labels ──────────────────────────────────────────────────────────────
+// Labels are bilingual: when the Chinese board is active, the toggle flips to Chinese characters.
+
+const BOARD_LABELS: Record<Board, { american: string; chinese: string }> = {
+  en: { american: 'American', chinese: 'Chinese'  },
+  zh: { american: '英文板块', chinese: '中文板块' },
+};
 
 export default function TopBar() {
-  const locale = useLocale();
-  const pathname = usePathname();
-  const router = useRouter();
+  const locale               = useLocale();
   const { user, logout, isLoading } = useAuth();
+  const { board, setBoard }  = useBoard();
 
-  const switchLocale = (newLocale: string) => {
-    const newPath = pathname.replace(`/${locale}`, `/${newLocale}`);
-    router.push(newPath);
-  };
+  const labels = BOARD_LABELS[board];
 
   return (
     <header className="border-b border-gray-200 bg-white sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between">
+      {/*
+        3-column layout:
+          [flex-1  Left: Logo]  [Center: Board switcher]  [flex-1  Right: User]
+        The equal flex-1 wings keep the switcher visually centred.
+      */}
+      <div className="max-w-7xl mx-auto px-4 h-14 flex items-center">
 
-        {/* Left: Logo / Site name */}
-        <Link
-          href={`/${locale}`}
-          className="text-xl font-bold text-gray-900 tracking-tight hover:opacity-80 transition-opacity"
-        >
-          NewsAnalyst
-        </Link>
+        {/* ── Left: Logo ───────────────────────────────────────────────────── */}
+        <div className="flex-1">
+          <Link
+            href={`/${locale}`}
+            className="text-xl font-bold text-gray-900 tracking-tight hover:opacity-80 transition-opacity"
+          >
+            NewsAnalyst
+          </Link>
+        </div>
 
-        {/* Right: Language switcher + User */}
-        <div className="flex items-center gap-4">
+        {/* ── Center: Board (region) switcher ──────────────────────────────── */}
+        <div className="flex items-center gap-0.5 rounded-lg border border-gray-200 bg-white p-0.5 select-none">
+          {/* American board button */}
+          <button
+            onClick={() => setBoard('en')}
+            className={`px-3 py-1 text-xs font-semibold rounded-md transition-colors ${
+              board === 'en'
+                ? 'bg-gray-900 text-white'
+                : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+            }`}
+          >
+            {labels.american}
+          </button>
 
-          {/* Language toggle */}
-          <div className="flex items-center gap-1 text-sm">
-            <button
-              onClick={() => switchLocale('en')}
-              className={`px-2 py-1 rounded text-sm font-medium transition-colors ${
-                locale === 'en'
-                  ? 'bg-gray-900 text-white'
-                  : 'text-gray-500 hover:text-gray-900'
-              }`}
-            >
-              EN
-            </button>
-            <span className="text-gray-300">|</span>
-            <button
-              onClick={() => switchLocale('zh')}
-              className={`px-2 py-1 rounded text-sm font-medium transition-colors ${
-                locale === 'zh'
-                  ? 'bg-gray-900 text-white'
-                  : 'text-gray-500 hover:text-gray-900'
-              }`}
-            >
-              中文
-            </button>
-          </div>
+          {/* Chinese board button */}
+          <button
+            onClick={() => setBoard('zh')}
+            className={`px-3 py-1 text-xs font-semibold rounded-md transition-colors ${
+              board === 'zh'
+                ? 'bg-gray-900 text-white'
+                : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+            }`}
+          >
+            {labels.chinese}
+          </button>
+        </div>
 
-          {/* User section */}
+        {/* ── Right: User section ───────────────────────────────────────────── */}
+        <div className="flex-1 flex justify-end">
           {isLoading ? (
             // Skeleton while checking session
             <div className="h-8 w-20 bg-gray-100 rounded-md animate-pulse" />
           ) : user ? (
-            // Logged in: show Saved link + display name + logout
+            // Logged in: Saved link + display name + Sign Out
             <div className="flex items-center gap-3">
               <Link
                 href={`/${locale}/saved`}
@@ -81,7 +92,7 @@ export default function TopBar() {
               </button>
             </div>
           ) : (
-            // Not logged in: Sign In link
+            // Not logged in
             <Link
               href={`/${locale}/login`}
               className="text-sm text-gray-600 hover:text-gray-900 border border-gray-200 px-3 py-1.5 rounded-md transition-colors hover:border-gray-400"
@@ -89,8 +100,8 @@ export default function TopBar() {
               Sign In
             </Link>
           )}
-
         </div>
+
       </div>
     </header>
   );

@@ -5,6 +5,8 @@ import DateNavigator from './DateNavigator';
 import NewsFeed from './NewsFeed';
 import SearchBar from './SearchBar';
 import MenuBar from '@/components/layout/MenuBar';
+import MarketTicker from '@/components/layout/MarketTicker';
+import { useBoard } from '@/providers/BoardProvider';
 
 /** Format a Date object as "YYYY-MM-DD" (UTC) for the API */
 function toUTCDateString(date: Date): string {
@@ -15,6 +17,7 @@ function toUTCDateString(date: Date): string {
 }
 
 export default function HomeFeed() {
+  const { board }                                = useBoard();
   const [selectedDate, setSelectedDate]         = useState<Date>(new Date());
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [search, setSearch]                     = useState('');
@@ -26,6 +29,9 @@ export default function HomeFeed() {
 
   return (
     <div>
+      {/* ── Market ticker — sits between TopBar and MenuBar ── */}
+      <MarketTicker />
+
       <MenuBar activeCategory={selectedCategory} onCategoryChange={setSelectedCategory} />
 
       {/* ── Navigation row: [SearchBar] [DateNavigator] ── */}
@@ -54,6 +60,7 @@ export default function HomeFeed() {
         date={dateForFeed}
         category={selectedCategory}
         search={isSearching ? search.trim() : undefined}
+        language={board}
       />
     </div>
   );

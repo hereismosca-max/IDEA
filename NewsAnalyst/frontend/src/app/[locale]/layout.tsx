@@ -4,6 +4,7 @@ import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
 import TopBar from '@/components/layout/TopBar';
 import { AuthProvider } from '@/providers/AuthProvider';
+import { BoardProvider } from '@/providers/BoardProvider';
 import '../globals.css';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -27,8 +28,10 @@ export default async function LocaleLayout({
       <body className={`${inter.className} bg-gray-50 min-h-screen`}>
         <NextIntlClientProvider messages={messages}>
           <AuthProvider>
-            <TopBar />
-            <main className="max-w-7xl mx-auto px-4 py-6">{children}</main>
+            <BoardProvider>
+              <TopBar />
+              <main className="max-w-7xl mx-auto px-4 py-6">{children}</main>
+            </BoardProvider>
           </AuthProvider>
         </NextIntlClientProvider>
       </body>

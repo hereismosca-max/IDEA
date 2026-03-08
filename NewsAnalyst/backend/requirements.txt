@@ -33,3 +33,6 @@ openai>=1.0.0
 # Article content extraction (for AI summary generation)
 trafilatura>=1.12.0
 lxml>=5.0.0
+
+# Market data
+yfinance>=0.2.54
