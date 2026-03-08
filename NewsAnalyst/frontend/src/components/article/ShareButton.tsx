@@ -6,21 +6,8 @@ export default function ShareButton() {
   const [state, setState] = useState<'idle' | 'copied'>('idle');
 
   const handleShare = async () => {
-    const url = window.location.href;
-
-    // Use native Web Share API on mobile if available
-    if (navigator.share) {
-      try {
-        await navigator.share({ url });
-        return;
-      } catch {
-        // User cancelled or not supported — fall through to clipboard
-      }
-    }
-
-    // Fallback: copy to clipboard
     try {
-      await navigator.clipboard.writeText(url);
+      await navigator.clipboard.writeText(window.location.href);
       setState('copied');
       setTimeout(() => setState('idle'), 2000);
     } catch {
