@@ -74,7 +74,18 @@ def get_articles(
     query = (
         db.query(Article)
         .options(joinedload(Article.source))
-        .filter(Article.is_active == True, Article.language == language)
+        .filter(
+            Article.is_active == True,
+            Article.language == language,
+            # Exclude articles that were AI-processed but yielded no summary
+            # (paywalled / unfetchable content). Show:
+            #   (a) not yet processed — summary may arrive soon, and
+            #   (b) processed successfully with a real summary.
+            or_(
+                Article.ai_processed_at.is_(None),
+                Article.ai_summary.isnot(None),
+            ),
+        )
         .order_by(Article.published_at.desc())
     )
 
@@ -234,6 +245,7 @@ def get_related_articles(
         .filter(
             Article.id != article_uuid,
             Article.is_active == True,
+            Article.ai_summary.isnot(None),   # only articles with real summaries
             or_(*conditions),
         )
         .order_by(Article.published_at.desc())

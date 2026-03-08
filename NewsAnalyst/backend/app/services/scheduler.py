@@ -85,6 +85,7 @@ def run_fetch_job():
 
                 # ── Phase 2: AI tagging + summary only for new articles ───────
                 if new_items:
+                    no_content_count = 0
                     for item in new_items:
                         ai_result = ai_processor.process(
                             item.title,
@@ -92,6 +93,7 @@ def run_fetch_job():
                             url=item.url,
                         )
                         if ai_result.tags or ai_result.summary:
+                            # Content available and processed successfully
                             db.execute(
                                 sa_update(Article)
                                 .where(Article.url == item.url)
@@ -101,8 +103,21 @@ def run_fetch_job():
                                     ai_processed_at=datetime.now(timezone.utc),
                                 )
                             )
+                        else:
+                            # No content (paywalled / bot-blocked) — stamp processed_at
+                            # so the article is excluded from the feed by the API filter.
+                            db.execute(
+                                sa_update(Article)
+                                .where(Article.url == item.url)
+                                .values(ai_processed_at=datetime.now(timezone.utc))
+                            )
+                            no_content_count += 1
                     db.commit()
-                    logger.info(f"  AI processed {len(new_items)} new articles (tags + summaries)")
+                    logger.info(
+                        f"  AI processed {len(new_items)} new articles "
+                        f"({len(new_items) - no_content_count} with content, "
+                        f"{no_content_count} no-content filtered out)"
+                    )
 
                 # Update fetch log — success
                 log.finished_at = datetime.now(timezone.utc)

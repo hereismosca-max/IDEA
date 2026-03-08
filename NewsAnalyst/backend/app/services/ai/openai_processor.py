@@ -55,21 +55,21 @@ ALLOWED_SCALES = ["company", "national", "regional", "global"]
 
 # ── System prompt ─────────────────────────────────────────────────────────────
 _SYSTEM_PROMPT = """\
-You are a financial news information extractor. Your job is to read a news article and return:
-(1) a concise factual summary, and (2) structured metadata tags.
+You are a financial news data extractor. Your job is to read a news article and return:
+(1) a concise objective data summary, and (2) structured metadata tags.
 
 Rules:
-- If full article content is provided: extract ONLY facts stated in the article. Do NOT infer, predict, or analyze.
-- If content is marked as [UNAVAILABLE] (paywalled or fetch failed): write a 1-2 sentence factual summary \
-based strictly on what the headline itself states — do not speculate beyond what the title implies.
+- Extract ONLY concrete facts, numbers, and events explicitly stated in the article.
+- Do NOT paraphrase, interpret, or add context beyond what the article states.
 - Do NOT make market predictions, investment suggestions, or trend analyses.
+- Prioritise specific data points: percentages, dollar figures, dates, named entities.
 - Be precise and concise. Prefer well-known names (e.g. "Apple" not "Apple Inc.").
 - If a field has no relevant value, return an empty list (or null for scale).
-- When full content is available, the summary must be 2-3 sentences. When only the title is available, 1-2 sentences is fine.
+- The summary must be 2-3 sentences of objective factual data only.
 
 Return a JSON object with exactly these fields:
 {
-  "summary":   "...",   // factual summary of the article
+  "summary":   "...",   // 2-3 sentences of objective factual data extracted from the article
   "entities":  [...],   // Up to 5 company names, organization names, or person names
   "locations": [...],   // Up to 3 countries or geographic regions
   "sectors":   [...],   // Up to 2 industry sectors from the allowed list
@@ -82,7 +82,8 @@ Allowed topics: earnings, merger, acquisition, ipo, bankruptcy, interest_rate, i
 Allowed scale values: company, national, regional, global
 """
 
-# Minimum content length to be considered "available" (avoids paywall login pages, etc.)
+# Minimum content length to consider article body "available".
+# Paywall pages / bot-block responses are typically < 150 chars of useful text.
 _MIN_CONTENT_CHARS = 150
 
 
@@ -119,15 +120,13 @@ class OpenAIProcessor(BaseAIProcessor):
         full_text = fetch_article_text(url) if url else None
         input_text = full_text or content or ""
 
-        # If content is too short (empty RSS + failed fetch, or paywall page), tell
-        # the AI explicitly so it falls back to title-only mode rather than returning
-        # an empty summary.
+        # If content is too short the article is likely paywalled or bot-blocked.
+        # Skip the AI call entirely — the caller will mark this article as processed
+        # with no summary so it can be filtered out of the feed.
         if len(input_text.strip()) < _MIN_CONTENT_CHARS:
-            content_block = "[UNAVAILABLE]"
-        else:
-            content_block = input_text
+            return AIProcessingResult()
 
-        user_message = f"Title: {title}\n\nContent: {content_block}"
+        user_message = f"Title: {title}\n\nContent: {input_text}"
 
         # ── Step 2: Call GPT-4o-mini ─────────────────────────────────────────
         try:

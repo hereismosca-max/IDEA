@@ -90,7 +90,11 @@ def main():
                     article.ai_processed_at = datetime.now(timezone.utc)
                 success += 1
             else:
-                print(f"  ✗ no summary or tags returned (skipped)")
+                # No content available (paywalled / unfetchable).
+                # Stamp ai_processed_at so the API filter can hide this article.
+                print(f"  ✗ no content — marking as processed (will be filtered from feed)")
+                if not args.dry_run:
+                    article.ai_processed_at = datetime.now(timezone.utc)
                 failed += 1
 
             # Commit in batches of 10 to avoid holding a huge transaction open
