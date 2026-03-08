@@ -1,8 +1,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { fetchMarketSnapshot } from '@/lib/api';
-import { MarketIndicator } from '@/types';
+import Link from 'next/link';
+import { useLocale } from 'next-intl';
+import { fetchMarketSnapshot, fetchArticles } from '@/lib/api';
+import { MarketIndicator, Article } from '@/types';
+import { useBoard } from '@/providers/BoardProvider';
 
 // ── Formatting helpers ────────────────────────────────────────────────────────
 
@@ -31,7 +34,7 @@ function IndicatorCard({ ind }: { ind: MarketIndicator }) {
   const up   = ind.change !== null && ind.change >= 0;
   const down = ind.change !== null && ind.change < 0;
 
-  const bg    = up ? 'bg-emerald-50'   : down ? 'bg-red-50'    : 'bg-gray-50';
+  const bg    = up ? 'bg-emerald-50'    : down ? 'bg-red-50'    : 'bg-gray-50';
   const color = up ? 'text-emerald-600' : down ? 'text-red-500' : 'text-gray-400';
   const sign  = up ? '▲' : down ? '▼' : '';
 
@@ -41,12 +44,10 @@ function IndicatorCard({ ind }: { ind: MarketIndicator }) {
       <span className="text-[10px] font-semibold text-gray-500 uppercase tracking-wide leading-none mb-1">
         {ind.label}
       </span>
-
       {/* Price */}
       <span className="text-sm font-bold text-gray-900 leading-snug tabular-nums">
         {ind.price !== null ? formatPrice(ind.price) : '—'}
       </span>
-
       {/* Change % */}
       {ind.change_pct !== null ? (
         <span className={`text-[10px] font-semibold leading-none mt-0.5 ${color}`}>
@@ -55,6 +56,81 @@ function IndicatorCard({ ind }: { ind: MarketIndicator }) {
       ) : (
         <span className="text-[10px] text-gray-300 leading-none mt-0.5">—</span>
       )}
+    </div>
+  );
+}
+
+// ── Headline ticker (right side) ──────────────────────────────────────────────
+
+function HeadlineTicker() {
+  const locale               = useLocale();
+  const { board }            = useBoard();
+  const [items, setItems]    = useState<Article[]>([]);
+  const [idx, setIdx]        = useState(0);
+  const [visible, setVisible] = useState(true);
+
+  // Fetch recent headlines whenever the board (language) changes
+  useEffect(() => {
+    setItems([]);
+    setIdx(0);
+    setVisible(true);
+    fetchArticles({ page: 1, page_size: 20, language: board })
+      .then(data => setItems(data.items))
+      .catch(() => {});
+  }, [board]);
+
+  // Auto-cycle: fade out → swap → fade in every 4.5 s
+  useEffect(() => {
+    if (items.length < 2) return;
+    const id = setInterval(() => {
+      setVisible(false);
+      setTimeout(() => {
+        setIdx(i => (i + 1) % items.length);
+        setVisible(true);
+      }, 380); // matches the CSS transition duration
+    }, 4500);
+    return () => clearInterval(id);
+  }, [items.length]);
+
+  // ── Skeleton while loading ──
+  if (items.length === 0) {
+    return (
+      <div className="flex-1 min-w-0 pl-4 flex flex-col justify-center gap-1.5 py-1">
+        <div className="h-2.5 bg-gray-100 rounded w-16 animate-pulse" />
+        <div className="h-3 bg-gray-100 rounded w-full animate-pulse" />
+        <div className="h-3 bg-gray-100 rounded w-4/5 animate-pulse" />
+      </div>
+    );
+  }
+
+  const article = items[idx];
+
+  return (
+    <div className="flex-1 min-w-0 pl-4 overflow-hidden flex flex-col justify-center py-1">
+      {/* Small label row: source + counter */}
+      <div className="flex items-center gap-2 mb-1">
+        <span className="text-[10px] font-bold text-blue-500 uppercase tracking-wide leading-none">
+          {article.source.name}
+        </span>
+        <span className="text-[10px] text-gray-300 leading-none tabular-nums">
+          {idx + 1} / {items.length}
+        </span>
+      </div>
+
+      {/* Headline — fades + slides on cycle */}
+      <Link
+        href={`/${locale}/article/${article.id}`}
+        className="group block"
+        style={{
+          opacity:    visible ? 1 : 0,
+          transform:  visible ? 'translateY(0px)' : 'translateY(-7px)',
+          transition: 'opacity 0.35s ease, transform 0.35s ease',
+        }}
+      >
+        <p className="text-xs font-medium text-gray-800 line-clamp-2 leading-snug group-hover:text-blue-600 transition-colors">
+          {article.title}
+        </p>
+      </Link>
     </div>
   );
 }
@@ -78,23 +154,30 @@ export default function MarketTicker() {
 
   useEffect(() => {
     load();
-    const id = setInterval(load, 60_000); // refresh every 60 s
+    const id = setInterval(load, 15_000); // ← 15 s polling (was 60 s)
     return () => clearInterval(id);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
     <div className="border-b border-gray-100 bg-white">
-      <div className="max-w-7xl mx-auto px-4 py-2 flex items-center gap-2 overflow-x-auto scrollbar-none">
-        {loading ? (
-          <>
-            {[...Array(6)].map((_, i) => <SkeletonCard key={i} />)}
-          </>
-        ) : indicators.length > 0 ? (
-          <>
-            {indicators.map((ind) => <IndicatorCard key={ind.symbol} ind={ind} />)}
-          </>
-        ) : null}
+      <div className="max-w-7xl mx-auto px-4 py-2 flex items-center">
+
+        {/* ── Left: Market mini cards ──────────────────────────────────── */}
+        <div className="flex items-center gap-2 flex-none overflow-x-auto scrollbar-none">
+          {loading ? (
+            [...Array(6)].map((_, i) => <SkeletonCard key={i} />)
+          ) : (
+            indicators.map(ind => <IndicatorCard key={ind.symbol} ind={ind} />)
+          )}
+        </div>
+
+        {/* ── Divider ──────────────────────────────────────────────────── */}
+        <div className="w-px self-stretch bg-gray-200 flex-none mx-4" />
+
+        {/* ── Right: Scrolling headline ticker ─────────────────────────── */}
+        <HeadlineTicker />
+
       </div>
     </div>
   );
