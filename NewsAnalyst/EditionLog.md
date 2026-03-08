@@ -11,7 +11,7 @@
 |------|-----------|---------|------|
 | v0.1.0 | Phase 1 | 地基：新闻抓取 + 基础展示 + 用户认证后端 | ✅ 已发布 |
 | v0.2.0 | Phase 2 | AI分析 + 日期导航 + 分类筛选 + 用户认证 + 文章投票 | ✅ 已发布 |
-| v0.3.0 | Phase 2+ | 邮箱验证 + 忘记密码 + 搜索 + 收藏 + 移动端适配 | 🔨 进行中 |
+| v0.3.0 | Phase 2+ | 邮箱验证 + 忘记密码 + 收藏 + 文章详情增强 + Feed 质量优化 | 🔨 进行中 |
 | v1.0.0 | Phase 3+4 | AI 重要性评分 + 智能推荐 + 中文板块 | 📋 待启动 |
 
 ---
@@ -119,16 +119,45 @@
 - 前端：`/forgot-password` 表单页；`/reset-password` 新密码页
 - 登录页新增"Forgot password?"快捷入口
 
-**关键技术说明**
+**关键技术说明（邮件）**
 - 邮件服务：Resend（`pip install resend`，免费 3000 封/月）
 - 测试阶段使用 `onboarding@resend.dev` 作为发件人，**只能向 Resend 账号注册邮箱发送**
 - 生产上线前需购买域名并在 Resend 控制台完成 DNS 验证（DKIM + SPF + DMARC），再更新 `EMAIL_FROM` 环境变量，无需改代码
 
+**用户收藏功能**
+- `POST/GET /api/v1/articles/{id}/save` — toggle + 状态查询
+- `GET /api/v1/articles/saved` — 收藏列表（分页，按 saved_at DESC）
+- `SaveButton` 组件：乐观更新，未验证邮箱提示，详情页侧边栏 + NewsCard 右上角双入口
+- `/saved` 收藏列表页，空状态引导，Load more 分页
+- TopBar 登录后显示 "Saved" 链接
+
+**文章详情页增强**
+- 后端新增 `GET /api/v1/articles/{id}/related`：基于 PostgreSQL JSONB `@>` 查询，匹配相同 sector 或 topic 的文章，最多返回 5 篇，按 `published_at DESC` 排序
+- 前端文章详情页改为 `Promise.all` 并行请求（article + related），消除串行 waterfall
+- 底部"Related Articles"区块：有相关文章时显示，无匹配标签时自动隐藏
+- `ShareButton` 组件：点击直接写入剪贴板（`navigator.clipboard.writeText`），2 秒 "Copied!" 状态反馈，不调用 Web Share API（避免 iOS 弹出原生分享面板）
+
+**Feed 质量与 AI 准确性优化（2026-03-08）**
+
+*背景：发现 Railway 调度器在 OPENAI_API_KEY 未生效期间（Period of inactivity）抓取了约 2000 篇文章但未打标签/摘要，同时原 AI Prompt 存在叙述性总结而非纯数据提取的问题。*
+
+- **AI Prompt 重写**：角色定义从"信息提取者"改为"数据提取器"，明确要求只提取数字、百分比、具体事件，禁止解读和叙述性总结，以确保摘要的客观性和数据准确性
+- **付费墙过滤机制**：
+  - `openai_processor.py`：content < 150 字符判定为付费墙/内容不可达，直接跳过 AI 调用（节省 OpenAI 成本），返回空结果
+  - `scheduler.py`：无论 AI 是否成功，处理后都写入 `ai_processed_at`，区分"未处理"和"处理过但无内容"两种状态
+  - `backfill_ai_summaries.py`：同步逻辑，失败时也写入 `ai_processed_at`
+- **Feed 过滤**：articles API 新增条件 `OR(ai_processed_at IS NULL, ai_summary IS NOT NULL)`，付费墙文章（有处理时间戳但无摘要）不出现在 feed 中
+- **Related articles 过滤**：仅推荐有真实摘要（`ai_summary IS NOT NULL`）的文章，不推荐付费墙文章
+- **大规模 backfill**：本地运行 `backfill_ai_summaries.py`，补全约 2000 篇无摘要文章（2026-03-08 执行中，预计当天完成）
+
+**关键技术说明（AI 过滤）**
+- PostgreSQL JSONB 列存储 Python `None` 时为 `'null'::jsonb`（JSON null），而非 SQL NULL——两者语义不同，过滤条件需区分 `IS NULL`（SQL null）和 `= 'null'::jsonb`（JSON null）
+- `ai_processed_at` 字段承担双重职责：(1) 记录处理时间，(2) 作为"是否曾尝试 AI 处理"的布尔标志，配合 `ai_summary` 共同决定文章可见性
+
 **待完成（本版本剩余）**
 - 搜索功能
-- 用户收藏新闻功能
 - 移动端响应式适配
 
 ---
 
-_最后更新：2026-02-28（v0.3.0 进行中：邮箱验证 + 忘记密码 + bug 修复 完成）_
+_最后更新：2026-03-08（v0.3.0 进行中：邮箱验证 + 忘记密码 + 用户收藏 + 文章详情增强 + Feed 质量优化 + AI Prompt 重写 + 付费墙过滤机制 完成；2000 篇历史文章 backfill 运行中）_

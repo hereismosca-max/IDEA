@@ -39,9 +39,9 @@
 
 ---
 
-## 🔨 Phase 1 · 地基（当前阶段）
+## 🔨 Phase 1 · 地基（已完成）
 
-### ⬇️ 下一步：验证与部署
+### ⬇️ 验证与部署
 - [x] 填写 `frontend/.env.local`（NEXT_PUBLIC_API_URL=http://localhost:8000）
 - [x] 安装前端依赖（`npm install`）
 - [x] 本地启动后端（`uvicorn app.main:app --reload`）— 164篇文章抓取成功
@@ -124,9 +124,33 @@
 - [x] 前端：新增 `/reset-password` 页（新密码 + 确认密码 + token 验证）
 - [x] `VoteButtons` 新增未验证提示框（amber 色，含 Resend email 按钮）
 
+### 用户收藏新闻（Bookmarks）
+- [x] `POST /api/v1/articles/{id}/save` toggle 收藏（auth + email_verified）
+- [x] `GET /api/v1/articles/{id}/save` 查询收藏状态
+- [x] `GET /api/v1/articles/saved` 用户收藏列表（分页，按 saved_at DESC）
+- [x] `SaveStatusResponse` schema（`is_saved: bool`）
+- [x] 前端：`SaveButton` 组件（乐观更新，未验证邮箱 amber 提示）
+- [x] 前端：文章详情页侧边栏加书签按钮（VoteButtons 下方）
+- [x] 前端：NewsCard 右上角书签图标（独立点击，不触发卡片跳转）
+- [x] 前端：`/saved` 收藏列表页（Load more 分页，空状态引导）
+- [x] 前端：TopBar 已登录状态显示 "Saved" 快捷链接
+
+### 文章详情页增强（Article Detail Enhancements）
+- [x] 后端：`GET /api/v1/articles/{id}/related` 端点（JSONB `@>` 匹配同 sector/topic，最多返回 5 篇）
+- [x] 前端：文章详情页底部"Related Articles"区块（Promise.all 并行请求，无标签时隐藏）
+- [x] 前端：`ShareButton` 组件（直接复制链接到剪贴板，2 秒 "Copied!" 反馈，不调用 Web Share API）
+
+### Feed 质量与 AI 准确性优化
+- [x] AI Prompt 优化：明确要求提取具体数据（数字/百分比/事件），禁止叙述性总结和主观判断
+- [x] 付费墙/内容不可达过滤：content < 150 字符时跳过 AI 调用，节省 API 成本
+- [x] 调度器：内容不可达时仍写入 `ai_processed_at`，确保可被过滤逻辑识别
+- [x] backfill 脚本：同步更新，失败时也写入 `ai_processed_at`
+- [x] articles API：新增过滤条件，付费墙文章（`ai_processed_at IS NOT NULL AND ai_summary IS NULL`）不出现在 feed 中
+- [x] related articles API：仅推荐有真实摘要的文章
+- [~] 大规模 backfill：补全 2000 篇无摘要文章（本地运行中，预计 2026-03-08 完成）
+
 ### 待完成
 - [ ] 搜索功能
-- [ ] 用户收藏新闻功能
 - [ ] 抓取日志管理页
 - [ ] 移动端响应式适配
 - [ ] 错误处理与友好提示
@@ -150,4 +174,4 @@
 
 ---
 
-_最后更新：2026-02-28（Phase 2 进行中：AI 标签 + 日期导航 + MenuBar 筛选 + AI 摘要 + 文章详情页 + 用户认证 + 文章投票 + 邮箱验证 + 忘记密码 完成，v0.3.0 准备中）_
+_最后更新：2026-03-08（Phase 2 进行中：文章详情增强 + Feed 质量优化 + AI Prompt 重写 + 付费墙过滤 完成；大规模 backfill 运行中）_
