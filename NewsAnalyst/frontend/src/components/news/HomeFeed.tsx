@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import DateNavigator from './DateNavigator';
 import NewsFeed from './NewsFeed';
 import SearchBar from './SearchBar';
@@ -16,9 +16,27 @@ function toUTCDateString(date: Date): string {
   return `${y}-${m}-${d}`;
 }
 
+/**
+ * Read the persisted date from sessionStorage (tab-scoped: survives F5,
+ * cleared when the tab is closed so a fresh open always starts at today).
+ */
+function getInitialDate(): Date {
+  if (typeof window !== 'undefined') {
+    const iso = sessionStorage.getItem('newsanalyst_date');
+    if (iso) {
+      const d = new Date(iso);
+      // Validate: real date, not in the future
+      if (!isNaN(d.getTime()) && d <= new Date()) return d;
+    }
+  }
+  return new Date();
+}
+
 export default function HomeFeed() {
   const { board }                                = useBoard();
-  const [selectedDate, setSelectedDate]         = useState<Date>(new Date());
+  // Initialise from sessionStorage so F5 preserves the selected day;
+  // a new tab or re-open always lands on today (sessionStorage cleared on close).
+  const [selectedDate, setSelectedDate]         = useState<Date>(getInitialDate);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [search, setSearch]                     = useState('');
 
@@ -26,6 +44,12 @@ export default function HomeFeed() {
 
   // When searching, don't pass a date so the API searches across all dates.
   const dateForFeed = isSearching ? undefined : toUTCDateString(selectedDate);
+
+  // Persist the chosen date within this tab session
+  const handleDateChange = useCallback((date: Date) => {
+    setSelectedDate(date);
+    sessionStorage.setItem('newsanalyst_date', date.toISOString());
+  }, []);
 
   return (
     <div>
@@ -46,7 +70,7 @@ export default function HomeFeed() {
         {/* Center: date navigator — flex-none; dimmed while searching */}
         <DateNavigator
           selectedDate={selectedDate}
-          onDateChange={setSelectedDate}
+          onDateChange={handleDateChange}
           disabled={isSearching}
         />
 

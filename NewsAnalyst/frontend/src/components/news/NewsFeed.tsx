@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import NewsCard from './NewsCard';
 import { fetchArticles } from '@/lib/api';
 import { Article, ArticleListResponse } from '@/types';
@@ -21,9 +21,15 @@ export default function NewsFeed({ date, category, search, sort = 'latest', lang
   const [hasNext, setHasNext] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
 
+  // Monotonically-increasing counter: each new fetch call claims the latest id.
+  // Any response that arrives with a stale id is silently discarded, preventing
+  // race conditions when the user navigates dates quickly (e.g. 8→7→8).
+  const reqIdRef = useRef(0);
+
   const isChinese = language === 'zh';
 
   const loadArticles = async (pageNum: number, reset = false) => {
+    const thisId = ++reqIdRef.current;
     try {
       reset ? setLoading(true) : setLoadingMore(true);
       const data: ArticleListResponse = await fetchArticles({
@@ -34,14 +40,20 @@ export default function NewsFeed({ date, category, search, sort = 'latest', lang
         search: search || undefined,
         sort,
       });
+      // Discard if a newer request has already been issued
+      if (thisId !== reqIdRef.current) return;
       setArticles((prev) => (reset ? data.items : [...prev, ...data.items]));
       setHasNext(data.has_next);
       setPage(pageNum);
     } catch {
+      if (thisId !== reqIdRef.current) return;
       setError('Failed to load articles. Please try again.');
     } finally {
-      setLoading(false);
-      setLoadingMore(false);
+      // Only the latest request should touch loading state
+      if (thisId === reqIdRef.current) {
+        setLoading(false);
+        setLoadingMore(false);
+      }
     }
   };
 
