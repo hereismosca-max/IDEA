@@ -34,9 +34,11 @@ class ArticleResponse(BaseModel):
     downvotes: int = 0
     user_vote: Optional[int] = None  # 1, -1, or None
 
-    # Translation cache — present after GET /articles/{id}/translate is called
-    title_zh: Optional[str] = None
-    ai_summary_zh: Optional[str] = None
+    # NOTE: translation fields (title_zh, ai_summary_zh) are intentionally NOT
+    # included here.  They live in ArticleTranslationResponse and are only
+    # populated via GET /articles/{id}/translate.  Including them in
+    # ArticleResponse would cause a "column does not exist" DB error on instances
+    # where the migration has not yet run.
 
     model_config = {"from_attributes": True}
 
