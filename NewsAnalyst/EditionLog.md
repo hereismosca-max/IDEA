@@ -219,10 +219,24 @@
 - 最终修复：Dockerfile CMD 恢复为原始 `["uvicorn", ...]`，翻译列改用 raw SQL + try/except 访问（DB 有列则缓存，无列则跳过，零停机迁移）
 - 详见 DevLog 2026-03-09 完整复盘
 
+**翻译 DB 缓存上线（2026-03-09）**
+- Railway 手动执行 alembic migration `b2f94e1c7a30`，正式添加 `title_zh` / `ai_summary_zh` 列
+- 翻译缓存生效：第一次请求调用 OpenAI（~2-5s），后续请求直接读 DB（~170ms）
+- `config.py` 加 `extra="ignore"`，修复 Railway 平台 env vars 注入导致 pydantic 验证失败的问题
+
+**UX 可靠性修复（2026-03-09）**
+- **日期刷新持久化**：使用 sessionStorage 保存选中日期；F5 刷新保留当前日期，关闭标签页后自动重置为今天
+- **竞态条件修复**：快速切换日期时旧请求结果不再覆盖新请求（`reqIdRef` 单调递增计数器）
+- **本地时区日期导航**（根本修复）：日期系统从 UTC 日历改为用户本地时区日历
+  - 后端新增 `date_from` / `date_to` ISO 8601 UTC 时间戳参数，允许前端传入本地日期的精确 UTC 边界
+  - 前端 `toLocalDayRange()` 计算"本地零点 → UTC ISO"和"本地下一个零点 → UTC ISO"
+  - PST（UTC-8）用户本地 3月8日显示"Today · Mar 8"；CST（UTC+8）用户本地 3月9日显示"Today · Mar 9"
+  - 夏令时（DST）由 JS `new Date(y, m, d)` 在本地时区自动处理，无需手动维护时区规则
+
 **待完成（本版本剩余）**
 - 移动端响应式适配
 - 中文新闻源接入（Phase 4 开始时）
 
 ---
 
-_最后更新：2026-03-09（全站 i18n + SettingsMenu 重设计 + 中文翻译功能 + Headline Ticker 翻译 + 生产事故修复 全部完成并已上线）_
+_最后更新：2026-03-09（翻译 DB 缓存上线 + UX 可靠性修复：日期持久化、竞态条件、本地时区日期导航根本修复）_
