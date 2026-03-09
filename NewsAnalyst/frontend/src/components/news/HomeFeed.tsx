@@ -29,7 +29,11 @@ function getInitialDate(): Date {
       if (!isNaN(d.getTime()) && d <= new Date()) return d;
     }
   }
-  return new Date();
+  // Return today as UTC midnight so navigation always stays in UTC space.
+  // Using new Date() (with time component) can cause off-by-one UTC date shifts
+  // when the navigator zeroes out the local time (local midnight ≠ UTC midnight).
+  const now = new Date();
+  return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
 }
 
 export default function HomeFeed() {
