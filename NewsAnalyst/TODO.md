@@ -224,11 +224,15 @@
 - [x] Dockerfile CMD 恢复为原始 `["uvicorn", ...]`（移除 `alembic upgrade head`）
 - [x] 后端恢复正常，health check 通过，文章 API 全部日期正常响应
 
+### 翻译缓存迁移（2026-03-09）
+- [x] 手动在 Railway 执行 `alembic upgrade head`（b2f94e1c7a30，添加 title_zh / ai_summary_zh 列）
+- [x] `app/core/config.py` 加 `extra="ignore"`（防止 Railway 注入的多余 env vars 导致 pydantic 验证失败）
+- [x] 翻译缓存上线验证：第二次调用 170ms（直接读 DB，不走 OpenAI）✅
+
 ### 待完成
 - [ ] 移动端响应式适配
 - [ ] 抓取日志管理页
 - [ ] 错误处理与友好提示
-- [ ] 手动在 Railway 执行 `alembic upgrade head`（添加 title_zh / ai_summary_zh 列，启用翻译缓存）
 
 ---
 
@@ -248,4 +252,4 @@
 
 ---
 
-_最后更新：2026-03-08（搜索 + 市场行情栏 + 板块切换器 + Settings 菜单 + Smart Headlines + i18n + 用户 Profile 扩展 全部完成并已上线）_
+_最后更新：2026-03-09（翻译缓存迁移上线，翻译 DB 写入验证通过，Settings config.py extra="ignore" 修复）_

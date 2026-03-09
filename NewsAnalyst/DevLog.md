@@ -198,12 +198,79 @@ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
 
 ---
 
-### 当前状态（2026-03-09 本轮结束）
+### 当前状态（2026-03-09 第一轮结束）
 - 后端健康，`/health` → `{"status":"healthy","env":"production"}` ✅
 - 文章 API 正常，各日期响应 < 200ms ✅
 - 中文翻译：卡片标题、文章详情页、Headline Ticker 全部支持中文翻译 ✅
 - SettingsMenu 完全重设计，语言切换只有 EN / 中文，无 Default ✅
 - Commits: `65d4677`（i18n） → `0ef0558`（翻译功能） → `1bc49ef`（误修） → `bcdda1b`（误修） → `a464b6f`（✅ 修复） → `4573454`（Ticker 翻译）
+
+---
+
+### 六、Railway 翻译缓存迁移上线（2026-03-09 续）
+
+**背景**：生产事故修复后，翻译功能已上线但 DB 缓存未生效（columns 不存在），每次翻译都实时调 OpenAI。用户要求运行 migration 启用缓存。
+
+#### 执行过程
+
+**问题 1：Railway 服务未链接**
+- `railway status` 显示 `Service: None`
+- `railway service status --all` 列出服务：`IDEA | 76892462-...`
+- `railway service link IDEA` → 链接成功
+
+**问题 2：`alembic upgrade head` 失败**
+
+```
+pydantic_core.ValidationError: 1 validation error for Settings
+FETCH_INTERVAL_HOURS
+  Extra inputs are not permitted
+```
+
+- **根因**：Railway 环境变量里存在 `FETCH_INTERVAL_HOURS=6`（可能是历史残留），但本地 `Settings` 模型只有 `FETCH_INTERVAL_MINUTES`，pydantic v2 默认 `extra="forbid"` → 直接报错
+- `railway run alembic upgrade head` 用本地 alembic 注入 Railway 环境变量，因此触发此验证
+
+**修复：`backend/app/core/config.py`**
+
+```python
+# 改前：
+model_config = SettingsConfigDict(env_file=".env", case_sensitive=True)
+
+# 改后：
+model_config = SettingsConfigDict(env_file=".env", case_sensitive=True, extra="ignore")
+```
+
+**理由**：生产应用的 Settings 模型应使用 `extra="ignore"`。Railway/云平台会注入大量平台级环境变量（如 `RAILWAY_SERVICE_ID`、`FETCH_INTERVAL_HOURS` 等），强制拒绝 extra 变量会导致所有 `railway run <cmd>` 失败。
+
+#### 迁移结果
+
+```
+# railway run alembic upgrade head
+INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+# (无 Running upgrade 信息 → migration 静默完成)
+
+# railway run alembic current
+INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+b2f94e1c7a30 (head)  ✅
+```
+
+#### 验证
+
+```bash
+# 调用翻译 API（第一次 → 可能走 OpenAI）
+title_zh: 4 家伯克希尔哈撒韦的股票，新任首席执行官 Greg Abel "预计将会在几十年内复合增长"
+ai_summary_zh length: 127 chars  ✅
+
+# 第二次调用（走 DB 缓存）
+Duration: 170ms  ✅（不走 OpenAI，直接读 DB）
+```
+
+#### 新增教训
+
+6. **`extra="ignore"` 是生产 Settings 模型的正确默认值**
+   - 云平台会注入平台级 env vars，`extra="forbid"` 会导致所有 `railway run` 命令因 Settings 验证失败而无法使用
+   - 不要用 `extra="forbid"` 在会被 `railway run` / `heroku run` 等平台 CLI 调用的命令里
 
 ---
 
