@@ -8,32 +8,44 @@ import MenuBar from '@/components/layout/MenuBar';
 import MarketTicker from '@/components/layout/MarketTicker';
 import { useBoard } from '@/providers/BoardProvider';
 
-/** Format a Date object as "YYYY-MM-DD" (UTC) for the API */
-function toUTCDateString(date: Date): string {
-  const y = date.getUTCFullYear();
-  const m = String(date.getUTCMonth() + 1).padStart(2, '0');
-  const d = String(date.getUTCDate()).padStart(2, '0');
-  return `${y}-${m}-${d}`;
+/**
+ * Compute the UTC ISO timestamps for the start and end of a LOCAL calendar day.
+ *
+ * Example (UTC-8 user selecting March 8):
+ *   Local midnight March 8  = 2026-03-08T08:00:00Z  → date_from
+ *   Local midnight March 9  = 2026-03-09T08:00:00Z  → date_to
+ *
+ * The backend filters: published_at >= date_from AND published_at < date_to,
+ * which correctly includes all articles published on March 8 in the user's timezone.
+ */
+function toLocalDayRange(date: Date): { dateFrom: string; dateTo: string } {
+  const y = date.getFullYear();
+  const m = date.getMonth();
+  const d = date.getDate();
+  const dateFrom = new Date(y, m, d).toISOString();      // local midnight → UTC ISO
+  const dateTo   = new Date(y, m, d + 1).toISOString();  // next local midnight → UTC ISO
+  return { dateFrom, dateTo };
 }
 
 /**
  * Read the persisted date from sessionStorage (tab-scoped: survives F5,
  * cleared when the tab is closed so a fresh open always starts at today).
+ * Returns a LOCAL midnight Date so DateNavigator comparisons stay in local time.
  */
 function getInitialDate(): Date {
+  const now = new Date();
+  const todayLocal = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
   if (typeof window !== 'undefined') {
     const iso = sessionStorage.getItem('newsanalyst_date');
     if (iso) {
       const d = new Date(iso);
-      // Validate: real date, not in the future
-      if (!isNaN(d.getTime()) && d <= new Date()) return d;
+      const dLocal = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+      // Accept only valid dates that aren't in the future (local comparison)
+      if (!isNaN(d.getTime()) && dLocal <= todayLocal) return dLocal;
     }
   }
-  // Return today as UTC midnight so navigation always stays in UTC space.
-  // Using new Date() (with time component) can cause off-by-one UTC date shifts
-  // when the navigator zeroes out the local time (local midnight ≠ UTC midnight).
-  const now = new Date();
-  return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+  return todayLocal;
 }
 
 export default function HomeFeed() {
@@ -46,8 +58,8 @@ export default function HomeFeed() {
 
   const isSearching = search.trim().length > 0;
 
-  // When searching, don't pass a date so the API searches across all dates.
-  const dateForFeed = isSearching ? undefined : toUTCDateString(selectedDate);
+  // When searching, don't pass date range so the API searches across all dates.
+  const dateRange = isSearching ? undefined : toLocalDayRange(selectedDate);
 
   // Persist the chosen date within this tab session
   const handleDateChange = useCallback((date: Date) => {
@@ -85,7 +97,8 @@ export default function HomeFeed() {
 
       {/* ── Article feed ── */}
       <NewsFeed
-        date={dateForFeed}
+        dateFrom={dateRange?.dateFrom}
+        dateTo={dateRange?.dateTo}
         category={selectedCategory}
         search={isSearching ? search.trim() : undefined}
         language={board}

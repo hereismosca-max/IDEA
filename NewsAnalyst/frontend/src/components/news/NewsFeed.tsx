@@ -6,14 +6,15 @@ import { fetchArticles } from '@/lib/api';
 import { Article, ArticleListResponse } from '@/types';
 
 interface NewsFeedProps {
-  date?: string;      // "YYYY-MM-DD" — filter to one UTC day; omitted when search is active
+  dateFrom?: string;  // ISO 8601 UTC — UTC timestamp of local-day start; omitted when searching
+  dateTo?: string;    // ISO 8601 UTC — UTC timestamp of local-day end;   omitted when searching
   category?: string;  // section slug ("all" | "markets" | "technology" | ...)
   search?: string;    // free-text search across title + AI summary
   sort?: 'latest' | 'popular';
   language?: string;  // content language — 'en' (American board) | 'zh' (Chinese board)
 }
 
-export default function NewsFeed({ date, category, search, sort = 'latest', language = 'en' }: NewsFeedProps) {
+export default function NewsFeed({ dateFrom, dateTo, category, search, sort = 'latest', language = 'en' }: NewsFeedProps) {
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -35,7 +36,8 @@ export default function NewsFeed({ date, category, search, sort = 'latest', lang
       const data: ArticleListResponse = await fetchArticles({
         page: pageNum,
         language,
-        date,
+        date_from: dateFrom,
+        date_to: dateTo,
         category_slug: category && category !== 'all' ? category : undefined,
         search: search || undefined,
         sort,
@@ -62,7 +64,7 @@ export default function NewsFeed({ date, category, search, sort = 'latest', lang
     setError(null);
     loadArticles(1, true);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [date, category, search, sort, language]);
+  }, [dateFrom, dateTo, category, search, sort, language]);
 
   // ── Error state ─────────────────────────────────────────────────────────────
   if (error) {

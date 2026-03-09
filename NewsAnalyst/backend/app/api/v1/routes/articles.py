@@ -63,7 +63,9 @@ def get_articles(
     page_size: int = Query(20, ge=1, le=100, description="Items per page"),
     language: str = Query("en", description="Language filter"),
     category_slug: Optional[str] = Query(None, description="Category slug filter"),
-    date: Optional[str] = Query(None, description="Filter by date (YYYY-MM-DD, UTC). Ignored when 'search' is present."),
+    date: Optional[str] = Query(None, description="Filter by date (YYYY-MM-DD, UTC). Ignored when 'search' or date_from/date_to are present."),
+    date_from: Optional[str] = Query(None, description="Filter from this UTC datetime (ISO 8601). Used with date_to for local-timezone day filtering."),
+    date_to: Optional[str] = Query(None, description="Filter to this UTC datetime (ISO 8601). Used with date_from for local-timezone day filtering."),
     search: Optional[str] = Query(None, description="Search in article title and AI summary (case-insensitive). When present, date filter is ignored."),
     sort: str = Query("latest", description="Sort order: 'latest' (default, newest first) | 'popular' (most voted first)"),
     db: Session = Depends(get_db),
@@ -93,8 +95,19 @@ def get_articles(
                 Article.ai_summary.ilike(term),
             )
         )
+    elif date_from and date_to:
+        # Preferred: caller supplies exact UTC boundaries for a local calendar day
+        try:
+            from_dt = datetime.fromisoformat(date_from.replace("Z", "+00:00"))
+            to_dt   = datetime.fromisoformat(date_to.replace("Z", "+00:00"))
+            query = query.filter(
+                Article.published_at >= from_dt,
+                Article.published_at < to_dt,
+            )
+        except ValueError:
+            raise HTTPException(status_code=400, detail="Invalid date_from/date_to format. Use ISO 8601.")
     elif date:
-        # Date filter only applies when not searching
+        # Fallback: legacy YYYY-MM-DD treated as UTC day
         try:
             day_start = datetime.strptime(date, "%Y-%m-%d").replace(tzinfo=timezone.utc)
             day_end = day_start + timedelta(days=1)

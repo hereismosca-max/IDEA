@@ -363,6 +363,108 @@ function toUTCMidnight(date: Date): Date {
 
 ---
 
+## 2026-03-09 · 本地时区日期导航修复（本地日历 ≠ UTC 日历）
+
+### 问题：美国西部用户看到"3月9日"，但本地时间才3月8日
+
+**现象**：UTC-8（PST）用户在本地 11pm 打开网站：
+- DateNavigator 显示 "Today · Mar 9"，但用户本地才 3月8日
+- 3分钟前发布的文章显示在 3月9日日期下，但用户本地是 3月8日
+- 切换左箭头→右箭头后，查询到的 UTC 日期偏移一天（见上一节记录）
+
+**根因**：整个日期系统（DateNavigator、HomeFeed、NewsFeed API 调用）以 UTC 日历为基准：
+- `todayUTC = toUTCMidnight(new Date())` → 使用 UTC 日期
+- `date=YYYY-MM-DD` 参数由 `toUTCDateString()` 生成，过滤的是 UTC 零点至零点
+
+对于 UTC-8 用户：
+- 本地 11pm March 8 PST = UTC March 9 07:00
+- `todayUTC` = UTC March 9 → 导航栏显示 "March 9"
+- 但用户本地日历明明是 March 8
+
+**正确设计**：日期导航应该以**用户本地时区**为基准，不是 UTC。
+
+### 修复方案
+
+**核心原则**：本地午夜 `new Date(y, m, d)` 才是用户感知到的"今天 0 点"。
+- `new Date(y, m, d).toISOString()` 得到这一刻的 UTC 时间戳
+- 把它作为 `date_from` 传给后端，就实现了"本地 March 8 00:00 → UTC March 8 08:00"的正确映射
+
+#### 1. 后端 `backend/app/api/v1/routes/articles.py`
+
+新增 `date_from` + `date_to` Query 参数（ISO 8601 UTC 时间戳）：
+```python
+date_from: Optional[str] = Query(None, ...)
+date_to:   Optional[str] = Query(None, ...)
+```
+
+过滤优先级：`search` > `date_from/date_to` > `date`（向后兼容）：
+```python
+elif date_from and date_to:
+    from_dt = datetime.fromisoformat(date_from.replace("Z", "+00:00"))
+    to_dt   = datetime.fromisoformat(date_to.replace("Z", "+00:00"))
+    query = query.filter(published_at >= from_dt, published_at < to_dt)
+```
+
+#### 2. 前端 `frontend/src/lib/api.ts`
+
+`FetchArticlesParams` 新增 `date_from?: string` / `date_to?: string`。
+当两者都存在时优先传 `date_from`/`date_to`，`date` 仅作 fallback。
+
+#### 3. 前端 `frontend/src/components/news/DateNavigator.tsx`
+
+将 `toUTCMidnight()` 替换为 `toLocalMidnight()`：
+```tsx
+function toLocalMidnight(date: Date): Date {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+}
+```
+
+- `todayLocal = toLocalMidnight(new Date())` — 本地今天
+- `isToday` 比较本地 midnight 时间戳
+- `navigate(delta)` = `new Date(y, m, d + delta)` — 本地日期加减
+- `formatLabel()` — 不传 `timeZone: 'UTC'`，使用浏览器本地时区显示
+- DayPicker `onSelect`：`new Date(date.getFullYear(), date.getMonth(), date.getDate())` — 保留本地日期
+
+#### 4. 前端 `frontend/src/components/news/HomeFeed.tsx`
+
+删除 `toUTCDateString()`，改用 `toLocalDayRange()`：
+```tsx
+function toLocalDayRange(date: Date): { dateFrom: string; dateTo: string } {
+  const y = date.getFullYear(), m = date.getMonth(), d = date.getDate();
+  return {
+    dateFrom: new Date(y, m, d).toISOString(),      // 本地零点 → UTC ISO
+    dateTo:   new Date(y, m, d + 1).toISOString(),  // 下一个本地零点 → UTC ISO
+  };
+}
+```
+
+`getInitialDate()` 改为返回本地零点 `new Date(y, m, d)` 而非 UTC midnight。
+向 `NewsFeed` 传 `dateFrom` / `dateTo` 而非 `date`。
+
+#### 5. 前端 `frontend/src/components/news/NewsFeed.tsx`
+
+Props 从 `date?: string` 改为 `dateFrom?: string` / `dateTo?: string`；
+`fetchArticles()` 调用和 `useEffect` 依赖同步更新。
+
+### 效果
+
+PST (UTC-8) 用户，本地时间 March 8 11pm：
+- 导航栏显示 "Today · Mar 8" ✓
+- API 请求：`date_from=2026-03-08T08:00:00Z&date_to=2026-03-09T08:00:00Z`
+- 后端过滤 PST 0am–11:59pm 内发布的文章 ✓
+- 3分钟前的文章正确显示在 3月8日下 ✓
+
+北京时间 (UTC+8) 用户，本地时间 March 9 09:00：
+- 导航栏显示 "Today · Mar 9" ✓
+- API 请求：`date_from=2026-03-09T16:00:00Z&date_to=2026-03-10T16:00:00Z`（CST 0am → UTC 16:00前一天）
+- 后端过滤 CST 0am–11:59pm 内的文章 ✓
+
+夏令时（DST）：`new Date(y, m, d)` 由 JS 引擎在本地时区执行，自动处理 DST 偏移，无需手动维护规则。
+
+**commit**: 下次提交
+
+---
+
 ## 2026-03-08 · Feed 质量优化 + 搜索 + 市场行情栏 + 板块切换
 
 ### 背景

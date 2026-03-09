@@ -13,12 +13,13 @@ interface DateNavigatorProps {
 }
 
 /**
- * Return a Date object set to UTC midnight for the given date's UTC calendar day.
- * This ensures all date comparisons and arithmetic happen in UTC, avoiding the
- * off-by-one timezone bug that occurs when local midnight ≠ UTC midnight (e.g. UTC+8).
+ * Return a Date set to LOCAL midnight (00:00:00) for the given date's local calendar day.
+ * This is the correct unit for user-facing date navigation: "today" means today in the
+ * user's timezone, not UTC. The resulting Date's .toISOString() gives the UTC equivalent
+ * of that local midnight, which is what we pass to the backend as date_from/date_to.
  */
-function toUTCMidnight(date: Date): Date {
-  return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
+function toLocalMidnight(date: Date): Date {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
 }
 
 export default function DateNavigator({ selectedDate, onDateChange, disabled = false }: DateNavigatorProps) {
@@ -28,12 +29,11 @@ export default function DateNavigator({ selectedDate, onDateChange, disabled = f
   const [calendarOpen, setCalendarOpen] = useState(false);
   const popoverRef = useRef<HTMLDivElement>(null);
 
-  // All comparisons and navigation run in UTC to prevent timezone drift.
-  // Example: UTC+8 local midnight = UTC "previous day" 16:00 — using local
-  // arithmetic on a selectedDate causes the queried UTC date to shift by -1.
-  const todayUTC    = toUTCMidnight(new Date());
-  const selectedUTC = toUTCMidnight(selectedDate);
-  const isToday     = selectedUTC.getTime() === todayUTC.getTime();
+  // All comparisons use local-timezone midnight dates so "today" and "yesterday"
+  // match what the user sees on their device clock.
+  const todayLocal    = toLocalMidnight(new Date());
+  const selectedLocal = toLocalMidnight(selectedDate);
+  const isToday       = selectedLocal.getTime() === todayLocal.getTime();
 
   // Map next-intl locale code → Intl locale string for date formatting
   const intlLocale = locale === 'zh' ? 'zh-CN' : 'en-US';
@@ -51,30 +51,29 @@ export default function DateNavigator({ selectedDate, onDateChange, disabled = f
   }, [calendarOpen]);
 
   const navigate = (delta: number) => {
-    // Date.UTC arithmetic stays in UTC — no local timezone shift possible.
-    const next = new Date(Date.UTC(
-      selectedUTC.getUTCFullYear(),
-      selectedUTC.getUTCMonth(),
-      selectedUTC.getUTCDate() + delta,
-    ));
-    if (next.getTime() <= todayUTC.getTime()) {
+    // Local-date arithmetic: new Date(year, month, day ± delta) handles month/year
+    // rollovers correctly and stays in the user's local timezone.
+    const next = new Date(
+      selectedLocal.getFullYear(),
+      selectedLocal.getMonth(),
+      selectedLocal.getDate() + delta,
+    );
+    if (next.getTime() <= todayLocal.getTime()) {
       onDateChange(next);
       setCalendarOpen(false);
     }
   };
 
   const formatLabel = (date: Date): string => {
-    // Compare UTC dates so "today" / "yesterday" labels match what the feed queries.
-    const utcDate  = toUTCMidnight(date);
-    const diffDays = Math.round((todayUTC.getTime() - utcDate.getTime()) / 86_400_000);
-    // Display the UTC date (timeZone:'UTC') so the label matches the feed content.
-    const short = utcDate.toLocaleDateString(intlLocale, {
-      month: 'short', day: 'numeric', timeZone: 'UTC',
-    });
+    const local    = toLocalMidnight(date);
+    const diffDays = Math.round((todayLocal.getTime() - local.getTime()) / 86_400_000);
+    // No timeZone override → uses browser local timezone so the label matches the
+    // local date the user picked.
+    const short = local.toLocaleDateString(intlLocale, { month: 'short', day: 'numeric' });
     if (diffDays === 0) return `${t('today')} · ${short}`;
     if (diffDays === 1) return `${t('yesterday')} · ${short}`;
-    return utcDate.toLocaleDateString(intlLocale, {
-      weekday: 'short', month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC',
+    return local.toLocaleDateString(intlLocale, {
+      weekday: 'short', month: 'short', day: 'numeric', year: 'numeric',
     });
   };
 
@@ -131,15 +130,15 @@ export default function DateNavigator({ selectedDate, onDateChange, disabled = f
         >
           <DayPicker
             mode="single"
-            selected={selectedUTC}
-            defaultMonth={selectedUTC}
-            disabled={{ after: todayUTC }}
+            selected={selectedLocal}
+            defaultMonth={selectedLocal}
+            disabled={{ after: todayLocal }}
             onSelect={(date) => {
               if (date) {
-                // DayPicker gives a local-timezone Date; convert to UTC midnight of
-                // the same calendar date so we stay in UTC space consistently.
-                const utcDate = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
-                onDateChange(utcDate);
+                // DayPicker returns a local-timezone Date. We normalise to local midnight
+                // so the time component is always 00:00:00 (no partial-day drift).
+                const localDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+                onDateChange(localDate);
                 setCalendarOpen(false);
               }
             }}
