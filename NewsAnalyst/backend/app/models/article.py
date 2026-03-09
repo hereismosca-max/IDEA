@@ -37,6 +37,12 @@ class Article(Base):
         DateTime(timezone=True), nullable=True
     )
 
+    # ── Translation cache (populated on demand) ───────────────────────────────
+    # Stores Chinese translations of the title and AI summary.
+    # Left NULL until the /translate endpoint is called for the first time.
+    title_zh: Mapped[str | None] = mapped_column(Text, nullable=True)
+    ai_summary_zh: Mapped[str | None] = mapped_column(Text, nullable=True)
+
     # Relationships
     source: Mapped["Source"] = relationship("Source", back_populates="articles")
     article_categories: Mapped[list["ArticleCategory"]] = relationship(

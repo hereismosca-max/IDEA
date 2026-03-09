@@ -34,7 +34,18 @@ class ArticleResponse(BaseModel):
     downvotes: int = 0
     user_vote: Optional[int] = None  # 1, -1, or None
 
+    # Translation cache — present after GET /articles/{id}/translate is called
+    title_zh: Optional[str] = None
+    ai_summary_zh: Optional[str] = None
+
     model_config = {"from_attributes": True}
+
+
+class ArticleTranslationResponse(BaseModel):
+    """Returned by GET /articles/{id}/translate."""
+    article_id: uuid.UUID
+    title_zh: Optional[str] = None
+    ai_summary_zh: Optional[str] = None
 
 
 class ArticleListResponse(BaseModel):

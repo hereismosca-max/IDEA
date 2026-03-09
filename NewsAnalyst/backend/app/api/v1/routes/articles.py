@@ -10,7 +10,7 @@ from app.core.security import get_current_user, get_optional_user
 from app.models.article import Article, UserSavedArticle
 from app.models.vote import ArticleVote
 from app.models.user import User
-from app.schemas.article import ArticleListResponse, ArticleResponse
+from app.schemas.article import ArticleListResponse, ArticleResponse, ArticleTranslationResponse
 from app.utils.logger import get_logger
 
 router = APIRouter()
@@ -226,6 +226,60 @@ def get_saved_articles(
         page_size=page_size,
         has_next=(page * page_size) < total,
     )
+
+
+@router.get("/{article_id}/translate", response_model=ArticleTranslationResponse)
+def translate_article_endpoint(
+    article_id: str,
+    lang: str = Query("zh", description="Target language code (currently only 'zh' is supported)"),
+    db: Session = Depends(get_db),
+):
+    """
+    Return the Chinese translation of an article's title and AI summary.
+
+    On first call: calls OpenAI to translate and caches the result in the DB.
+    On subsequent calls: returns the cached translation immediately (no API cost).
+
+    Must be defined BEFORE /{article_id} so FastAPI matches the literal path
+    segment 'translate' before treating it as a UUID parameter.
+    """
+    from app.services.translator import translate_article as _translate
+
+    try:
+        import uuid as _uuid
+        article_uuid = _uuid.UUID(article_id)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid article ID format")
+
+    article = (
+        db.query(Article)
+        .filter(Article.id == article_uuid, Article.is_active == True)
+        .first()
+    )
+    if not article:
+        raise HTTPException(status_code=404, detail="Article not found")
+
+    # Return cached translation if both fields are already present
+    if article.title_zh or article.ai_summary_zh:
+        return ArticleTranslationResponse(
+            article_id=article.id,
+            title_zh=article.title_zh,
+            ai_summary_zh=article.ai_summary_zh,
+        )
+
+    # Translate and cache
+    if lang == "zh":
+        title_zh, summary_zh = _translate(article.title, article.ai_summary)
+        article.title_zh = title_zh
+        article.ai_summary_zh = summary_zh
+        db.commit()
+        return ArticleTranslationResponse(
+            article_id=article.id,
+            title_zh=title_zh,
+            ai_summary_zh=summary_zh,
+        )
+
+    raise HTTPException(status_code=400, detail=f"Unsupported translation language: {lang}")
 
 
 @router.get("/{article_id}", response_model=ArticleResponse)

@@ -1,4 +1,4 @@
-import { Article, ArticleListResponse, MarketSnapshot, MessageResponse, SaveStatus, TokenResponse, User, VoteCounts } from '@/types';
+import { Article, ArticleListResponse, ArticleTranslation, MarketSnapshot, MessageResponse, SaveStatus, TokenResponse, User, VoteCounts } from '@/types';
 import { getToken } from '@/lib/auth';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
@@ -177,4 +177,15 @@ export function fetchMarketSnapshot(): Promise<MarketSnapshot> {
 export function fetchHeadlines(language = 'en', limit = 5): Promise<Article[]> {
   const query = new URLSearchParams({ language, limit: String(limit) });
   return request(`/api/v1/articles/headlines?${query}`);
+}
+
+// ── Translation ───────────────────────────────────────────────────────────────
+
+/**
+ * Fetch (and lazily cache) the Chinese translation of an article's title
+ * and AI summary.  The backend translates on first call and returns cached
+ * results on every subsequent call, so repeated calls are cheap.
+ */
+export function translateArticle(articleId: string, lang = 'zh'): Promise<ArticleTranslation> {
+  return request(`/api/v1/articles/${articleId}/translate?lang=${lang}`);
 }

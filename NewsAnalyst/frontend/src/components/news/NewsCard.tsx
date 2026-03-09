@@ -1,9 +1,11 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useLocale } from 'next-intl';
 import { Article } from '@/types';
 import SaveButton from '@/components/article/SaveButton';
+import { translateArticle } from '@/lib/api';
 
 interface NewsCardProps {
   article: Article;
@@ -44,8 +46,7 @@ function timeAgo(dateStr: string): string {
     return s + ' ago';
   }
 
-  // 1–3 weeks (7–27 days) → "X weeks Y days Z h W min ago"
-  // At 4 weeks (28 days) we switch to months.
+  // 1–3 weeks (7–27 days)
   if (totalDays < 28) {
     const w = Math.floor(totalDays / 7);
     const d = totalDays % 7;
@@ -58,7 +59,7 @@ function timeAgo(dateStr: string): string {
     return s + ' ago';
   }
 
-  // 1–11 months (28–364 days) → "X months Y weeks Z days H h M min ago"
+  // 1–11 months (28–364 days)
   if (totalDays < 365) {
     const mo = Math.max(1, Math.floor(totalDays / 30));
     const remDays = Math.max(0, totalDays - mo * 30);
@@ -74,7 +75,7 @@ function timeAgo(dateStr: string): string {
     return s + ' ago';
   }
 
-  // ≥ 1 year → "X years Y months Z weeks D days H h M min ago"
+  // ≥ 1 year
   const yr = Math.floor(totalDays / 365);
   const remAfterYears = totalDays % 365;
   const mo = Math.floor(remAfterYears / 30);
@@ -94,9 +95,55 @@ function timeAgo(dateStr: string): string {
 
 export default function NewsCard({ article }: NewsCardProps) {
   const locale = useLocale();
+  const isZh = locale === 'zh';
 
   // Show AI summary if available, otherwise fall back to raw snippet
   const displayText = article.ai_summary || article.content_snippet;
+
+  // ── Chinese translation state ──────────────────────────────────────────────
+  // title_zh: auto-fetched in background when locale='zh'
+  // summary_zh: fetched on demand when user clicks "查看中文摘要"
+  const [titleZh, setTitleZh]     = useState<string | null>(article.title_zh ?? null);
+  const [summaryZh, setSummaryZh] = useState<string | null>(article.ai_summary_zh ?? null);
+  const [summaryOpen, setSummaryOpen]     = useState(false);
+  const [summaryLoading, setSummaryLoading] = useState(false);
+
+  // Auto-translate title in the background when in Chinese locale.
+  // Uses any cached title_zh from the server-side article response first.
+  useEffect(() => {
+    if (!isZh || titleZh) return; // already have it
+    let cancelled = false;
+    translateArticle(article.id, 'zh')
+      .then((t) => {
+        if (!cancelled) {
+          setTitleZh(t.title_zh);
+          setSummaryZh(t.ai_summary_zh); // cache summary too (no extra cost)
+        }
+      })
+      .catch(() => { /* silent — fall back to English */ });
+    return () => { cancelled = true; };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [article.id, isZh]);
+
+  // Load (or reveal) the translated summary when the user expands it.
+  const handleSummaryToggle = async () => {
+    if (summaryOpen) { setSummaryOpen(false); return; }
+
+    if (summaryZh) { setSummaryOpen(true); return; }
+
+    // Fetch if not yet available
+    setSummaryLoading(true);
+    try {
+      const t = await translateArticle(article.id, 'zh');
+      setSummaryZh(t.ai_summary_zh);
+    } catch { /* silent */ }
+    finally {
+      setSummaryLoading(false);
+      setSummaryOpen(true);
+    }
+  };
+
+  const displayTitle = (isZh && titleZh) ? titleZh : article.title;
 
   return (
     <div className="relative bg-white border border-gray-200 rounded-lg hover:border-gray-400 hover:shadow-sm transition-all group">
@@ -119,17 +166,17 @@ export default function NewsCard({ article }: NewsCardProps) {
           <span className="text-xs text-gray-400">{timeAgo(article.published_at)}</span>
         </div>
 
-        {/* Title */}
+        {/* Title — shows translated version in zh locale once available */}
         <h2 className="text-sm font-semibold text-gray-900 leading-snug mb-2 line-clamp-2 group-hover:text-blue-700 transition-colors">
-          {article.title}
+          {displayTitle}
         </h2>
 
-        {/* Summary / Snippet */}
+        {/* Summary / Snippet (always English on the card) */}
         {displayText && (
           <p className="text-xs text-gray-500 leading-relaxed line-clamp-3">{displayText}</p>
         )}
 
-        {/* AI score badge — visible only when score exists (Phase 3) */}
+        {/* AI score badge — visible only when score exists */}
         {article.ai_score !== null && (
           <div className="mt-3 flex items-center gap-1">
             <span className="text-xs text-gray-400">Relevance</span>
@@ -142,6 +189,50 @@ export default function NewsCard({ article }: NewsCardProps) {
           </div>
         )}
       </Link>
+
+      {/* ── Chinese summary expand (zh locale only) ────────────────────────── */}
+      {isZh && displayText && (
+        <div className="border-t border-gray-100 px-4 py-2">
+          <button
+            onClick={handleSummaryToggle}
+            disabled={summaryLoading}
+            className="flex items-center gap-1 text-xs text-blue-500 hover:text-blue-700 transition-colors disabled:opacity-50"
+          >
+            {summaryLoading ? (
+              <>
+                <svg className="w-3 h-3 animate-spin" viewBox="0 0 24 24" fill="none">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                </svg>
+                翻译中…
+              </>
+            ) : summaryOpen ? (
+              <>
+                <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 15l7-7 7 7" />
+                </svg>
+                收起中文摘要
+              </>
+            ) : (
+              <>
+                <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                </svg>
+                查看中文摘要
+              </>
+            )}
+          </button>
+
+          {summaryOpen && summaryZh && (
+            <p className="mt-2 text-xs text-gray-600 leading-relaxed">
+              {summaryZh}
+            </p>
+          )}
+          {summaryOpen && !summaryZh && !summaryLoading && (
+            <p className="mt-2 text-xs text-gray-400 italic">暂无中文摘要。</p>
+          )}
+        </div>
+      )}
     </div>
   );
 }

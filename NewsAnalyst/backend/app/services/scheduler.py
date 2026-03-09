@@ -187,6 +187,8 @@ def run_fetch_job():
 
 
 def start_scheduler():
+    import threading
+
     scheduler.add_job(
         run_fetch_job,
         trigger=IntervalTrigger(minutes=settings.FETCH_INTERVAL_MINUTES),
@@ -197,8 +199,22 @@ def start_scheduler():
     logger.info(
         f"Scheduler started — interval: every {settings.FETCH_INTERVAL_MINUTES} min"
     )
-    # Run once immediately so news is available right after startup
-    run_fetch_job()
+
+    # Run the initial fetch in a daemon background thread so the FastAPI event
+    # loop is never blocked during app startup.  Railway (and other platforms)
+    # send health-check probes shortly after the process starts; if we block the
+    # main thread here, the health check times out and the service is restarted
+    # in a loop.  Running the job in a thread lets the app bind the port and pass
+    # health checks immediately while the first fetch proceeds in the background.
+    def _initial_fetch():
+        try:
+            run_fetch_job()
+        except Exception as exc:
+            logger.error("Initial background fetch failed: %s", exc)
+
+    thread = threading.Thread(target=_initial_fetch, daemon=True, name="initial-fetch")
+    thread.start()
+    logger.info("Initial fetch dispatched to background thread")
 
 
 def stop_scheduler():

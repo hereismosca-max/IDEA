@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import type { Metadata } from 'next';
-import type { Article } from '@/types';
+import type { Article, ArticleTranslation } from '@/types';
 import VoteButtons from '@/components/article/VoteButtons';
 import SaveButton from '@/components/article/SaveButton';
 import ShareButton from '@/components/article/ShareButton';
@@ -34,12 +34,25 @@ async function getRelatedArticles(id: string): Promise<Article[]> {
   }
 }
 
+/** Fetch (and lazily cache) the Chinese translation for the article detail page. */
+async function getTranslation(id: string): Promise<ArticleTranslation | null> {
+  try {
+    const res = await fetch(`${API_BASE}/api/v1/articles/${id}/translate?lang=zh`, {
+      next: { revalidate: 86400 }, // cache translation for 24 h
+    });
+    if (!res.ok) return null;
+    return res.json();
+  } catch {
+    return null;
+  }
+}
+
 // ── SEO metadata ──────────────────────────────────────────────────────────────
 
 export async function generateMetadata({
   params,
 }: {
-  params: { id: string };
+  params: { id: string; locale: string };
 }): Promise<Metadata> {
   const article = await getArticle(params.id);
   if (!article) return { title: 'Article not found — NewsAnalyst' };
@@ -51,8 +64,9 @@ export async function generateMetadata({
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-function formatDate(dateStr: string): string {
-  return new Intl.DateTimeFormat('en-US', {
+function formatDate(dateStr: string, locale: string): string {
+  const intlLocale = locale === 'zh' ? 'zh-CN' : 'en-US';
+  return new Intl.DateTimeFormat(intlLocale, {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
@@ -87,16 +101,23 @@ export default async function ArticlePage({
 }: {
   params: { id: string; locale: string };
 }) {
-  // Fetch article + related in parallel
-  const [article, relatedArticles] = await Promise.all([
+  const isZh = params.locale === 'zh';
+
+  // Fetch article, related articles, and (when in Chinese locale) translation in parallel
+  const [article, relatedArticles, translation] = await Promise.all([
     getArticle(params.id),
     getRelatedArticles(params.id),
+    isZh ? getTranslation(params.id) : Promise.resolve(null),
   ]);
 
   if (!article) notFound();
 
   const tags = article.ai_tags;
   const bodyText = article.ai_summary || article.content_snippet;
+
+  // Use translated text when available in Chinese locale
+  const displayTitle   = (isZh && translation?.title_zh)      ? translation.title_zh    : article.title;
+  const displaySummary = (isZh && translation?.ai_summary_zh) ? translation.ai_summary_zh : bodyText;
 
   return (
     <div className="max-w-3xl mx-auto">
@@ -107,7 +128,7 @@ export default async function ArticlePage({
           href={`/${params.locale}`}
           className="inline-flex items-center gap-1 text-sm text-gray-400 hover:text-gray-700 transition-colors"
         >
-          ← Back
+          ← {isZh ? '返回' : 'Back'}
         </Link>
       </div>
 
@@ -137,15 +158,22 @@ export default async function ArticlePage({
                   {article.source.name}
                 </span>
                 <span className="text-gray-300">·</span>
-                <span className="text-xs text-gray-400">{formatDate(article.published_at)}</span>
+                <span className="text-xs text-gray-400">{formatDate(article.published_at, params.locale)}</span>
               </div>
               <ShareButton />
             </div>
 
-            {/* Title */}
+            {/* Title — translated when locale=zh */}
             <h1 className="text-xl font-bold text-gray-900 leading-snug mb-6">
-              {article.title}
+              {displayTitle}
             </h1>
+
+            {/* Translation notice — only shown when a translation was applied */}
+            {isZh && translation?.title_zh && (
+              <p className="text-xs text-gray-400 -mt-4 mb-6 italic">
+                原标题：{article.title}
+              </p>
+            )}
 
             {/* Tags */}
             {tags && (
@@ -176,19 +204,25 @@ export default async function ArticlePage({
                 <div className="text-xs text-gray-400 space-y-1">
                   {(tags.entities?.length ?? 0) > 0 && (
                     <p>
-                      <span className="font-medium text-gray-500">Companies / People: </span>
+                      <span className="font-medium text-gray-500">
+                        {isZh ? '相关方：' : 'Companies / People: '}
+                      </span>
                       {tags.entities!.join(', ')}
                     </p>
                   )}
                   {(tags.locations?.length ?? 0) > 0 && (
                     <p>
-                      <span className="font-medium text-gray-500">Locations: </span>
+                      <span className="font-medium text-gray-500">
+                        {isZh ? '地区：' : 'Locations: '}
+                      </span>
                       {tags.locations!.join(', ')}
                     </p>
                   )}
                   {tags.scale && (
                     <p>
-                      <span className="font-medium text-gray-500">Scale: </span>
+                      <span className="font-medium text-gray-500">
+                        {isZh ? '规模：' : 'Scale: '}
+                      </span>
                       {tags.scale}
                     </p>
                   )}
@@ -199,11 +233,13 @@ export default async function ArticlePage({
             {/* Divider */}
             <hr className="border-gray-100 mb-6" />
 
-            {/* Summary / Content */}
-            {bodyText ? (
-              <p className="text-sm text-gray-700 leading-relaxed">{bodyText}</p>
+            {/* Summary / Content — translated in zh locale */}
+            {displaySummary ? (
+              <p className="text-sm text-gray-700 leading-relaxed">{displaySummary}</p>
             ) : (
-              <p className="text-sm text-gray-400 italic">No summary available for this article.</p>
+              <p className="text-sm text-gray-400 italic">
+                {isZh ? '暂无摘要。' : 'No summary available for this article.'}
+              </p>
             )}
 
             {/* Divider */}
@@ -218,7 +254,7 @@ export default async function ArticlePage({
             >
               <div>
                 <p className="text-sm font-medium text-gray-800 group-hover:text-blue-700 transition-colors">
-                  Read original article
+                  {isZh ? '阅读原文' : 'Read original article'}
                 </p>
                 <p className="text-xs text-gray-400 mt-0.5">{getDomain(article.url)}</p>
               </div>
@@ -231,7 +267,7 @@ export default async function ArticlePage({
           {relatedArticles.length > 0 && (
             <div className="bg-white border border-gray-200 rounded-xl p-6">
               <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-4">
-                Related Articles
+                {isZh ? '相关资讯' : 'Related Articles'}
               </h2>
               <div className="divide-y divide-gray-100">
                 {relatedArticles.map((related) => (
