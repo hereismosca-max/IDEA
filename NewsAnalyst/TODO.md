@@ -229,6 +229,10 @@
 - [x] `app/core/config.py` 加 `extra="ignore"`（防止 Railway 注入的多余 env vars 导致 pydantic 验证失败）
 - [x] 翻译缓存上线验证：第二次调用 170ms（直接读 DB，不走 OpenAI）✅
 
+### UX 修复（2026-03-09）
+- [x] 日期选择刷新持久化（sessionStorage，tab 内保留，tab 关闭后重置为今天）
+- [x] 竞态条件修复：快速切换日期时旧请求响应不再覆盖新请求结果（reqIdRef 机制）
+
 ### 待完成
 - [ ] 移动端响应式适配
 - [ ] 抓取日志管理页

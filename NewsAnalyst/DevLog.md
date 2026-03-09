@@ -274,6 +274,49 @@ Duration: 170ms  ✅（不走 OpenAI，直接读 DB）
 
 ---
 
+## 2026-03-09 · 日期持久化 + 竞态条件修复
+
+### 问题一：刷新页面日期回到今天
+
+**现象**：用户切换到 7 号浏览，按 F5 刷新，日期重置为今天。
+
+**根因**：`HomeFeed.tsx` 的 `selectedDate` 初始值是 `new Date()`，每次页面加载重新执行，没有持久化。
+
+**修复：`frontend/src/components/news/HomeFeed.tsx`**
+- 新增 `getInitialDate()` helper：优先从 `sessionStorage.getItem('newsanalyst_date')` 读取上次选择的日期；校验合法（非 NaN、非未来）后返回，否则返回 `new Date()`
+- `useState<Date>(getInitialDate)`（注意传函数引用，懒初始化，避免 SSR 时 `window` 不可用）
+- 新增 `handleDateChange` (useCallback)：`setSelectedDate(date)` + `sessionStorage.setItem('newsanalyst_date', date.toISOString())`
+- `DateNavigator` 的 `onDateChange` 改为 `handleDateChange`
+
+**行为语义**：
+- `sessionStorage` 是 tab 级别的：同一 tab 内 F5 后保留日期 ✅
+- 关掉 tab 再打开：`sessionStorage` 清空，回到今天 ✅
+- 新标签页打开：独立 `sessionStorage`，默认今天 ✅
+
+---
+
+### 问题二：切换日期再切回来排序不一样（竞态条件）
+
+**现象**：初次看 8 号，最新文章在最前；切到 7 号再切回 8 号，排在第一的是 6-7 小时前的文章。
+
+**根因：Race condition（竞态条件）**
+
+用户快速切换 8→7→8 时，三个 API 请求几乎同时飞出。若 7 号的请求比 8 号请求后返回（网络抖动），7 号的 `setArticles(data.items)` 覆盖了正确的 8 号数据，导致 8 号视图里显示的是 7 号文章（7 号最新发布时间为当天上午，即"6-7 小时前"）。
+
+**修复：`frontend/src/components/news/NewsFeed.tsx`**
+- 新增 `const reqIdRef = useRef(0)`（单调递增请求序号）
+- 每次 `loadArticles` 入口执行 `const thisId = ++reqIdRef.current`
+- `await fetchArticles(...)` 返回后：`if (thisId !== reqIdRef.current) return` — 丢弃过期响应
+- `catch` / `finally` 也做同样检查，避免过期请求覆盖 loading 状态
+
+**效果**：
+- 无论网络速度如何，始终只有最后一次发出的请求的结果会被渲染
+- "Load more" 也受保护：点击加载更多后若切换日期，旧的加载更多结果会被丢弃
+
+**commit**: `f1877ff`
+
+---
+
 ## 2026-03-08 · Feed 质量优化 + 搜索 + 市场行情栏 + 板块切换
 
 ### 背景
