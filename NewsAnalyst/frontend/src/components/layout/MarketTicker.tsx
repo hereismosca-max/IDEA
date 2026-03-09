@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useLocale } from 'next-intl';
-import { fetchMarketSnapshot, fetchHeadlines } from '@/lib/api';
+import { fetchMarketSnapshot, fetchHeadlines, translateArticle } from '@/lib/api';
 import { MarketIndicator, Article } from '@/types';
 import { useBoard } from '@/providers/BoardProvider';
 
@@ -63,22 +63,43 @@ function IndicatorCard({ ind }: { ind: MarketIndicator }) {
 // ── Headline ticker (right side) ──────────────────────────────────────────────
 
 function HeadlineTicker() {
-  const locale               = useLocale();
-  const { board }            = useBoard();
-  const [items, setItems]    = useState<Article[]>([]);
-  const [idx, setIdx]        = useState(0);
+  const locale                = useLocale();
+  const { board }             = useBoard();
+  const [items, setItems]     = useState<Article[]>([]);
+  // Maps article.id → title_zh (populated in background when locale='zh')
+  const [titleMap, setTitleMap] = useState<Record<string, string>>({});
+  const [idx, setIdx]         = useState(0);
   const [visible, setVisible] = useState(true);
+
+  const isZh = locale === 'zh';
 
   // Fetch high-impact headlines whenever the board (language) changes.
   // Uses the /articles/headlines endpoint which prioritises global/national scale events.
+  // When locale='zh', also fetch Chinese title translations for all headlines in parallel.
   useEffect(() => {
     setItems([]);
+    setTitleMap({});
     setIdx(0);
     setVisible(true);
     fetchHeadlines(board, 5)
-      .then(articles => setItems(articles))
+      .then(articles => {
+        setItems(articles);
+        if (isZh) {
+          // Fire translate calls for every headline in parallel; update map as each resolves
+          articles.forEach(a => {
+            translateArticle(a.id, 'zh')
+              .then(t => {
+                if (t.title_zh) {
+                  setTitleMap(prev => ({ ...prev, [a.id]: t.title_zh! }));
+                }
+              })
+              .catch(() => {}); // silent fallback — English title stays
+          });
+        }
+      })
       .catch(() => {});
-  }, [board]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [board, isZh]);
 
   // Auto-cycle: fade out → swap → fade in every 4.5 s
   useEffect(() => {
@@ -104,7 +125,9 @@ function HeadlineTicker() {
     );
   }
 
-  const article = items[idx];
+  const article      = items[idx];
+  // Use Chinese title if available (populated async); fall back to English
+  const displayTitle = (isZh && titleMap[article.id]) || article.title;
 
   return (
     <div className="flex-1 min-w-0 pl-4 overflow-hidden flex flex-col justify-center py-1">
@@ -129,7 +152,7 @@ function HeadlineTicker() {
         }}
       >
         <p className="text-xs font-medium text-gray-800 line-clamp-2 leading-snug group-hover:text-blue-600 transition-colors">
-          {article.title}
+          {displayTitle}
         </p>
       </Link>
     </div>
