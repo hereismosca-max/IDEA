@@ -295,25 +295,71 @@ Duration: 170ms  ✅（不走 OpenAI，直接读 DB）
 
 ---
 
-### 问题二：切换日期再切回来排序不一样（竞态条件）
+### 问题二：切换日期再切回来排序不一样（一期修复：竞态条件）
 
 **现象**：初次看 8 号，最新文章在最前；切到 7 号再切回 8 号，排在第一的是 6-7 小时前的文章。
 
-**根因：Race condition（竞态条件）**
-
-用户快速切换 8→7→8 时，三个 API 请求几乎同时飞出。若 7 号的请求比 8 号请求后返回（网络抖动），7 号的 `setArticles(data.items)` 覆盖了正确的 8 号数据，导致 8 号视图里显示的是 7 号文章（7 号最新发布时间为当天上午，即"6-7 小时前"）。
-
-**修复：`frontend/src/components/news/NewsFeed.tsx`**
+**第一轮修复（竞态条件）：`frontend/src/components/news/NewsFeed.tsx`**
 - 新增 `const reqIdRef = useRef(0)`（单调递增请求序号）
 - 每次 `loadArticles` 入口执行 `const thisId = ++reqIdRef.current`
 - `await fetchArticles(...)` 返回后：`if (thisId !== reqIdRef.current) return` — 丢弃过期响应
-- `catch` / `finally` 也做同样检查，避免过期请求覆盖 loading 状态
+- commit: `f1877ff`
 
-**效果**：
-- 无论网络速度如何，始终只有最后一次发出的请求的结果会被渲染
-- "Load more" 也受保护：点击加载更多后若切换日期，旧的加载更多结果会被丢弃
+---
 
-**commit**: `f1877ff`
+### 问题三：左右箭头切日期后新闻变旧（UTC 时区偏移 Bug）
+
+**现象（精确）**：
+- 新标签页打开 → 显示今天(3月9日) 5分钟前的最新文章 ✓
+- 点 ← 切到 3月8号，再点 → 切回今天 → 排第一的变成 6.5 小时前的文章（即 3月8日 UTC 的最后一篇）
+- 刷新无效，只有关闭标签页重开才能恢复
+
+**根因：`DateNavigator.navigate()` 使用了本地时间（Local Time）进行日期运算**
+
+以 UTC+8 用户为例，完整问题链路：
+
+```
+初始：selectedDate = new Date() = 2026-03-09T06:30:00Z (UTC)
+toUTCDateString → "2026-03-09" ✓
+
+点 ← 时，navigate(-1)：
+  selected.setHours(0,0,0,0)
+  → 本地午夜 = 2026-03-09T00:00:00+08:00 = 2026-03-08T16:00:00Z (UTC)
+  next.setDate(9 - 1)  // LOCAL getDate() = 9
+  → 2026-03-08T00:00:00+08:00 = 2026-03-07T16:00:00Z
+  toUTCDateString → "2026-03-07"  ← 查的是7号！
+
+点 → 回今天：
+  selected = 2026-03-08T00:00:00+08:00 (local midnight)
+  next.setDate(8 + 1)  // LOCAL = 8
+  → 2026-03-09T00:00:00+08:00 = 2026-03-08T16:00:00Z
+  toUTCDateString → "2026-03-08"  ← 差了整整一天！
+```
+
+原来应该查 March 9，现在查 March 8，March 8 最新文章正好是约 6.5 小时前（UTC 午夜），完全吻合用户观察。
+
+**修复：`frontend/src/components/news/DateNavigator.tsx`**（完全重写时区处理）
+
+新增 `toUTCMidnight(date)` helper：
+```tsx
+function toUTCMidnight(date: Date): Date {
+  return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
+}
+```
+
+所有时区相关逻辑改为 UTC 运算：
+- `todayUTC = toUTCMidnight(new Date())`
+- `selectedUTC = toUTCMidnight(selectedDate)`
+- `isToday`：比较两个 UTC midnight 的 `.getTime()`
+- `navigate(delta)`：`new Date(Date.UTC(y, m, d + delta))` — 纯 UTC 加减，不经过本地时区
+- `formatLabel`：`toLocaleDateString(..., { timeZone: 'UTC' })` — 显示的日期与查询日期一致
+- `DayPicker.onSelect`：`new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()))` — 将 DayPicker 返回的本地 Date 转换为 UTC midnight
+
+**HomeFeed `getInitialDate`**：改为 `new Date(Date.UTC(y, m, d))` 返回 UTC midnight，避免初始 `selectedDate` 带有时刻分量（14:30 local）导致未来可能再次触发此问题。
+
+**验证**：UTC+8 用户，左右切换 N 次，`toUTCDateString(selectedDate)` 始终保持正确的 UTC 日期。
+
+**commit**: `dd1380c`
 
 ---
 
