@@ -33,7 +33,9 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:3000",
-        "https://idea-brown.vercel.app",
+        "https://finlens.io",
+        "https://www.finlens.io",
+        "https://idea-brown.vercel.app",  # legacy, keep during DNS cutover
     ],
     allow_origin_regex=r"https://.*\.vercel\.app",
     allow_credentials=True,
