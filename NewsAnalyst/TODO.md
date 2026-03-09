@@ -202,10 +202,33 @@
 - [x] `messages/en.json` + `zh.json`：menu.* 对齐后端板块，新增完整 `settings.*`
 - [x] `HeadlineTicker` 改用 `fetchHeadlines(board, 5)` 展示重要国际事件
 
+### 全站 i18n 补完 + SettingsMenu 重设计（2026-03-09）
+- [x] Sign In / Saved / Today / Yesterday 接入 next-intl 翻译（`nav.*` 命名空间）
+- [x] `DateNavigator` 日期格式随 locale 切换（zh-CN / en-US）
+- [x] `SettingsMenu` 重写为 list-style（Account / Language / Notifications / Display / Sign Out）
+- [x] Language 选项简化为 EN / 中文（移除 Default 选项）
+- [x] `messages/en.json` + `zh.json` 补全 `nav.*` 和更新 `settings.*`
+
+### 中文翻译功能（2026-03-09）
+- [x] 新建 `backend/app/services/translator.py`（GPT-4o-mini，单次调用翻译 title + summary）
+- [x] Alembic 迁移 `b2f94e1c7a30`：添加 `title_zh` / `ai_summary_zh` 列（待手动在 Railway 执行）
+- [x] `GET /api/v1/articles/{id}/translate?lang=zh`（首次翻译 → 缓存；后续直接返回缓存）
+- [x] `ArticleTranslationResponse` schema + `ArticleTranslation` TS interface
+- [x] `NewsCard`：zh locale 下 background-fetch 标题翻译，"查看中文摘要"展开按钮
+- [x] 文章详情页：服务端并行拉取翻译，中文标题/摘要 fallback 到英文
+- [x] Headline Ticker：zh locale 下并发翻译 5 条词条，翻译到达即时更新
+
+### ⚠️ 生产事故修复（2026-03-09）
+- [x] `Article` ORM 模型移除 `title_zh` / `ai_summary_zh` mapping（列通过 raw SQL 访问）
+- [x] `/translate` 端点改用 raw SQL + try/except 缓存（migration 未跑时静默跳过缓存）
+- [x] Dockerfile CMD 恢复为原始 `["uvicorn", ...]`（移除 `alembic upgrade head`）
+- [x] 后端恢复正常，health check 通过，文章 API 全部日期正常响应
+
 ### 待完成
 - [ ] 移动端响应式适配
 - [ ] 抓取日志管理页
 - [ ] 错误处理与友好提示
+- [ ] 手动在 Railway 执行 `alembic upgrade head`（添加 title_zh / ai_summary_zh 列，启用翻译缓存）
 
 ---
 

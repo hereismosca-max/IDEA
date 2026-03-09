@@ -200,10 +200,29 @@
 **MenuBar i18n**
 - 所有分类标签改为 next-intl 翻译，切换语言后 Tab 标签即时生效（Technology→科技 等）
 
+**全站 i18n 补完 + SettingsMenu 重设计（2026-03-09）**
+- Sign In / Saved / Today / Yesterday 全部接入 next-intl 翻译
+- DateNavigator 日期格式随 locale 切换（zh-CN / en-US）
+- SettingsMenu 彻底重写为 list-style 导航（Account / Language / Notifications / Display / Sign Out）
+- Language 选项简化为 EN / 中文（移除 Default），以 Badge 显示当前语言
+
+**中文翻译功能（2026-03-09）**
+- 新增 `GET /articles/{id}/translate?lang=zh` 端点（GPT-4o-mini，JSON 模式，一次调用翻译 title + summary）
+- 翻译结果缓存在 DB（`title_zh` / `ai_summary_zh` 列，通过 migration `b2f94e1c7a30` 添加）
+- 卡片列表：zh locale 下自动 background-fetch 标题翻译（英文立即显示，中文到达后更新）
+- 文章详情：zh locale 下服务端 `Promise.all` 并行拉取翻译
+- Headline Ticker：zh locale 下并发翻译 5 条词条标题，翻译到达后即时更新
+
+**⚠️ 生产事故修复（2026-03-09）**
+- 三轮连锁故障：ORM 新列 → articles 全部 500 → Dockerfile `&&` → 全站 502 → `;` 未生效 → 仍 502
+- 根因：SQLAlchemy ORM 映射列必须与 DB Schema 同步；`alembic upgrade head` 在 Railway 上挂起；`&&` 阻断 uvicorn
+- 最终修复：Dockerfile CMD 恢复为原始 `["uvicorn", ...]`，翻译列改用 raw SQL + try/except 访问（DB 有列则缓存，无列则跳过，零停机迁移）
+- 详见 DevLog 2026-03-09 完整复盘
+
 **待完成（本版本剩余）**
 - 移动端响应式适配
 - 中文新闻源接入（Phase 4 开始时）
 
 ---
 
-_最后更新：2026-03-08（v0.3.0 进行中：邮箱验证 + 忘记密码 + 用户收藏 + 文章详情增强 + Feed 质量优化 + 搜索功能 + 市场行情栏 + 板块切换器 + Headline Ticker + Settings 菜单 + Smart Headlines + i18n MenuBar 全部完成并已上线）_
+_最后更新：2026-03-09（全站 i18n + SettingsMenu 重设计 + 中文翻译功能 + Headline Ticker 翻译 + 生产事故修复 全部完成并已上线）_

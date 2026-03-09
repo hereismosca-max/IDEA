@@ -5,6 +5,208 @@
 
 ---
 
+## 2026-03-09 · i18n 修复 + 中文翻译功能 + 生产故障全面复盘
+
+### 背景
+本轮会话跨三个小节（每次因 context 限制中断后重新接续），主要完成：
+1. 全站 i18n 补完（Sign In / DateNavigator / SettingsMenu 重设计）
+2. 中文标题翻译功能（按需翻译 + DB 缓存）
+3. 🚨 生产事故：连续两次错误修复导致后端完全宕机，排查修复全过程
+4. Headline Ticker 中文翻译
+5. March 7 慢加载问题诊断（瞬时，已自愈）
+
+---
+
+### 一、全站 i18n 修复 + SettingsMenu 重设计
+
+**背景**：用户反映切换中文后只有 MenuBar 变化，Sign In / Saved / Today / Yesterday 仍是英文。
+
+#### 1.1 i18n 翻译文件
+
+**`frontend/messages/en.json` / `zh.json`**
+- 新增 `nav.saved`、`nav.today`、`nav.yesterday`（DateNavigator 用）
+- 新增 `settings.notifications`、`settings.display`、`settings.soon`、`settings.signOut`
+- 删除 `settings.langDefault`（已不再有 Default 语言选项）
+
+#### 1.2 TopBar
+
+**`frontend/src/components/layout/TopBar.tsx`**
+- 添加 `useTranslations('nav')`，Sign In / Saved 改用 `t('signIn')` / `t('saved')`
+- 移除独立的 Sign Out 按钮（改在 SettingsMenu 内显示）
+
+#### 1.3 DateNavigator
+
+**`frontend/src/components/news/DateNavigator.tsx`**
+- 添加 `useTranslations('nav')` + `useLocale()`
+- Today / Yesterday 改用 `t('today')` / `t('yesterday')`
+- 日期格式改为 `locale === 'zh' ? 'zh-CN' : 'en-US'`，切换语言后日期格式自动跟随
+
+#### 1.4 SettingsMenu 完全重写
+
+**`frontend/src/components/layout/SettingsMenu.tsx`**（重写为 list-style 导航）
+- 列表式菜单：Account / Language / Notifications / Display / Sign Out
+- **Language 行**：右侧 Badge 显示当前语言（EN / 中文），点击展开内联 Picker（仅 EN + 中文，无 Default）
+- **Account 行**：未登录 → 跳转 /login；已登录 → 内联编辑表单（displayName / email / bio / pronouns）
+- **Notifications 行**：显示 "Soon" badge；未登录 → 跳转 /login
+- **Display 行**：禁用，显示 "Soon" badge
+- **Sign Out 行**：仅登录可见，带分隔线，文字红色
+
+---
+
+### 二、中文翻译功能（按需翻译 + DB 缓存）
+
+**设计思路**：卡片列表页只翻译标题（翻译压力小），点进详情页再翻译完整摘要；后端缓存翻译结果，相同文章只调 OpenAI 一次。
+
+#### 2.1 数据库迁移
+
+**`backend/app/models/article.py`**（当时版本，后被撤销，见"生产事故"）
+- 新增 `title_zh: Mapped[str | None]`、`ai_summary_zh: Mapped[str | None]`
+
+**新建 `backend/alembic/versions/b2f94e1c7a30_add_translation_fields_to_articles.py`**
+- `down_revision = '3a7f82c1d905'`
+- `upgrade`: `ADD COLUMN title_zh TEXT NULL, ADD COLUMN ai_summary_zh TEXT NULL`
+
+#### 2.2 Backend：翻译服务 + 端点
+
+**新建 `backend/app/services/translator.py`**
+- 使用 GPT-4o-mini，JSON 模式，一次调用返回 `{title, ai_summary}`（两字段合并翻译）
+- 无 `OPENAI_API_KEY` 时返回 `(None, None)`，优雅降级
+- 重用单例 `_client`（线程安全）
+
+**`backend/app/api/v1/routes/articles.py`**
+- 新增 `GET /articles/{id}/translate?lang=zh`（置于 `/{article_id}` 之前防路由歧义）
+- 首次调用：翻译 → 写入 DB 缓存 → 返回结果
+- 后续调用：直接返回 DB 缓存，零 OpenAI 成本
+
+**`backend/app/schemas/article.py`**
+- 新增 `ArticleTranslationResponse`（`article_id / title_zh / ai_summary_zh`）
+
+#### 2.3 Frontend：翻译调用
+
+**`frontend/src/types/index.ts`**
+- `Article` 新增可选字段 `title_zh?: string | null` 和 `ai_summary_zh?: string | null`
+- 新增 `ArticleTranslation` interface
+
+**`frontend/src/lib/api.ts`**
+- 新增 `translateArticle(articleId, lang='zh'): Promise<ArticleTranslation>`
+
+**`frontend/src/components/news/NewsCard.tsx`**（locale='zh' 时）
+- mount 后 background fetch 翻译标题；立即显示英文，翻译到达后更新到中文
+- "查看中文摘要" 展开按钮，按需加载摘要翻译
+
+**`frontend/src/app/[locale]/article/[id]/page.tsx`**（locale='zh' 时）
+- `Promise.all([getArticle, getRelatedArticles, getTranslation])` 服务端并行拉取
+- 翻译成功则显示中文标题和摘要，否则 fallback 到英文
+
+---
+
+### 三、🚨 生产事故：三轮连锁崩溃 + 完整复盘
+
+> 这是本项目最严重的一次生产事故，连续两次"修复"反而使故障升级，最终导致后端完全宕机。完整记录如下，作为后续开发的反面教材。
+
+#### 事故时间线
+
+| 时间（commit） | 操作 | 后果 |
+|---|---|---|
+| `0ef0558` | 翻译功能：将 `title_zh`/`ai_summary_zh` 加入 SQLAlchemy `Article` ORM | **文章全部 500**（Railway DB 里没有这两列，`SELECT` 包含未知列） |
+| `1bc49ef` | 试图修复：往 Dockerfile 加 `alembic upgrade head &&` | **更糟**：alembic 发现 DB 无 `alembic_version` 表，尝试 CREATE TABLE 已有表 → 报错，`&&` 阻断 uvicorn → **全站 502** |
+| `bcdda1b` | 试图修复：`&&` 改 `;`，同时删除 ORM 中的翻译列，端点改用 raw SQL | **仍 502**：alembic 本身会挂起（DB lock / 连接超时）；即使用 `;`，uvicorn 也在 alembic 返回前等着，Railway 健康检查超时 → 容器重启循环 |
+| `a464b6f` | **彻底修复**：完全移除 `alembic upgrade head`，CMD 恢复为原始 `["uvicorn", ...]` | ✅ 后端恢复，健康检查通过，文章加载正常 |
+
+#### 根因分析
+
+**根因 1（`0ef0558`）— ORM 模型与 DB Schema 不同步**
+- SQLAlchemy `db.query(Article)` 生成 `SELECT ... title_zh, ai_summary_zh FROM articles`
+- Railway 的 PostgreSQL 里没有这两列 → `column "title_zh" does not exist`
+- **每一个** 文章查询都 500，包括 `/articles`、`/articles/headlines`、`/articles/saved`
+
+**根因 2（`1bc49ef`）— 误解 alembic 的适用场景**
+- Railway DB 所有表都是通过 Supabase/手动方式创建的，从未用过 alembic
+- 没有 `alembic_version` 表 → alembic 从第一个 migration 开始跑 → `CREATE TABLE articles`（已存在）→ 报错
+- `&&` 运算符：左侧非零退出码 → 右侧命令不执行 → uvicorn 永不启动 → 全站 502
+
+**根因 3（`bcdda1b`）— 低估 alembic 的副作用**
+- 改 `&&` 为 `;` 理论上正确，但 alembic 在连接 DB 时可能**挂起**（之前失败的 run 可能留下 DB lock）
+- Railway 健康检查在 uvicorn 绑定端口前超时 → 认为服务不健康 → 杀掉进程 → 重启循环 → 502
+
+#### 正确修复（`a464b6f`）
+
+```dockerfile
+# 原始工作版本：直接启动 uvicorn，不跑 alembic
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+```
+
+**翻译功能的持久化修复：**
+- `Article` 模型：永久移除 `title_zh`/`ai_summary_zh` ORM 映射（注释说明这两列通过 raw SQL 访问）
+- `/translate` 端点：改用 `text("SELECT title_zh, ai_summary_zh FROM articles WHERE id = :id")` + try/except
+  - 列不存在时静默跳过缓存，照常调 OpenAI 翻译并返回结果
+  - 列存在时（未来手动运行 migration 后）自动开始缓存，代码零修改
+
+#### 事故教训（重要）
+
+1. **向 DB 模型添加新列之前，必须先确认 migration 已在目标 DB 运行完毕**
+   - 本地 dev、staging、Railway prod 的 migration 状态可能不同
+   - 只要 ORM 里有这列，`db.query()` 就会把它放进 SELECT，没有就崩
+
+2. **不要把 `alembic upgrade head` 放进 Docker CMD（除非你完全控制 DB 初始状态）**
+   - Railway 的 DB 是通过 Supabase 控制台手动建表的，没有 `alembic_version` 表
+   - alembic 一运行就会从头建表，与已有表冲突 → 崩溃
+   - 正确做法：**手动在 Railway shell 里运行** `railway run alembic upgrade head`
+
+3. **不要用 `&&` 链接关键进程**
+   - `cmd_a && cmd_b`：cmd_a 失败则 cmd_b 永不运行
+   - 对于"前置检查 + 启动主进程"的模式，要么用 `;`，要么让主进程无论如何都能单独启动
+   - 但即使用 `;`，前置命令**挂起**（不是失败，是卡住）依然会阻塞主进程
+
+4. **Context 中断时，必须重新全面读取文件状态再修改**
+   - 几次中断续接都直接根据记忆修改，导致改了已经被修改过的内容
+   - 正确流程：每次重新续接 → 先读文件 → 确认当前状态 → 再修改
+
+5. **改动要原子化、可回滚**
+   - 本次事故是多处改动混在一起（模型 + Dockerfile + 端点），任何一处出错都是 502
+   - 应该分步提交，每步单独验证后端健康再继续
+
+---
+
+### 四、Headline Ticker 中文翻译
+
+**背景**：中文 locale 下，翻译只作用于文章卡片，晴雨表右侧词条滚动栏仍显示英文原标题。
+
+**`frontend/src/components/layout/MarketTicker.tsx`**
+- `HeadlineTicker` 新增 `titleMap: Record<string, string>`（article.id → title_zh）
+- 获取 5 条 headlines 后，若 `locale === 'zh'`，并发触发 5 次 `translateArticle()` 调用
+- 每条翻译到达时局部更新 `titleMap`（`setTitleMap(prev => ({ ...prev, [a.id]: t.title_zh! }))`）
+- 渲染时：`displayTitle = (isZh && titleMap[article.id]) || article.title`（有翻译用中文，无翻译保留英文）
+- board / locale 变更时重置 `titleMap`，避免残留旧数据
+- commit: `4573454`
+
+---
+
+### 五、March 7 加载问题排查
+
+**现象**：用户报告 March 7 文章"一直加载不出来"，其他日期正常。
+
+**排查过程**：
+- 直接 curl `/api/v1/articles?date=2026-03-07&page_size=5` → 0.07s 正常
+- curl 同接口 `page_size=20` → 首次 30s 超时，重试 → 0.05s 正常
+
+**结论：瞬时问题，已自愈。**
+
+原因推断：`a464b6f` 修复部署后，后端刚重启，APScheduler 后台线程正在执行 `run_fetch_job()`，大量新文章 INSERT + OpenAI AI 处理产生高写入压力，偶发性地使特定查询（March 7，恰好是最近的活跃日期）短暂超时。随着 AI catch-up 完成，数据库写入压力回落，查询恢复正常速度。
+
+**不需要代码修复**。后续如有类似情况，可考虑加前端请求超时（abort signal）并显示"重试"按钮——但目前频率极低，暂不引入复杂度。
+
+---
+
+### 当前状态（2026-03-09 本轮结束）
+- 后端健康，`/health` → `{"status":"healthy","env":"production"}` ✅
+- 文章 API 正常，各日期响应 < 200ms ✅
+- 中文翻译：卡片标题、文章详情页、Headline Ticker 全部支持中文翻译 ✅
+- SettingsMenu 完全重设计，语言切换只有 EN / 中文，无 Default ✅
+- Commits: `65d4677`（i18n） → `0ef0558`（翻译功能） → `1bc49ef`（误修） → `bcdda1b`（误修） → `a464b6f`（✅ 修复） → `4573454`（Ticker 翻译）
+
+---
+
 ## 2026-03-08 · Feed 质量优化 + 搜索 + 市场行情栏 + 板块切换
 
 ### 背景
