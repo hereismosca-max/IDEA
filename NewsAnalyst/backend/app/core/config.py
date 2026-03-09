@@ -25,8 +25,8 @@ class Settings(BaseSettings):
 
     # Email (Resend)
     RESEND_API_KEY: str = ""
-    EMAIL_FROM: str = "NewsAnalyst <onboarding@resend.dev>"
-    FRONTEND_BASE_URL: str = "https://idea-brown.vercel.app"
+    EMAIL_FROM: str = "FinLens <noreply@finlens.io>"
+    FRONTEND_BASE_URL: str = "https://www.finlens.io"
 
 
 @lru_cache()

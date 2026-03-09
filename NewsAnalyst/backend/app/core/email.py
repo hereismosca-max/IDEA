@@ -19,7 +19,7 @@ _VERIFICATION_HTML = """
 <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 600px; margin: 0 auto; padding: 40px 20px; color: #1a1a1a;">
   <h2 style="font-size: 22px; font-weight: 700; margin-bottom: 8px;">Verify your email</h2>
   <p style="color: #555; line-height: 1.6; margin-bottom: 28px;">
-    Thanks for signing up for NewsAnalyst! Click the button below to confirm your email address.
+    Thanks for signing up for FinLens! Click the button below to confirm your email address.
     This link expires in <strong>24 hours</strong>.
   </p>
   <a href="{link}" style="display: inline-block; background: #1d4ed8; color: #fff; text-decoration: none; padding: 12px 28px; border-radius: 8px; font-weight: 600; font-size: 15px;">
@@ -39,7 +39,7 @@ _RESET_HTML = """
 <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 600px; margin: 0 auto; padding: 40px 20px; color: #1a1a1a;">
   <h2 style="font-size: 22px; font-weight: 700; margin-bottom: 8px;">Reset your password</h2>
   <p style="color: #555; line-height: 1.6; margin-bottom: 28px;">
-    We received a request to reset your NewsAnalyst password. Click the button below to choose a new one.
+    We received a request to reset your FinLens password. Click the button below to choose a new one.
     This link expires in <strong>1 hour</strong>.
   </p>
   <a href="{link}" style="display: inline-block; background: #1d4ed8; color: #fff; text-decoration: none; padding: 12px 28px; border-radius: 8px; font-weight: 600; font-size: 15px;">
@@ -81,7 +81,7 @@ def send_verification_email(to_email: str, token: str) -> None:
     link = f"{settings.FRONTEND_BASE_URL}/en/verify-email?token={token}"
     _send(
         to=to_email,
-        subject="Verify your email — NewsAnalyst",
+        subject="Verify your email — FinLens",
         html=_VERIFICATION_HTML.format(link=link),
     )
 
@@ -91,6 +91,6 @@ def send_password_reset_email(to_email: str, token: str) -> None:
     link = f"{settings.FRONTEND_BASE_URL}/en/reset-password?token={token}"
     _send(
         to=to_email,
-        subject="Reset your password — NewsAnalyst",
+        subject="Reset your password — FinLens",
         html=_RESET_HTML.format(link=link),
     )

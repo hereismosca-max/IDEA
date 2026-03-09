@@ -96,7 +96,7 @@
 ## v0.3.0 · 进行中 — 2026-02-28 起
 
 **线上地址**
-- 前端：https://idea-brown.vercel.app
+- 前端：https://www.finlens.io（旧：https://idea-brown.vercel.app，仍可访问）
 - 后端 API：https://idea-production.up.railway.app
 
 **已完成（部分交付）**
@@ -233,10 +233,17 @@
   - PST（UTC-8）用户本地 3月8日显示"Today · Mar 8"；CST（UTC+8）用户本地 3月9日显示"Today · Mar 9"
   - 夏令时（DST）由 JS `new Date(y, m, d)` 在本地时区自动处理，无需手动维护时区规则
 
+**域名上线（2026-03-09）**
+- 购买 finlens.io（Namecheap，$34.98/年）；finlens.io 301 重定向至 www.finlens.io
+- Vercel 双域名配置（Valid Configuration）；Namecheap A + CNAME 记录写入
+- 后端 CORS 新增 `https://finlens.io` 和 `https://www.finlens.io`（commit `0adb98d`）
+- 邮件品牌由 "NewsAnalyst" 改为 "FinLens"；config 默认值更新为 finlens.io 发件地址
+
 **待完成（本版本剩余）**
+- 邮件生产化：Resend 验证 finlens.io 域名 + Railway 更新 `EMAIL_FROM` + `FRONTEND_BASE_URL`
 - 移动端响应式适配
 - 中文新闻源接入（Phase 4 开始时）
 
 ---
 
-_最后更新：2026-03-09（翻译 DB 缓存上线 + UX 可靠性修复：日期持久化、竞态条件、本地时区日期导航根本修复）_
+_最后更新：2026-03-09（域名 finlens.io 上线 + 邮件品牌更新 + 本地时区日期导航修复）_

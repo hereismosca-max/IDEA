@@ -5,6 +5,89 @@
 
 ---
 
+## 2026-03-09 · 域名购买 + finlens.io 上线 + 邮件生产化
+
+### 背景
+本轮完成两件事：(1) 购买并配置正式域名 finlens.io；(2) 把邮件服务从测试模式（`onboarding@resend.dev`，只能发给 Resend 账号本人）升级为生产模式（自定义域名发件）。
+
+---
+
+### 一、域名选型 · finlens.io
+
+**候选项淘汰记录**：
+| 域名 | 状态 | 原因 |
+|---|---|---|
+| finfiber.com | 可用 | 联想不够，不选 |
+| finbrief.com | 已注册 | — |
+| finsift.com | 已注册 | — |
+| finpumps.com | 可用但放弃 | "pump" 联想 pump-and-dump（市场操纵），不适合金融品牌 |
+| finewsift.com | 可用 | 拗口 |
+| finlens.io | **选定** ✅ | fin（金融）+ lens（视角/镜头），寓意"看清金融世界"；$34.98/年 |
+
+**购买渠道**：Namecheap，使用 Basic DNS（Namecheap 托管）。
+
+---
+
+### 二、Vercel 域名配置
+
+在 Vercel 项目 → Settings → Domains 添加两条记录：
+
+| 域名 | 配置 | 类型 |
+|---|---|---|
+| finlens.io | → 301 Redirect to www.finlens.io | 主域名 |
+| www.finlens.io | Production | 主前端 |
+
+**Namecheap DNS 添加（Vercel 要求）**：
+- `A @` → `76.76.21.21`（Vercel IP）
+- `CNAME www` → `cname.vercel-dns.com.`
+
+两条记录生效后，Vercel 显示 "Valid Configuration" ✅，HTTPS 证书自动签发。
+
+---
+
+### 三、后端 CORS 更新
+
+**`backend/app/main.py`**（commit `0adb98d`）：
+
+```python
+allow_origins=[
+    "http://localhost:3000",
+    "https://finlens.io",
+    "https://www.finlens.io",
+    "https://idea-brown.vercel.app",  # 保留旧域名，DNS 切换期间兼容
+],
+```
+
+Railway 自动 redeploy 后生效，finlens.io 加载文章正常 ✅。
+
+---
+
+### 四、邮件服务生产化
+
+**现状（测试阶段）**：发件人为 `onboarding@resend.dev`，只能向 Resend 账号注册邮箱发送，无法用于真实用户。
+
+**生产化方案**：在 Resend 验证 finlens.io 域名，使用 `noreply@finlens.io` 发件。
+
+**代码更新（已完成）**：
+- `backend/app/core/config.py`：默认 `EMAIL_FROM` 改为 `FinLens <noreply@finlens.io>`，`FRONTEND_BASE_URL` 改为 `https://www.finlens.io`
+- `backend/app/core/email.py`：邮件 HTML 和 subject 全部由 "NewsAnalyst" 改为 "FinLens"
+
+**Railway 环境变量需更新（用户操作）**：
+
+```
+EMAIL_FROM=FinLens <noreply@finlens.io>
+FRONTEND_BASE_URL=https://www.finlens.io
+```
+
+**Resend 域名验证（用户操作）**：
+1. Resend 控制台 → Domains → Add Domain → 输入 `finlens.io`
+2. 获取 DKIM + SPF + DMARC 三条 DNS 记录
+3. 在 Namecheap Advanced DNS 中添加这些 TXT 记录
+4. 点击 Resend 的 "Verify" 按钮，等待 DNS 生效（通常 5-30 分钟）
+5. 状态变 "Verified" 后，更新 Railway `EMAIL_FROM` 环境变量
+
+---
+
 ## 2026-03-09 · i18n 修复 + 中文翻译功能 + 生产故障全面复盘
 
 ### 背景

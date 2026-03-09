@@ -235,6 +235,19 @@
 - [x] UTC 时区偏移 Bug 修复（第一轮）：DateNavigator 箭头切换日期后，非 UTC 时区用户查询日期偏移一天；重写为 `Date.UTC()` 纯 UTC 运算
 - [x] 本地时区日期导航（根本修复）：整个日期系统改为用户本地时区；后端新增 `date_from`/`date_to` ISO 时间戳参数；前端用 `toLocalMidnight()` + `toLocalDayRange()` 计算本地零点的 UTC 边界；PST/CST/任意时区的"今天"与本地时钟完全一致，DST 自动处理
 
+### 域名与部署（2026-03-09）
+- [x] 购买 finlens.io（Namecheap，$34.98/年）
+- [x] Namecheap DNS：A `@` → Vercel IP；CNAME `www` → Vercel DNS
+- [x] Vercel 配置 finlens.io + www.finlens.io（Valid Configuration，HTTPS 自动签发）
+- [x] 后端 CORS 新增 finlens.io + www.finlens.io（commit `0adb98d`）
+- [x] 代码品牌：email.py + config.py 由 "NewsAnalyst" 改为 "FinLens"，默认地址改为 finlens.io
+
+### 邮件生产化（待完成）
+- [ ] Resend 控制台添加 finlens.io 域名 → 获取 DKIM/SPF/DMARC DNS 记录
+- [ ] Namecheap Advanced DNS 添加上述 TXT 记录
+- [ ] Resend 验证通过（状态变 Verified）
+- [ ] Railway 环境变量：`EMAIL_FROM=FinLens <noreply@finlens.io>`，`FRONTEND_BASE_URL=https://www.finlens.io`
+
 ### 待完成
 - [ ] 移动端响应式适配
 - [ ] 抓取日志管理页
