@@ -259,27 +259,48 @@ def translate_article_endpoint(
     if not article:
         raise HTTPException(status_code=404, detail="Article not found")
 
-    # Return cached translation if both fields are already present
-    if article.title_zh or article.ai_summary_zh:
-        return ArticleTranslationResponse(
-            article_id=article.id,
-            title_zh=article.title_zh,
-            ai_summary_zh=article.ai_summary_zh,
-        )
+    if lang != "zh":
+        raise HTTPException(status_code=400, detail=f"Unsupported translation language: {lang}")
 
-    # Translate and cache
-    if lang == "zh":
-        title_zh, summary_zh = _translate(article.title, article.ai_summary)
-        article.title_zh = title_zh
-        article.ai_summary_zh = summary_zh
+    # ── Check translation cache via raw SQL ──────────────────────────────────
+    # We deliberately avoid ORM column access (article.title_zh) because the
+    # migration that adds these columns may not have run yet on the target DB.
+    # Raw SQL with try/except degrades gracefully in that case.
+    try:
+        row = db.execute(
+            text("SELECT title_zh, ai_summary_zh FROM articles WHERE id = :id"),
+            {"id": str(article_uuid)},
+        ).fetchone()
+        if row and (row[0] or row[1]):
+            return ArticleTranslationResponse(
+                article_id=article_uuid,
+                title_zh=row[0],
+                ai_summary_zh=row[1],
+            )
+    except Exception:
+        # Columns don't exist yet (migration pending) — fall through to translate
+        pass
+
+    # ── Translate via OpenAI ─────────────────────────────────────────────────
+    title_zh, summary_zh = _translate(article.title, article.ai_summary)
+
+    # ── Cache result via raw SQL (silent no-op if columns don't exist yet) ───
+    try:
+        db.execute(
+            text(
+                "UPDATE articles SET title_zh = :tz, ai_summary_zh = :sz WHERE id = :id"
+            ),
+            {"tz": title_zh, "sz": summary_zh, "id": str(article_uuid)},
+        )
         db.commit()
-        return ArticleTranslationResponse(
-            article_id=article.id,
-            title_zh=title_zh,
-            ai_summary_zh=summary_zh,
-        )
+    except Exception:
+        db.rollback()
 
-    raise HTTPException(status_code=400, detail=f"Unsupported translation language: {lang}")
+    return ArticleTranslationResponse(
+        article_id=article_uuid,
+        title_zh=title_zh,
+        ai_summary_zh=summary_zh,
+    )
 
 
 @router.get("/{article_id}", response_model=ArticleResponse)

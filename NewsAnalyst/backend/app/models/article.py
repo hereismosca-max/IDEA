@@ -37,13 +37,11 @@ class Article(Base):
         DateTime(timezone=True), nullable=True
     )
 
-    # ── Translation cache (populated on demand) ───────────────────────────────
-    # Stores Chinese translations of the title and AI summary.
-    # Left NULL until the /translate endpoint is called for the first time.
-    title_zh: Mapped[str | None] = mapped_column(Text, nullable=True)
-    ai_summary_zh: Mapped[str | None] = mapped_column(Text, nullable=True)
-
     # Relationships
+    # NOTE: title_zh / ai_summary_zh translation cache columns are NOT mapped here.
+    # They are added to the DB via alembic migration b2f94e1c7a30 and accessed
+    # via raw SQL in the /translate endpoint so that article queries never break
+    # if the migration has not yet run on the target database.
     source: Mapped["Source"] = relationship("Source", back_populates="articles")
     article_categories: Mapped[list["ArticleCategory"]] = relationship(
         "ArticleCategory", back_populates="article"
