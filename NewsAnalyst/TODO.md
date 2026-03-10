@@ -261,11 +261,22 @@
 
 ---
 
-## 🤖 Phase 3 · AI 深度接入（待启动）
+## 🤖 Phase 3 · AI 深度接入（进行中）
 
 - [x] 自动摘要（AI 生成客观摘要，已前移至 Phase 2 完成）
-- [ ] 重要性评分（填入 ai_score）
-- [ ] 基于标签的智能推荐
+
+### UI 品牌重塑（2026-03-09 完成）
+- [x] TopBar Logo：`NewsAnalyst` → `FinLens`，双色 Wordmark + slogan（桌面端）
+- [x] 板块切换器标签：`American/Chinese` → `U.S. News/Chinese News`（英文模式），`英文资讯/中文资讯`（中文模式）
+
+### AI 重要性评分（待实现）
+- [ ] `backend/app/services/scorer.py`：LLM 打分模块，预留 `user_context` 参数（B 接口占位）
+- [ ] `backend/app/services/ai/openai_processor.py`：prompt 扩展，新文章在现有调用中顺带输出 `importance_score`
+- [ ] `backend/scripts/backfill_scores.py`：对所有 `ai_score IS NULL` 的历史文章 LLM 打分（约 3431 篇，<$1）
+- [ ] 前端 NewsCard：`Relevance` 标签改为 `Impact`
+
+### 智能推荐（后续）
+- [ ] 基于标签的智能推荐（Related Articles 雏形已有，待扩展）
 
 ---
 
@@ -277,4 +288,4 @@
 
 ---
 
-_最后更新：2026-03-09（移动端响应式完成；Phase 2 核心功能全部交付；准备进入 Phase 3）_
+_最后更新：2026-03-09（品牌重塑 FinLens 上线；Phase 3 启动，AI 评分方案确定待实现）_

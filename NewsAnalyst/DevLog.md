@@ -5,6 +5,60 @@
 
 ---
 
+## 2026-03-09 · Phase 3 启动 · UI 品牌重塑 · AI 评分方案确定
+
+### 一、TopBar 品牌重塑（commit `4f16f85`）
+
+**Logo**：`NewsAnalyst` → `FinLens`，加入 slogan "Your scope to see the world"
+- Wordmark：`font-black text-xl`，"Fin" 用 `text-gray-900`，"Lens" 用 `text-blue-600`——突出品牌的"镜头"隐喻
+- Slogan：`uppercase tracking-[0.18em]` 宽字距大写，营造高端财经媒体质感
+- 移动端 slogan 隐藏（`hidden sm:block`），保持顶栏紧凑
+
+**板块切换器标签**（commit `4d17867` + `4f16f85`）：
+- 旧：`American / Chinese`（太模糊，外国用户不知道在切什么）
+- 新：英文板块激活时全英文 `U.S. News / Chinese News`；中文板块激活时全中文 `英文资讯 / 中文资讯`
+- 设计原则：UI 语言跟随激活板块，不出现语言混杂
+
+### 二、移动端响应式适配（commit `3ce5ab6`）
+
+- 文章详情页：`flex-col-reverse md:flex-row`，投票侧边栏移动端变为底部水平行
+- MarketTicker：移动端 `hidden md:flex` 隐藏市场卡，HeadlineTicker 占满全宽
+- HomeFeed 导航栏：`flex-col md:flex-row`，SearchBar 移动端全宽，DateNavigator 居中显示在下方
+- TopBar 用户名：`truncate max-w-[60px] sm:max-w-[140px]` 防止溢出
+- MenuBar：右侧渐变遮罩（`md:hidden`）提示可横向滑动
+
+### 三、Phase 3 AI 重要性评分：方案讨论与决策
+
+**核心决策：放弃固定规则，直接用 LLM**
+
+数据分析发现（3431 篇有摘要文章）：
+- 57% 文章 `scale = company`，但"英伟达财报"和"小公司产品发布"不可能用同一分数
+- `investment` topic 出现 1362 次，信息量接近 0，不能作为权重依据
+- 真正区分重要性的关键在于**理解内容语义**，这是规则做不到的
+
+**为什么直接 LLM 而非规则**：
+- 规则权重固化，三个月后就会过时（市场热点随时间变化）
+- 规则无法捕捉"同样 topic，不同主角（Federal Reserve vs 小公司）"的本质差异
+- backfill 成本：3431 篇 × GPT-4o-mini ≈ $1，不值得为节省 $1 而降低核心功能质量
+- 新文章打分：加进现有 OpenAI 调用，零额外 API 成本
+
+**评分角色定位**：
+- 面向投资者和市场分析师的视角（不是普通读者视角）
+- 100 分制，100 = 对全球经济/资产价格影响最大
+- 用户看到的标签：Impact（不是 Relevance）
+
+**B 接口预留**：函数签名第一天就设计为
+`compute_importance_score(title, ai_summary, ai_tags, user_context=None) -> int`
+`user_context` 现在传 None（纯客观分），Phase 4/5 接入用户行为数据后填充实现个性化
+
+**待实现（下一轮开发）**：
+1. `backend/app/services/scorer.py`（LLM 打分模块 + B 接口预留）
+2. `openai_processor.py` prompt 扩展（新文章打分加入现有调用）
+3. `backend/scripts/backfill_scores.py`（历史文章 backfill，<$1）
+4. 前端 NewsCard "Relevance" → "Impact"
+
+---
+
 ## 2026-03-09 · 域名购买 + finlens.io 上线 + 邮件生产化
 
 ### 背景

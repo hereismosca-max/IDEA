@@ -251,10 +251,15 @@
 - HomeFeed 导航栏移动端竖向堆叠：SearchBar 全宽 + DateNavigator 居中
 - TopBar 用户名超长截断；MenuBar 右侧渐变提示可滑动
 
+**品牌重塑（2026-03-09）**
+- Logo：`NewsAnalyst` → `FinLens`，slogan "Your scope to see the world"（桌面端显示）
+- Wordmark 双色：`Fin` 深灰 + `Lens` 蓝色，突出"镜头"隐喻
+- 板块切换器：`American/Chinese` → `U.S. News / Chinese News`（英文模式全英文，中文模式全中文）
+
 **待完成（低优先级，留后续迭代）**
 - 中文新闻源接入（Phase 4 开始时）
 - 抓取日志管理页（内部工具）
 
 ---
 
-_最后更新：2026-03-09（移动端响应式适配完成；Phase 2 核心功能全部交付；准备进入 Phase 3）_
+_最后更新：2026-03-09（品牌重塑 FinLens 上线；Phase 2 全部交付；Phase 3 AI 评分方案确定，待实现）_
