@@ -146,39 +146,42 @@ export default function NewsCard({ article }: NewsCardProps) {
   const displayTitle = (isZh && titleZh) ? titleZh : article.title;
 
   return (
-    <div className="relative bg-white border border-gray-200 rounded-lg hover:border-gray-400 hover:shadow-sm transition-all group">
+    <div className="relative bg-white border border-gray-200 rounded-lg hover:border-gray-400 hover:shadow-sm transition-all group flex flex-col">
       {/* Bookmark button — absolute positioned, outside Link to avoid navigation */}
       <div className="absolute top-2 right-2 z-10">
         <SaveButton articleId={article.id} compact />
       </div>
 
-      {/* Clickable content area */}
+      {/* Clickable content area — flex column so impact bar is always pinned to bottom */}
       <Link
         href={`/${locale}/article/${article.id}`}
-        className="block p-4 pr-12"
+        className="flex flex-col flex-1 p-4 pr-12"
       >
-        {/* Source + Time */}
-        <div className="flex items-center gap-2 mb-2">
-          <span className="text-xs font-semibold text-blue-600 uppercase tracking-wide">
-            {article.source.name}
-          </span>
-          <span className="text-gray-300">·</span>
-          <span className="text-xs text-gray-400">{timeAgo(article.published_at)}</span>
+        {/* Content grows to fill available space, pushing impact bar down */}
+        <div className="flex-1">
+          {/* Source + Time */}
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-xs font-semibold text-blue-600 uppercase tracking-wide">
+              {article.source.name}
+            </span>
+            <span className="text-gray-300">·</span>
+            <span className="text-xs text-gray-400">{timeAgo(article.published_at)}</span>
+          </div>
+
+          {/* Title — shows translated version in zh locale once available */}
+          <h2 className="text-sm font-semibold text-gray-900 leading-snug mb-2 line-clamp-2 group-hover:text-blue-700 transition-colors">
+            {displayTitle}
+          </h2>
+
+          {/* Summary / Snippet (always English on the card) */}
+          {displayText && (
+            <p className="text-xs text-gray-500 leading-relaxed line-clamp-3">{displayText}</p>
+          )}
         </div>
 
-        {/* Title — shows translated version in zh locale once available */}
-        <h2 className="text-sm font-semibold text-gray-900 leading-snug mb-2 line-clamp-2 group-hover:text-blue-700 transition-colors">
-          {displayTitle}
-        </h2>
-
-        {/* Summary / Snippet (always English on the card) */}
-        {displayText && (
-          <p className="text-xs text-gray-500 leading-relaxed line-clamp-3">{displayText}</p>
-        )}
-
-        {/* AI impact score — visible only when score exists */}
+        {/* AI impact score — always at the bottom of the card, aligns across grid rows */}
         {article.ai_score !== null && article.ai_score !== undefined && (
-          <div className="mt-3 flex items-center gap-1.5">
+          <div className="mt-3 pt-3 border-t border-gray-100 flex items-center gap-1.5">
             <span className="text-[10px] font-medium text-gray-400 uppercase tracking-wide flex-none">Impact</span>
             <div className="flex-1 h-1 bg-gray-100 rounded-full overflow-hidden">
               <div
