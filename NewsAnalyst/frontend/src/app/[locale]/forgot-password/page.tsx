@@ -2,11 +2,13 @@
 
 import { useState, FormEvent } from 'react';
 import Link from 'next/link';
-import { useLocale } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { forgotPassword } from '@/lib/api';
 
 export default function ForgotPasswordPage() {
   const locale = useLocale();
+  const t = useTranslations('auth');
+
   const [email, setEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -30,19 +32,18 @@ export default function ForgotPasswordPage() {
       <div className="min-h-[70vh] flex items-center justify-center">
         <div className="w-full max-w-sm text-center">
           <div className="text-4xl mb-4">📬</div>
-          <h1 className="text-xl font-bold text-gray-900 mb-2">Check your inbox</h1>
+          <h1 className="text-xl font-bold text-gray-900 mb-2">{t('checkInboxResetTitle')}</h1>
           <p className="text-sm text-gray-500 mb-6">
-            If <span className="font-medium text-gray-700">{email}</span> is registered,
-            you&apos;ll receive a password reset link shortly.
+            {t('checkInboxResetPre')}{' '}
+            <span className="font-medium text-gray-700">{email}</span>{' '}
+            {t('checkInboxResetPost')}
           </p>
-          <p className="text-xs text-gray-400 mb-8">
-            The link expires in 1 hour. Check your spam folder if you don&apos;t see it.
-          </p>
+          <p className="text-xs text-gray-400 mb-8">{t('resetLinkExpiry')}</p>
           <Link
             href={`/${locale}/login`}
             className="text-sm text-gray-900 font-medium hover:underline"
           >
-            ← Back to Sign In
+            {t('backToSignIn')}
           </Link>
         </div>
       </div>
@@ -53,15 +54,13 @@ export default function ForgotPasswordPage() {
   return (
     <div className="min-h-[70vh] flex items-center justify-center">
       <div className="w-full max-w-sm">
-        <h1 className="text-2xl font-bold text-gray-900 mb-2 text-center">Forgot Password?</h1>
-        <p className="text-sm text-gray-500 text-center mb-6">
-          Enter your email and we&apos;ll send you a reset link.
-        </p>
+        <h1 className="text-2xl font-bold text-gray-900 mb-2 text-center">{t('forgotPasswordTitle')}</h1>
+        <p className="text-sm text-gray-500 text-center mb-6">{t('forgotPasswordSubtitle')}</p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Email
+              {t('email')}
             </label>
             <input
               type="email"
@@ -78,14 +77,14 @@ export default function ForgotPasswordPage() {
             disabled={isSubmitting}
             className="w-full bg-gray-900 text-white py-2 px-4 rounded-md text-sm font-medium hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isSubmitting ? 'Sending…' : 'Send reset link'}
+            {isSubmitting ? t('sending') : t('sendResetLink')}
           </button>
         </form>
 
         <p className="mt-4 text-center text-sm text-gray-500">
-          Remembered it?{' '}
+          {t('rememberedIt')}{' '}
           <Link href={`/${locale}/login`} className="text-gray-900 font-medium hover:underline">
-            Sign in
+            {t('signInLink')}
           </Link>
         </p>
       </div>

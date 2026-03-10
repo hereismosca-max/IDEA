@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 import type { Article, ArticleTranslation } from '@/types';
 import VoteButtons from '@/components/article/VoteButtons';
 import SaveButton from '@/components/article/SaveButton';
@@ -76,16 +77,6 @@ function formatDate(dateStr: string, locale: string): string {
   }).format(new Date(dateStr));
 }
 
-function timeAgo(dateStr: string): string {
-  const diff = Date.now() - new Date(dateStr).getTime();
-  const minutes = Math.floor(diff / 60000);
-  if (minutes < 60) return minutes <= 1 ? 'Just now' : `${minutes}m ago`;
-  const hours = Math.floor(diff / 3600000);
-  if (hours < 24) return `${hours}h ago`;
-  const days = Math.floor(hours / 24);
-  return `${days}d ago`;
-}
-
 function getDomain(url: string): string {
   try {
     return new URL(url).hostname.replace('www.', '');
@@ -103,14 +94,28 @@ export default async function ArticlePage({
 }) {
   const isZh = params.locale === 'zh';
 
-  // Fetch article, related articles, and (when in Chinese locale) translation in parallel
-  const [article, relatedArticles, translation] = await Promise.all([
+  // Fetch article data and translations in parallel
+  const [article, relatedArticles, translation, t, tFeed] = await Promise.all([
     getArticle(params.id),
     getRelatedArticles(params.id),
     isZh ? getTranslation(params.id) : Promise.resolve(null),
+    getTranslations('article'),
+    getTranslations('feed'),
   ]);
 
   if (!article) notFound();
+
+  // Locale-aware relative time — uses the same feed translation keys as NewsCard
+  const timeAgo = (dateStr: string): string => {
+    const diff = Date.now() - new Date(dateStr).getTime();
+    if (diff < 60_000) return tFeed('justNow');
+    const m = Math.floor(diff / 60_000);
+    if (m < 60) return tFeed('minutesAgo', { minutes: m });
+    const h = Math.floor(diff / 3_600_000);
+    if (h < 24) return tFeed('hoursAgo', { hours: h });
+    const d = Math.floor(diff / 86_400_000);
+    return tFeed('daysAgo', { days: d });
+  };
 
   const tags = article.ai_tags;
   const bodyText = article.ai_summary || article.content_snippet;
@@ -128,7 +133,7 @@ export default async function ArticlePage({
           href={`/${params.locale}`}
           className="inline-flex items-center gap-1 text-sm text-gray-400 hover:text-gray-700 transition-colors"
         >
-          ← {isZh ? '返回' : 'Back'}
+          ← {t('back')}
         </Link>
       </div>
 
@@ -192,12 +197,12 @@ export default async function ArticlePage({
                         {s}
                       </span>
                     ))}
-                    {tags.topics?.map((t) => (
+                    {tags.topics?.map((topic) => (
                       <span
-                        key={t}
+                        key={topic}
                         className="px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600"
                       >
-                        {t.replace(/_/g, ' ')}
+                        {topic.replace(/_/g, ' ')}
                       </span>
                     ))}
                   </div>
@@ -207,25 +212,19 @@ export default async function ArticlePage({
                 <div className="text-xs text-gray-400 space-y-1">
                   {(tags.entities?.length ?? 0) > 0 && (
                     <p>
-                      <span className="font-medium text-gray-500">
-                        {isZh ? '相关方：' : 'Companies / People: '}
-                      </span>
+                      <span className="font-medium text-gray-500">{t('companies')}</span>
                       {tags.entities!.join(', ')}
                     </p>
                   )}
                   {(tags.locations?.length ?? 0) > 0 && (
                     <p>
-                      <span className="font-medium text-gray-500">
-                        {isZh ? '地区：' : 'Locations: '}
-                      </span>
+                      <span className="font-medium text-gray-500">{t('locations')}</span>
                       {tags.locations!.join(', ')}
                     </p>
                   )}
                   {tags.scale && (
                     <p>
-                      <span className="font-medium text-gray-500">
-                        {isZh ? '规模：' : 'Scale: '}
-                      </span>
+                      <span className="font-medium text-gray-500">{t('scale')}</span>
                       {tags.scale}
                     </p>
                   )}
@@ -240,9 +239,7 @@ export default async function ArticlePage({
             {displaySummary ? (
               <p className="text-sm text-gray-700 leading-relaxed">{displaySummary}</p>
             ) : (
-              <p className="text-sm text-gray-400 italic">
-                {isZh ? '暂无摘要。' : 'No summary available for this article.'}
-              </p>
+              <p className="text-sm text-gray-400 italic">{t('noSummary')}</p>
             )}
 
             {/* Divider */}
@@ -257,7 +254,7 @@ export default async function ArticlePage({
             >
               <div>
                 <p className="text-sm font-medium text-gray-800 group-hover:text-blue-700 transition-colors">
-                  {isZh ? '阅读原文' : 'Read original article'}
+                  {t('readOriginal')}
                 </p>
                 <p className="text-xs text-gray-400 mt-0.5">{getDomain(article.url)}</p>
               </div>
@@ -270,7 +267,7 @@ export default async function ArticlePage({
           {relatedArticles.length > 0 && (
             <div className="bg-white border border-gray-200 rounded-xl p-6">
               <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-4">
-                {isZh ? '相关资讯' : 'Related Articles'}
+                {t('relatedArticles')}
               </h2>
               <div className="divide-y divide-gray-100">
                 {relatedArticles.map((related) => (

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useLocale } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { useAuth } from '@/providers/AuthProvider';
 import { toggleSave, getSaveStatus, resendVerification } from '@/lib/api';
 
@@ -16,6 +16,7 @@ export default function SaveButton({ articleId, compact = false }: SaveButtonPro
   const locale = useLocale();
   const router = useRouter();
   const { user } = useAuth();
+  const t = useTranslations('article');
 
   const [isSaved, setIsSaved] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -76,7 +77,7 @@ export default function SaveButton({ articleId, compact = false }: SaveButtonPro
       <button
         onClick={handleSave}
         disabled={isLoading}
-        title={isSaved ? 'Saved' : 'Save article'}
+        title={isSaved ? t('saveTitleSaved') : t('saveTitleUnsaved')}
         className={`
           flex items-center justify-center rounded-lg border transition-all
           ${compact ? 'w-7 h-7' : 'px-3 py-2 flex-col gap-0.5'}
@@ -103,7 +104,7 @@ export default function SaveButton({ articleId, compact = false }: SaveButtonPro
           />
         </svg>
         {!compact && (
-          <span className="text-xs font-semibold">{isSaved ? 'Saved' : 'Save'}</span>
+          <span className="text-xs font-semibold">{isSaved ? t('saved') : t('save')}</span>
         )}
       </button>
 
@@ -111,17 +112,17 @@ export default function SaveButton({ articleId, compact = false }: SaveButtonPro
       {!compact && showVerifyPrompt && (
         <div className="mt-2 w-28 p-2 rounded-lg bg-amber-50 border border-amber-200 text-center">
           <p className="text-[10px] text-amber-700 font-medium leading-tight mb-1.5">
-            Verify your email to save
+            {t('verifyToSave')}
           </p>
           {resendState === 'sent' ? (
-            <p className="text-[10px] text-emerald-600">Email sent!</p>
+            <p className="text-[10px] text-emerald-600">{t('emailSent')}</p>
           ) : (
             <button
               onClick={handleResend}
               disabled={resendState === 'sending'}
               className="text-[10px] text-amber-600 font-semibold hover:text-amber-800 transition-colors underline underline-offset-1 disabled:opacity-50"
             >
-              {resendState === 'sending' ? 'Sending…' : 'Resend email'}
+              {resendState === 'sending' ? t('sending') : t('resendEmail')}
             </button>
           )}
         </div>
