@@ -9,13 +9,13 @@ import { useBoard, Board } from '@/providers/BoardProvider';
 import SettingsMenu from '@/components/layout/SettingsMenu';
 
 // ── Board labels ──────────────────────────────────────────────────────────────
-// Labels are bilingual: when the Chinese board is active, the toggle flips to Chinese characters.
-// "U.S. News" / "中文资讯" make the purpose immediately clear — these are content source regions,
-// not merely a language toggle.
+// Each board shows labels in its own language so the UI feels consistent:
+//   en board → all English  ("U.S. News" | "Chinese News")
+//   zh board → all Chinese  ("英文资讯"   | "中文资讯")
 
 const BOARD_LABELS: Record<Board, { american: string; chinese: string }> = {
-  en: { american: 'U.S. News',  chinese: '中文资讯' },
-  zh: { american: '英文资讯',   chinese: '中文资讯' },
+  en: { american: 'U.S. News',  chinese: 'Chinese News' },
+  zh: { american: '英文资讯',   chinese: '中文资讯'     },
 };
 
 export default function TopBar() {
@@ -51,11 +51,15 @@ export default function TopBar() {
         <div className="flex-1">
           <Link
             href={`/${locale}`}
-            className="inline-flex flex-col leading-none hover:opacity-80 transition-opacity"
+            className="inline-flex flex-col leading-none hover:opacity-75 transition-opacity"
           >
-            <span className="text-lg font-bold text-gray-900 tracking-tight">FinLens</span>
-            <span className="hidden sm:block text-[10px] text-gray-400 font-normal tracking-wide mt-0.5">
-              Your Scope To See The World
+            {/* Wordmark: "Fin" in charcoal, "Lens" in blue — highlights the lens metaphor */}
+            <span className="text-xl font-black tracking-tight text-gray-900">
+              Fin<span className="text-blue-600">Lens</span>
+            </span>
+            {/* Tagline: uppercase + wide tracking for a premium, editorial feel */}
+            <span className="hidden sm:block text-[9px] font-medium tracking-[0.18em] text-gray-400 uppercase mt-0.5">
+              Your scope to see the world
             </span>
           </Link>
         </div>
