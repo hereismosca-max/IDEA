@@ -27,7 +27,11 @@
     "daysAgo": "{days}d ago",
     "searchPlaceholder": "Search articles…",
     "sortLatest": "Latest",
-    "sortImpact": "Impact"
+    "sortImpact": "Impact",
+    "viewSummary": "View Summary",
+    "translating": "Translating…",
+    "noSummary": "No summary available.",
+    "readFullArticle": "Read full article"
   },
   "settings": {
     "title": "Settings",

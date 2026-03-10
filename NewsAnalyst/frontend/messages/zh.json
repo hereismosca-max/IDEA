@@ -27,7 +27,11 @@
     "daysAgo": "{days}天前",
     "searchPlaceholder": "搜索文章…",
     "sortLatest": "最新",
-    "sortImpact": "影响"
+    "sortImpact": "影响",
+    "viewSummary": "查看摘要",
+    "translating": "翻译中…",
+    "noSummary": "暂无摘要。",
+    "readFullArticle": "阅读全文"
   },
   "settings": {
     "title": "设置",

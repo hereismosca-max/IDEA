@@ -11,7 +11,6 @@ interface NewsCardProps {
   article: Article;
 }
 
-
 export default function NewsCard({ article }: NewsCardProps) {
   const locale = useLocale();
   const isZh   = locale === 'zh';
@@ -30,27 +29,24 @@ export default function NewsCard({ article }: NewsCardProps) {
     return tFeed('daysAgo', { days: d });
   };
 
-  // Show AI summary if available, otherwise fall back to raw snippet
+  // English summary / snippet shown in modal
   const displayText = article.ai_summary || article.content_snippet;
 
   // ── Chinese translation state ──────────────────────────────────────────────
-  // title_zh: auto-fetched in background when locale='zh'
-  // summary_zh: fetched on demand when user clicks "查看中文摘要"
-  const [titleZh, setTitleZh]     = useState<string | null>(article.title_zh ?? null);
-  const [summaryZh, setSummaryZh] = useState<string | null>(article.ai_summary_zh ?? null);
-  const [summaryOpen, setSummaryOpen]     = useState(false);
+  const [titleZh, setTitleZh]               = useState<string | null>(article.title_zh ?? null);
+  const [summaryZh, setSummaryZh]           = useState<string | null>(article.ai_summary_zh ?? null);
   const [summaryLoading, setSummaryLoading] = useState(false);
+  const [modalOpen, setModalOpen]           = useState(false);
 
   // Auto-translate title in the background when in Chinese locale.
-  // Uses any cached title_zh from the server-side article response first.
   useEffect(() => {
-    if (!isZh || titleZh) return; // already have it
+    if (!isZh || titleZh) return;
     let cancelled = false;
     translateArticle(article.id, 'zh')
       .then((t) => {
         if (!cancelled) {
           setTitleZh(t.title_zh);
-          setSummaryZh(t.ai_summary_zh); // cache summary too (no extra cost)
+          setSummaryZh(t.ai_summary_zh); // cache summary at no extra cost
         }
       })
       .catch(() => { /* silent — fall back to English */ });
@@ -58,128 +54,181 @@ export default function NewsCard({ article }: NewsCardProps) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [article.id, isZh]);
 
-  // Load (or reveal) the translated summary when the user expands it.
-  const handleSummaryToggle = async () => {
-    if (summaryOpen) { setSummaryOpen(false); return; }
+  // Close modal on Escape key
+  useEffect(() => {
+    if (!modalOpen) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setModalOpen(false); };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [modalOpen]);
 
-    if (summaryZh) { setSummaryOpen(true); return; }
+  // Open the summary modal — fetch ZH translation if not yet available
+  const handleOpenModal = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
 
-    // Fetch if not yet available
-    setSummaryLoading(true);
-    try {
-      const t = await translateArticle(article.id, 'zh');
-      setSummaryZh(t.ai_summary_zh);
-    } catch { /* silent */ }
-    finally {
-      setSummaryLoading(false);
-      setSummaryOpen(true);
+    if (isZh && !summaryZh) {
+      setSummaryLoading(true);
+      try {
+        const t = await translateArticle(article.id, 'zh');
+        setSummaryZh(t.ai_summary_zh);
+        if (!titleZh) setTitleZh(t.title_zh);
+      } catch { /* silent */ }
+      finally { setSummaryLoading(false); }
     }
+
+    setModalOpen(true);
   };
 
-  const displayTitle = (isZh && titleZh) ? titleZh : article.title;
+  const displayTitle  = (isZh && titleZh) ? titleZh : article.title;
+  // Modal shows Chinese summary in zh locale (falls back to EN); EN always shows EN
+  const modalSummary  = isZh ? (summaryZh || displayText) : displayText;
 
   return (
-    <div className="relative bg-white border border-gray-200 rounded-lg hover:border-gray-400 hover:shadow-sm transition-all group flex flex-col">
-      {/* Bookmark button — absolute positioned, outside Link to avoid navigation */}
-      <div className="absolute top-2 right-2 z-10">
-        <SaveButton articleId={article.id} compact />
-      </div>
+    <>
+      {/* ── Card ─────────────────────────────────────────────────────────── */}
+      <div className="relative bg-white border border-gray-200 rounded-lg hover:border-gray-400 hover:shadow-sm transition-all group flex flex-col">
 
-      {/* Clickable content area — flex column so impact bar is always pinned to bottom */}
-      <Link
-        href={`/${locale}/article/${article.id}`}
-        className="flex flex-col flex-1 p-4 pr-12"
-      >
-        {/* Content grows to fill available space, pushing impact bar down */}
-        <div className="flex-1">
-          {/* Source + Time */}
-          <div className="flex items-center gap-2 mb-2">
-            <span className="text-xs font-semibold text-blue-600 uppercase tracking-wide">
-              {article.source.name}
-            </span>
-            <span className="text-gray-300">·</span>
-            <span className="text-xs text-gray-400">{timeAgo(article.published_at)}</span>
-          </div>
-
-          {/* Title — shows translated version in zh locale once available */}
-          <h2 className="text-sm font-semibold text-gray-900 leading-snug mb-2 line-clamp-2 group-hover:text-blue-700 transition-colors">
-            {displayTitle}
-          </h2>
-
-          {/* Summary / Snippet (always English on the card) */}
-          {displayText && (
-            <p className="text-xs text-gray-500 leading-relaxed line-clamp-3">{displayText}</p>
-          )}
+        {/* Bookmark button — absolute positioned, outside Link to avoid navigation */}
+        <div className="absolute top-2 right-2 z-10">
+          <SaveButton articleId={article.id} compact />
         </div>
 
-        {/* AI impact score — always at the bottom of the card, aligns across grid rows */}
-        {article.ai_score !== null && article.ai_score !== undefined && (
-          <div className="mt-3 pt-3 border-t border-gray-100 flex items-center gap-1.5">
-            <span className="text-[10px] font-medium text-gray-400 uppercase tracking-wide flex-none">Impact</span>
-            <div className="flex-1 h-1 bg-gray-100 rounded-full overflow-hidden">
-              <div
-                className="h-full rounded-full"
-                style={{
-                  width: `${Math.round(article.ai_score * 100)}%`,
-                  // Colour shifts: low→blue-300, mid→blue-500, high→indigo-600
-                  backgroundColor: article.ai_score >= 0.7
-                    ? '#4f46e5'   // indigo-600
-                    : article.ai_score >= 0.4
-                    ? '#3b82f6'   // blue-500
-                    : '#93c5fd',  // blue-300
-                }}
-              />
+        {/* Clickable content area — flex column so impact bar pins to bottom */}
+        <Link
+          href={`/${locale}/article/${article.id}`}
+          className="flex flex-col flex-1 p-4 pr-12"
+        >
+          {/* Content grows to fill space, pushing impact bar down */}
+          <div className="flex-1">
+            {/* Source + Time */}
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-xs font-semibold text-blue-600 uppercase tracking-wide">
+                {article.source.name}
+              </span>
+              <span className="text-gray-300">·</span>
+              <span className="text-xs text-gray-400">{timeAgo(article.published_at)}</span>
             </div>
-            <span className="text-[10px] tabular-nums text-gray-400 flex-none">
-              {Math.round(article.ai_score * 100)}
-            </span>
+
+            {/* Full title — no line-clamp; translated in zh locale once ready */}
+            <h2 className="text-sm font-semibold text-gray-900 leading-snug group-hover:text-blue-700 transition-colors">
+              {displayTitle}
+            </h2>
+          </div>
+
+          {/* AI impact score — always at the bottom of the card */}
+          {article.ai_score !== null && article.ai_score !== undefined && (
+            <div className="mt-3 pt-3 border-t border-gray-100 flex items-center gap-1.5">
+              <span className="text-[10px] font-medium text-gray-400 uppercase tracking-wide flex-none">Impact</span>
+              <div className="flex-1 h-1 bg-gray-100 rounded-full overflow-hidden">
+                <div
+                  className="h-full rounded-full"
+                  style={{
+                    width: `${Math.round(article.ai_score * 100)}%`,
+                    backgroundColor: article.ai_score >= 0.7
+                      ? '#4f46e5'   // indigo-600
+                      : article.ai_score >= 0.4
+                      ? '#3b82f6'   // blue-500
+                      : '#93c5fd',  // blue-300
+                  }}
+                />
+              </div>
+              <span className="text-[10px] tabular-nums text-gray-400 flex-none">
+                {Math.round(article.ai_score * 100)}
+              </span>
+            </div>
+          )}
+        </Link>
+
+        {/* View Summary button — shown only when summary content exists */}
+        {displayText && (
+          <div className="border-t border-gray-100 px-4 py-2">
+            <button
+              onClick={handleOpenModal}
+              disabled={summaryLoading}
+              className="flex items-center gap-1 text-xs text-blue-500 hover:text-blue-700 transition-colors disabled:opacity-50"
+            >
+              {summaryLoading ? (
+                <>
+                  <svg className="w-3 h-3 animate-spin" viewBox="0 0 24 24" fill="none">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                  </svg>
+                  {tFeed('translating')}
+                </>
+              ) : (
+                <>
+                  {/* Document / summary icon */}
+                  <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  {tFeed('viewSummary')}
+                </>
+              )}
+            </button>
           </div>
         )}
-      </Link>
+      </div>
 
-      {/* ── Chinese summary expand (zh locale only) ────────────────────────── */}
-      {isZh && displayText && (
-        <div className="border-t border-gray-100 px-4 py-2">
-          <button
-            onClick={handleSummaryToggle}
-            disabled={summaryLoading}
-            className="flex items-center gap-1 text-xs text-blue-500 hover:text-blue-700 transition-colors disabled:opacity-50"
+      {/* ── Summary modal popup ───────────────────────────────────────────── */}
+      {modalOpen && (
+        // Backdrop: dimmed + blurred — click outside to close
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm"
+          onClick={() => setModalOpen(false)}
+        >
+          {/* Modal card — stop clicks from bubbling to backdrop */}
+          <div
+            className="relative bg-white rounded-2xl shadow-2xl p-6 max-w-lg w-full mx-4 max-h-[80vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
           >
-            {summaryLoading ? (
-              <>
-                <svg className="w-3 h-3 animate-spin" viewBox="0 0 24 24" fill="none">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                </svg>
-                翻译中…
-              </>
-            ) : summaryOpen ? (
-              <>
-                <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 15l7-7 7 7" />
-                </svg>
-                收起中文摘要
-              </>
-            ) : (
-              <>
-                <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                </svg>
-                查看中文摘要
-              </>
-            )}
-          </button>
+            {/* ✕ Close button */}
+            <button
+              onClick={() => setModalOpen(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
+              aria-label="Close"
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
 
-          {summaryOpen && summaryZh && (
-            <p className="mt-2 text-xs text-gray-600 leading-relaxed">
-              {summaryZh}
-            </p>
-          )}
-          {summaryOpen && !summaryZh && !summaryLoading && (
-            <p className="mt-2 text-xs text-gray-400 italic">暂无中文摘要。</p>
-          )}
+            {/* Source + time */}
+            <div className="flex items-center gap-2 mb-3">
+              <span className="text-xs font-semibold text-blue-600 uppercase tracking-wide">
+                {article.source.name}
+              </span>
+              <span className="text-gray-300">·</span>
+              <span className="text-xs text-gray-400">{timeAgo(article.published_at)}</span>
+            </div>
+
+            {/* Title */}
+            <h2 className="text-base font-bold text-gray-900 leading-snug mb-4 pr-6">
+              {displayTitle}
+            </h2>
+
+            <div className="border-t border-gray-100 mb-4" />
+
+            {/* Summary content */}
+            {modalSummary ? (
+              <p className="text-sm text-gray-700 leading-relaxed">{modalSummary}</p>
+            ) : (
+              <p className="text-sm text-gray-400 italic">{tFeed('noSummary')}</p>
+            )}
+
+            {/* Link to full article */}
+            <div className="mt-5 pt-4 border-t border-gray-100">
+              <Link
+                href={`/${locale}/article/${article.id}`}
+                onClick={() => setModalOpen(false)}
+                className="text-xs font-semibold text-blue-600 hover:text-blue-800 transition-colors"
+              >
+                {tFeed('readFullArticle')} →
+              </Link>
+            </div>
+          </div>
         </div>
       )}
-    </div>
+    </>
   );
 }
