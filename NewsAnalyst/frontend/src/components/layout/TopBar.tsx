@@ -10,10 +10,12 @@ import SettingsMenu from '@/components/layout/SettingsMenu';
 
 // ── Board labels ──────────────────────────────────────────────────────────────
 // Labels are bilingual: when the Chinese board is active, the toggle flips to Chinese characters.
+// "U.S. News" / "中文资讯" make the purpose immediately clear — these are content source regions,
+// not merely a language toggle.
 
 const BOARD_LABELS: Record<Board, { american: string; chinese: string }> = {
-  en: { american: 'American', chinese: 'Chinese'  },
-  zh: { american: '英文板块', chinese: '中文板块' },
+  en: { american: 'U.S. News',  chinese: '中文资讯' },
+  zh: { american: '英文资讯',   chinese: '中文资讯' },
 };
 
 export default function TopBar() {
@@ -49,9 +51,12 @@ export default function TopBar() {
         <div className="flex-1">
           <Link
             href={`/${locale}`}
-            className="text-xl font-bold text-gray-900 tracking-tight hover:opacity-80 transition-opacity"
+            className="inline-flex flex-col leading-none hover:opacity-80 transition-opacity"
           >
-            NewsAnalyst
+            <span className="text-lg font-bold text-gray-900 tracking-tight">FinLens</span>
+            <span className="hidden sm:block text-[10px] text-gray-400 font-normal tracking-wide mt-0.5">
+              Your Scope To See The World
+            </span>
           </Link>
         </div>
 
