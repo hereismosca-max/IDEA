@@ -256,10 +256,18 @@
 - Wordmark 双色：`Fin` 深灰 + `Lens` 蓝色，突出"镜头"隐喻
 - 板块切换器：`American/Chinese` → `U.S. News / Chinese News`（英文模式全英文，中文模式全中文）
 
+**AI 重要性评分（2026-03-10 完成）**
+- scorer.py：LLM 打分模块，GPT-4o-mini，投资者视角 1-100 分，预留 user_context 接口（Phase B 个性化）
+- openai_processor.py prompt 扩展：新文章在同一次 API 调用中顺带输出 importance_score，零额外成本
+- backfill_scores.py：3457 篇历史文章全部打分，0 errors，耗时约 55 分钟，成本 <$1
+- 分数分布健康：Low 16% / Moderate 26% / Notable 46% / High 12% / Systemic 1%
+- 最高分（95/100）：伊朗战争系列报道（伊朗最高领袖遇袭/美以联合打击/油价历史暴涨），判断完全正确
+- 前端 NewsCard：Relevance → Impact，颜色梯度（蓝-蓝-靛），分数数字显示
+
 **待完成（低优先级，留后续迭代）**
 - 中文新闻源接入（Phase 4 开始时）
 - 抓取日志管理页（内部工具）
 
 ---
 
-_最后更新：2026-03-09（品牌重塑 FinLens 上线；Phase 2 全部交付；Phase 3 AI 评分方案确定，待实现）_
+_最后更新：2026-03-10（AI 重要性评分上线；3457 篇 backfill 完成，0 errors；Impact 标签上线）_

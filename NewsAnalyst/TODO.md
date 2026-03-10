@@ -269,11 +269,11 @@
 - [x] TopBar Logo：`NewsAnalyst` → `FinLens`，双色 Wordmark + slogan（桌面端）
 - [x] 板块切换器标签：`American/Chinese` → `U.S. News/Chinese News`（英文模式），`英文资讯/中文资讯`（中文模式）
 
-### AI 重要性评分（待实现）
-- [ ] `backend/app/services/scorer.py`：LLM 打分模块，预留 `user_context` 参数（B 接口占位）
-- [ ] `backend/app/services/ai/openai_processor.py`：prompt 扩展，新文章在现有调用中顺带输出 `importance_score`
-- [ ] `backend/scripts/backfill_scores.py`：对所有 `ai_score IS NULL` 的历史文章 LLM 打分（约 3431 篇，<$1）
-- [ ] 前端 NewsCard：`Relevance` 标签改为 `Impact`
+### AI 重要性评分（2026-03-10 完成）
+- [x] `backend/app/services/scorer.py`：LLM 打分模块，预留 `user_context` 参数（B 接口占位）
+- [x] `backend/app/services/ai/openai_processor.py`：prompt 扩展，新文章在现有调用中顺带输出 `importance_score`
+- [x] `backend/scripts/backfill_scores.py`：对所有 `ai_score IS NULL` 的历史文章 LLM 打分（约 3431 篇，<$1）
+- [x] 前端 NewsCard：`Relevance` 标签改为 `Impact` + 颜色梯度 + 分数数字
 
 ### 智能推荐（后续）
 - [ ] 基于标签的智能推荐（Related Articles 雏形已有，待扩展）
@@ -288,4 +288,4 @@
 
 ---
 
-_最后更新：2026-03-09（品牌重塑 FinLens 上线；Phase 3 启动，AI 评分方案确定待实现）_
+_最后更新：2026-03-10（AI 重要性评分上线；3457 篇历史文章 backfill 完成，0 errors；新文章自动打分）_
