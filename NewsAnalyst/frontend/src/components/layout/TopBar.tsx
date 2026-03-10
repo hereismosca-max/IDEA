@@ -111,7 +111,9 @@ export default function TopBar() {
   const { board, setBoard }             = useBoard();
   const t                               = useTranslations('nav');
 
-  const labels = BOARD_LABELS[board];
+  // Board labels depend on the UI locale (not the selected board) so the
+  // switcher always reads in the current interface language.
+  const labels = BOARD_LABELS[(locale as Board)] ?? BOARD_LABELS['en'];
 
   // ── Language change handler — used by LangDropdown ──────────────────────
   // Saves the preference when logged in, then navigates to the new locale.

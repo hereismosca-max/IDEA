@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useLocale } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { Article } from '@/types';
 import SaveButton from '@/components/article/SaveButton';
 import { translateArticle } from '@/lib/api';
@@ -11,91 +11,24 @@ interface NewsCardProps {
   article: Article;
 }
 
-function timeAgo(dateStr: string): string {
-  const diff = Date.now() - new Date(dateStr).getTime();
-  if (diff < 0) return 'Just now';
-
-  const totalMins = Math.floor(diff / 60_000);
-  const totalHrs  = Math.floor(diff / 3_600_000);
-  const totalDays = Math.floor(diff / 86_400_000);
-
-  // Helper: pluralise units ("day"→"days", "week"→"weeks", etc.)
-  const pl = (n: number, unit: string) => `${n} ${unit}${n !== 1 ? 's' : ''}`;
-
-  // < 1 min
-  if (totalMins < 1) return 'Just now';
-
-  // 1–59 min → "X min ago"
-  if (totalMins < 60) return `${totalMins} min ago`;
-
-  // 1–23 h → "X h Y min ago"  (e.g. "23 h 39 min ago")
-  if (totalHrs < 24) {
-    const h = totalHrs;
-    const m = totalMins % 60;
-    return m > 0 ? `${h} h ${m} min ago` : `${h} h ago`;
-  }
-
-  // 1–6 days → "X days Y h Z min ago"  (e.g. "5 days 10 h 38 min ago")
-  if (totalDays < 7) {
-    const d = totalDays;
-    const h = totalHrs % 24;
-    const m = totalMins % 60;
-    let s = pl(d, 'day');
-    if (h > 0) s += ` ${h} h`;
-    if (m > 0) s += ` ${m} min`;
-    return s + ' ago';
-  }
-
-  // 1–3 weeks (7–27 days)
-  if (totalDays < 28) {
-    const w = Math.floor(totalDays / 7);
-    const d = totalDays % 7;
-    const h = totalHrs % 24;
-    const m = totalMins % 60;
-    let s = pl(w, 'week');
-    if (d > 0) s += ` ${pl(d, 'day')}`;
-    if (h > 0) s += ` ${h} h`;
-    if (m > 0) s += ` ${m} min`;
-    return s + ' ago';
-  }
-
-  // 1–11 months (28–364 days)
-  if (totalDays < 365) {
-    const mo = Math.max(1, Math.floor(totalDays / 30));
-    const remDays = Math.max(0, totalDays - mo * 30);
-    const w = Math.floor(remDays / 7);
-    const d = remDays % 7;
-    const h = totalHrs % 24;
-    const m = totalMins % 60;
-    let s = pl(mo, 'month');
-    if (w > 0) s += ` ${pl(w, 'week')}`;
-    if (d > 0) s += ` ${pl(d, 'day')}`;
-    if (h > 0) s += ` ${h} h`;
-    if (m > 0) s += ` ${m} min`;
-    return s + ' ago';
-  }
-
-  // ≥ 1 year
-  const yr = Math.floor(totalDays / 365);
-  const remAfterYears = totalDays % 365;
-  const mo = Math.floor(remAfterYears / 30);
-  const remAfterMonths = remAfterYears % 30;
-  const w = Math.floor(remAfterMonths / 7);
-  const d = remAfterMonths % 7;
-  const h = totalHrs % 24;
-  const m = totalMins % 60;
-  let s = pl(yr, 'year');
-  if (mo > 0) s += ` ${pl(mo, 'month')}`;
-  if (w > 0) s += ` ${pl(w, 'week')}`;
-  if (d > 0) s += ` ${pl(d, 'day')}`;
-  if (h > 0) s += ` ${h} h`;
-  if (m > 0) s += ` ${m} min`;
-  return s + ' ago';
-}
 
 export default function NewsCard({ article }: NewsCardProps) {
   const locale = useLocale();
-  const isZh = locale === 'zh';
+  const isZh   = locale === 'zh';
+  const tFeed  = useTranslations('feed');
+
+  // Locale-aware relative time using the existing feed translation keys.
+  // Shows only the most significant unit — clean and readable in any language.
+  const timeAgo = (dateStr: string): string => {
+    const diff = Date.now() - new Date(dateStr).getTime();
+    if (diff < 60_000) return tFeed('justNow');
+    const m = Math.floor(diff / 60_000);
+    if (m < 60)        return tFeed('minutesAgo', { minutes: m });
+    const h = Math.floor(diff / 3_600_000);
+    if (h < 24)        return tFeed('hoursAgo', { hours: h });
+    const d = Math.floor(diff / 86_400_000);
+    return tFeed('daysAgo', { days: d });
+  };
 
   // Show AI summary if available, otherwise fall back to raw snippet
   const displayText = article.ai_summary || article.content_snippet;

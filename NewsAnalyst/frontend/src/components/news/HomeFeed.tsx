@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
+import { useTranslations } from 'next-intl';
 import DateNavigator from './DateNavigator';
 import NewsFeed from './NewsFeed';
 import SearchBar from './SearchBar';
@@ -52,6 +53,7 @@ type SortMode = 'latest' | 'impact';
 
 export default function HomeFeed() {
   const { board }                                = useBoard();
+  const t                                        = useTranslations('feed');
   // Initialise from sessionStorage so F5 preserves the selected day;
   // a new tab or re-open always lands on today (sessionStorage cleared on close).
   const [selectedDate, setSelectedDate]         = useState<Date>(getInitialDate);
@@ -84,7 +86,7 @@ export default function HomeFeed() {
               : 'text-gray-500 hover:text-gray-700'
           }`}
         >
-          {s === 'latest' ? 'Latest' : '⚡ Impact'}
+          {s === 'latest' ? t('sortLatest') : `⚡ ${t('sortImpact')}`}
         </button>
       ))}
     </div>
@@ -105,7 +107,7 @@ export default function HomeFeed() {
 
           {/* SearchBar — full width on mobile, flex-1 on md+ */}
           <div className="flex-1 py-2">
-            <SearchBar value={search} onChange={setSearch} />
+            <SearchBar value={search} onChange={setSearch} placeholder={t('searchPlaceholder')} />
           </div>
 
           {/* DateNavigator — centred below search on mobile, inline on md+ */}

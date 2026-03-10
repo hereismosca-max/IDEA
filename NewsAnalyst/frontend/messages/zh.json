@@ -24,7 +24,10 @@
     "justNow": "刚刚",
     "minutesAgo": "{minutes}分钟前",
     "hoursAgo": "{hours}小时前",
-    "daysAgo": "{days}天前"
+    "daysAgo": "{days}天前",
+    "searchPlaceholder": "搜索文章…",
+    "sortLatest": "最新",
+    "sortImpact": "影响"
   },
   "settings": {
     "title": "设置",
