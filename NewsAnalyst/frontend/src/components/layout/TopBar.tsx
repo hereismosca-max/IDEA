@@ -27,9 +27,11 @@ const LANGUAGES = [
 
 type LangCode = (typeof LANGUAGES)[number]['code'];
 
-// ── Language dropdown (A/文 ▾) ────────────────────────────────────────────────
+// ── Language dropdown (Language ▾) ───────────────────────────────────────────
 // Extensible language picker in the TopBar. Adding a new language only requires
 // a new entry in the LANGUAGES array above — no component changes needed.
+// The button label is translated via next-intl so it reads "Language" in EN
+// and "语言" in ZH (and any future locale added to the messages files).
 function LangDropdown({
   locale,
   onSelect,
@@ -39,6 +41,7 @@ function LangDropdown({
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const tS  = useTranslations('settings');
 
   // Close on outside click
   useEffect(() => {
@@ -52,25 +55,17 @@ function LangDropdown({
 
   return (
     <div ref={ref} className="relative flex-none">
-      {/* Trigger button: shows A/文 chars + chevron */}
+      {/* Trigger button: translated "Language" / "语言" label + chevron */}
       <button
         onClick={() => setOpen((o) => !o)}
-        title="Switch language / 切换语言"
-        className={`flex items-center gap-1 px-2 py-1.5 rounded-md border text-xs font-medium transition-all select-none ${
+        title={tS('language')}
+        className={`flex items-center gap-1 px-2.5 py-1.5 rounded-md border text-xs font-medium transition-all select-none ${
           open
             ? 'bg-gray-100 border-gray-300 text-gray-900'
             : 'border-gray-200 text-gray-500 hover:border-gray-400 hover:text-gray-700 hover:bg-gray-50'
         }`}
       >
-        {/* Show all language chars; active one is dark, others dimmed */}
-        {LANGUAGES.map((l, i) => (
-          <span key={l.code} className="flex items-center gap-0.5">
-            {i > 0 && <span className="text-[10px] text-gray-300 leading-none">/</span>}
-            <span className={`font-bold leading-none ${locale === l.code ? 'text-gray-900' : 'text-gray-400'}`}>
-              {l.char}
-            </span>
-          </span>
-        ))}
+        {tS('language')}
         {/* Chevron */}
         <svg
           className={`w-3 h-3 text-gray-400 transition-transform ${open ? 'rotate-180' : ''}`}
