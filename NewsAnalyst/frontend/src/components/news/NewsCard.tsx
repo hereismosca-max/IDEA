@@ -119,7 +119,7 @@ export default function NewsCard({ article }: NewsCardProps) {
           {/* AI impact score — always at the bottom of the card */}
           {article.ai_score !== null && article.ai_score !== undefined && (
             <div className="mt-3 pt-3 border-t border-gray-100 flex items-center gap-1.5">
-              <span className="text-[10px] font-medium text-gray-400 uppercase tracking-wide flex-none">Impact</span>
+              <span className="text-[10px] font-medium text-gray-400 uppercase tracking-wide flex-none">{tFeed('sortImpact')}</span>
               <div className="flex-1 h-1 bg-gray-100 rounded-full overflow-hidden">
                 <div
                   className="h-full rounded-full"
