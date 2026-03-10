@@ -67,7 +67,7 @@ def get_articles(
     date_from: Optional[str] = Query(None, description="Filter from this UTC datetime (ISO 8601). Used with date_to for local-timezone day filtering."),
     date_to: Optional[str] = Query(None, description="Filter to this UTC datetime (ISO 8601). Used with date_from for local-timezone day filtering."),
     search: Optional[str] = Query(None, description="Search in article title and AI summary (case-insensitive). When present, date filter is ignored."),
-    sort: str = Query("latest", description="Sort order: 'latest' (default, newest first) | 'popular' (most voted first)"),
+    sort: str = Query("latest", description="Sort order: 'latest' (default, newest first) | 'popular' (most voted first) | 'impact' (highest AI score first)"),
     db: Session = Depends(get_db),
 ):
     """
@@ -136,6 +136,9 @@ def get_articles(
             .scalar_subquery()
         )
         query = query.order_by(net_votes.desc(), Article.published_at.desc())
+    elif sort == "impact":
+        # Order by AI importance score descending; NULLs last, recency as tiebreaker
+        query = query.order_by(text("ai_score DESC NULLS LAST"), Article.published_at.desc())
     else:
         # "latest" — default: newest published first
         query = query.order_by(Article.published_at.desc())

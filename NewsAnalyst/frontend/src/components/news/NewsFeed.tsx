@@ -10,7 +10,7 @@ interface NewsFeedProps {
   dateTo?: string;    // ISO 8601 UTC — UTC timestamp of local-day end;   omitted when searching
   category?: string;  // section slug ("all" | "markets" | "technology" | ...)
   search?: string;    // free-text search across title + AI summary
-  sort?: 'latest' | 'popular';
+  sort?: 'latest' | 'popular' | 'impact';
   language?: string;  // content language — 'en' (American board) | 'zh' (Chinese board)
 }
 
@@ -154,6 +154,8 @@ export default function NewsFeed({ dateFrom, dateTo, category, search, sort = 'l
         <div className="text-center mt-8 text-gray-300 text-xs">
           {search
             ? `— ${articles.length} result${articles.length !== 1 ? 's' : ''} —`
+            : sort === 'impact'
+            ? `— Top ${articles.length} articles by impact —`
             : '— End of articles for this day —'}
         </div>
       )}

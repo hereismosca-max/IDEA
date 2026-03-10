@@ -48,6 +48,8 @@ function getInitialDate(): Date {
   return todayLocal;
 }
 
+type SortMode = 'latest' | 'impact';
+
 export default function HomeFeed() {
   const { board }                                = useBoard();
   // Initialise from sessionStorage so F5 preserves the selected day;
@@ -55,17 +57,38 @@ export default function HomeFeed() {
   const [selectedDate, setSelectedDate]         = useState<Date>(getInitialDate);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [search, setSearch]                     = useState('');
+  const [sort, setSort]                         = useState<SortMode>('latest');
 
   const isSearching = search.trim().length > 0;
 
   // When searching, don't pass date range so the API searches across all dates.
-  const dateRange = isSearching ? undefined : toLocalDayRange(selectedDate);
+  // In Impact mode, also search across all dates to surface the top stories globally.
+  const dateRange = (isSearching || sort === 'impact') ? undefined : toLocalDayRange(selectedDate);
 
   // Persist the chosen date within this tab session
   const handleDateChange = useCallback((date: Date) => {
     setSelectedDate(date);
     sessionStorage.setItem('newsanalyst_date', date.toISOString());
   }, []);
+
+  // Segmented sort control — JSX node reused in both desktop and mobile slots
+  const sortToggle = (
+    <div className="flex items-center gap-0.5 bg-gray-100 rounded-full p-0.5">
+      {(['latest', 'impact'] as const).map((s) => (
+        <button
+          key={s}
+          onClick={() => setSort(s)}
+          className={`px-3 py-1 text-xs font-medium rounded-full transition-all ${
+            sort === s
+              ? 'bg-white text-blue-600 shadow-sm'
+              : 'text-gray-500 hover:text-gray-700'
+          }`}
+        >
+          {s === 'latest' ? 'Latest' : '⚡ Impact'}
+        </button>
+      ))}
+    </div>
+  );
 
   return (
     <div>
@@ -74,9 +97,9 @@ export default function HomeFeed() {
 
       <MenuBar activeCategory={selectedCategory} onCategoryChange={setSelectedCategory} />
 
-      {/* ── Navigation row: [SearchBar] [DateNavigator] ── */}
-      {/* Mobile: SearchBar full-width top row, DateNavigator centred below.    */}
-      {/* md+: single flex row with right spacer to keep DateNavigator centred. */}
+      {/* ── Navigation row: [SearchBar] [DateNavigator] [SortToggle] ── */}
+      {/* Mobile: SearchBar full-width top row, DateNavigator + SortToggle below. */}
+      {/* md+: single flex row with right section holding the sort toggle.        */}
       <div className="border-b border-gray-100">
         <div className="px-4 flex flex-col md:flex-row md:items-center md:gap-3">
 
@@ -86,17 +109,25 @@ export default function HomeFeed() {
           </div>
 
           {/* DateNavigator — centred below search on mobile, inline on md+ */}
-          <div className="flex justify-center pb-2 md:pb-0">
+          {/* Hidden in Impact mode (date filter not meaningful for global impact sort) */}
+          <div className={`flex justify-center pb-2 md:pb-0 transition-opacity ${sort === 'impact' ? 'opacity-30 pointer-events-none' : ''}`}>
             <DateNavigator
               selectedDate={selectedDate}
               onDateChange={handleDateChange}
-              disabled={isSearching}
+              disabled={isSearching || sort === 'impact'}
             />
           </div>
 
-          {/* Right spacer — keeps DateNavigator centred on md+ (mirrors flex-1 SearchBar) */}
-          <div className="hidden md:block flex-1" />
+          {/* Right section — sort toggle (desktop: right-aligned flex-1) */}
+          <div className="hidden md:flex flex-1 justify-end items-center">
+            {sortToggle}
+          </div>
 
+        </div>
+
+        {/* Sort toggle — mobile only, sits below the date row */}
+        <div className="flex justify-center pb-2 md:hidden">
+          {sortToggle}
         </div>
       </div>
 
@@ -106,6 +137,7 @@ export default function HomeFeed() {
         dateTo={dateRange?.dateTo}
         category={selectedCategory}
         search={isSearching ? search.trim() : undefined}
+        sort={sort}
         language={board}
       />
     </div>

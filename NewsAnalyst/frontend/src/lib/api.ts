@@ -42,7 +42,7 @@ export interface FetchArticlesParams {
   date_from?: string; // ISO 8601 UTC — UTC timestamp of local-day start (preferred over `date`)
   date_to?: string;   // ISO 8601 UTC — UTC timestamp of local-day end   (preferred over `date`)
   search?: string;    // search in title + AI summary; when present, date filter is ignored
-  sort?: 'latest' | 'popular';  // default: 'latest'
+  sort?: 'latest' | 'popular' | 'impact';  // default: 'latest'
 }
 
 export function fetchArticles(params: FetchArticlesParams = {}): Promise<ArticleListResponse> {
