@@ -75,24 +75,29 @@ export default function HomeFeed() {
       <MenuBar activeCategory={selectedCategory} onCategoryChange={setSelectedCategory} />
 
       {/* ── Navigation row: [SearchBar] [DateNavigator] ── */}
-      {/* Right flex-1 spacer keeps DateNavigator visually centered */}
-      <div className="flex items-center gap-3 px-4 border-b border-gray-100">
+      {/* Mobile: SearchBar full-width top row, DateNavigator centred below.    */}
+      {/* md+: single flex row with right spacer to keep DateNavigator centred. */}
+      <div className="border-b border-gray-100">
+        <div className="px-4 flex flex-col md:flex-row md:items-center md:gap-3">
 
-        {/* Left: search input — flex-1 */}
-        <div className="flex-1 py-2">
-          <SearchBar value={search} onChange={setSearch} />
+          {/* SearchBar — full width on mobile, flex-1 on md+ */}
+          <div className="flex-1 py-2">
+            <SearchBar value={search} onChange={setSearch} />
+          </div>
+
+          {/* DateNavigator — centred below search on mobile, inline on md+ */}
+          <div className="flex justify-center pb-2 md:pb-0">
+            <DateNavigator
+              selectedDate={selectedDate}
+              onDateChange={handleDateChange}
+              disabled={isSearching}
+            />
+          </div>
+
+          {/* Right spacer — keeps DateNavigator centred on md+ (mirrors flex-1 SearchBar) */}
+          <div className="hidden md:block flex-1" />
+
         </div>
-
-        {/* Center: date navigator — flex-none; dimmed while searching */}
-        <DateNavigator
-          selectedDate={selectedDate}
-          onDateChange={handleDateChange}
-          disabled={isSearching}
-        />
-
-        {/* Right spacer — keeps DateNavigator centered (mirrors left flex-1) */}
-        <div className="flex-1" />
-
       </div>
 
       {/* ── Article feed ── */}

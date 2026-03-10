@@ -117,7 +117,7 @@ function HeadlineTicker() {
   // ── Skeleton while loading ──
   if (items.length === 0) {
     return (
-      <div className="flex-1 min-w-0 pl-4 flex flex-col justify-center gap-1.5 py-1">
+      <div className="flex-1 min-w-0 md:pl-4 flex flex-col justify-center gap-1.5 py-1">
         <div className="h-2.5 bg-gray-100 rounded w-16 animate-pulse" />
         <div className="h-3 bg-gray-100 rounded w-full animate-pulse" />
         <div className="h-3 bg-gray-100 rounded w-4/5 animate-pulse" />
@@ -130,7 +130,7 @@ function HeadlineTicker() {
   const displayTitle = (isZh && titleMap[article.id]) || article.title;
 
   return (
-    <div className="flex-1 min-w-0 pl-4 overflow-hidden flex flex-col justify-center py-1">
+    <div className="flex-1 min-w-0 md:pl-4 overflow-hidden flex flex-col justify-center py-1">
       {/* Small label row: source + counter */}
       <div className="flex items-center gap-2 mb-1">
         <span className="text-[10px] font-bold text-blue-500 uppercase tracking-wide leading-none">
@@ -187,8 +187,8 @@ export default function MarketTicker() {
     <div className="border-b border-gray-100 bg-white">
       <div className="max-w-7xl mx-auto px-4 py-2 flex items-center">
 
-        {/* ── Left: Market mini cards ──────────────────────────────────── */}
-        <div className="flex items-center gap-2 flex-none overflow-x-auto scrollbar-none">
+        {/* ── Left: Market mini cards — hidden on mobile to give HeadlineTicker full width ── */}
+        <div className="hidden md:flex items-center gap-2 flex-none overflow-x-auto scrollbar-none">
           {loading ? (
             [...Array(6)].map((_, i) => <SkeletonCard key={i} />)
           ) : (
@@ -196,8 +196,8 @@ export default function MarketTicker() {
           )}
         </div>
 
-        {/* ── Divider ──────────────────────────────────────────────────── */}
-        <div className="w-px self-stretch bg-gray-200 flex-none mx-4" />
+        {/* ── Divider — hidden on mobile (no market cards to separate) ─── */}
+        <div className="hidden md:block w-px self-stretch bg-gray-200 flex-none mx-4" />
 
         {/* ── Right: Scrolling headline ticker ─────────────────────────── */}
         <HeadlineTicker />

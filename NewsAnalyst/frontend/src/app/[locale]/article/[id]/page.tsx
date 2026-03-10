@@ -132,24 +132,27 @@ export default async function ArticlePage({
         </Link>
       </div>
 
-      {/* Two-column layout: vote sidebar + article content */}
-      <div className="flex gap-4 items-start">
+      {/* Two-column layout on md+, single column on mobile */}
+      {/* flex-col-reverse so on mobile: article renders first (top), sidebar second (bottom) */}
+      <div className="flex flex-col-reverse md:flex-row gap-4 items-start">
 
         {/* ── Vote + Save sidebar ───────────────────────────────────────── */}
-        <div className="sticky top-20 flex-none flex flex-col items-center gap-2">
+        {/* On mobile: horizontal row centred below article. On md+: vertical sticky column */}
+        <div className="md:sticky md:top-20 flex-none flex flex-row md:flex-col items-center gap-4 md:gap-2 self-center md:self-start py-2 md:py-0">
           <VoteButtons
             articleId={article.id}
             initialUpvotes={article.upvotes ?? 0}
             initialDownvotes={article.downvotes ?? 0}
             initialUserVote={article.user_vote ?? null}
           />
-          <hr className="w-8 border-gray-200" />
+          {/* Divider: vertical on mobile (between vote+save), horizontal on md+ */}
+          <div className="w-px h-8 md:w-8 md:h-px bg-gray-200" />
           <SaveButton articleId={article.id} />
         </div>
 
         {/* ── Article content ──────────────────────────────────────────── */}
         <div className="flex-1 min-w-0 space-y-4">
-          <article className="bg-white border border-gray-200 rounded-xl p-8">
+          <article className="bg-white border border-gray-200 rounded-xl p-4 md:p-8">
 
             {/* Source + date + share */}
             <div className="flex items-center justify-between gap-2 mb-4">

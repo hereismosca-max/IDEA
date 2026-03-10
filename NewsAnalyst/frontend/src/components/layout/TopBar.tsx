@@ -83,21 +83,22 @@ export default function TopBar() {
         </div>
 
         {/* ── Right: User section ───────────────────────────────────────────── */}
-        <div className="flex-1 flex justify-end">
+        <div className="flex-1 flex justify-end min-w-0">
           {isLoading ? (
             // Skeleton while checking session
             <div className="h-8 w-20 bg-gray-100 rounded-md animate-pulse" />
           ) : user ? (
             // Logged in: Saved link + display name + Settings (contains Sign Out)
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1.5 sm:gap-3 min-w-0">
               <Link
                 href={`/${locale}/saved`}
-                className="text-sm text-gray-500 hover:text-gray-900 transition-colors"
+                className="text-sm text-gray-500 hover:text-gray-900 transition-colors flex-none"
               >
                 {t('saved')}
               </Link>
-              <span className="text-gray-300">|</span>
-              <span className="text-sm font-medium text-gray-700">
+              <span className="text-gray-300 hidden sm:inline">|</span>
+              {/* Truncate long display names on small screens */}
+              <span className="text-sm font-medium text-gray-700 truncate max-w-[60px] sm:max-w-[140px]">
                 {user.display_name}
               </span>
               {/* Settings hamburger menu (contains Sign Out) */}

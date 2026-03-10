@@ -26,7 +26,7 @@ export default function MenuBar({ activeCategory, onCategoryChange }: MenuBarPro
 
   return (
     <nav className="border-b border-gray-200 bg-white">
-      <div className="max-w-7xl mx-auto px-4">
+      <div className="max-w-7xl mx-auto px-4 relative">
         <div className="flex items-center gap-0 overflow-x-auto scrollbar-none">
           {SECTION_SLUGS.map((slug) => (
             <button
@@ -42,6 +42,8 @@ export default function MenuBar({ activeCategory, onCategoryChange }: MenuBarPro
             </button>
           ))}
         </div>
+        {/* Right-fade gradient — mobile only, hints that tabs are horizontally scrollable */}
+        <div className="md:hidden pointer-events-none absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-white to-transparent" />
       </div>
     </nav>
   );
