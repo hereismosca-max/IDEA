@@ -109,23 +109,23 @@ export default function SettingsMenu() {
 
   return (
     <div ref={menuRef} className="relative">
-      {/* Hamburger toggle button */}
+      {/* Settings toggle button — gear icon + label */}
       <button
         onClick={() => setOpen((o) => !o)}
         aria-label={t('title')}
         title={t('title')}
-        className={`p-1.5 rounded-md transition-colors ${
+        className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border transition-all text-xs font-medium ${
           open
-            ? 'bg-gray-100 text-gray-900'
-            : 'text-gray-400 hover:bg-gray-100 hover:text-gray-700'
+            ? 'bg-gray-100 border-gray-300 text-gray-900'
+            : 'border-gray-200 text-gray-500 hover:border-gray-400 hover:text-gray-700 hover:bg-gray-50'
         }`}
       >
-        {/* 3-line hamburger icon */}
-        <svg width="17" height="17" viewBox="0 0 17 17" fill="none" aria-hidden="true">
-          <rect y="3.5"  width="17" height="1.6" rx="0.8" fill="currentColor" />
-          <rect y="7.7"  width="17" height="1.6" rx="0.8" fill="currentColor" />
-          <rect y="11.9" width="17" height="1.6" rx="0.8" fill="currentColor" />
+        {/* Gear / cog icon */}
+        <svg className="w-3.5 h-3.5 flex-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8} aria-hidden="true">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
         </svg>
+        <span>Settings</span>
       </button>
 
       {/* ── Dropdown panel ──────────────────────────────────────────────────── */}

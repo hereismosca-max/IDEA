@@ -62,8 +62,8 @@ export default function HomeFeed() {
   const isSearching = search.trim().length > 0;
 
   // When searching, don't pass date range so the API searches across all dates.
-  // In Impact mode, also search across all dates to surface the top stories globally.
-  const dateRange = (isSearching || sort === 'impact') ? undefined : toLocalDayRange(selectedDate);
+  // In Impact mode the date filter still applies — sort by impact within the selected day.
+  const dateRange = isSearching ? undefined : toLocalDayRange(selectedDate);
 
   // Persist the chosen date within this tab session
   const handleDateChange = useCallback((date: Date) => {
@@ -109,12 +109,11 @@ export default function HomeFeed() {
           </div>
 
           {/* DateNavigator — centred below search on mobile, inline on md+ */}
-          {/* Hidden in Impact mode (date filter not meaningful for global impact sort) */}
-          <div className={`flex justify-center pb-2 md:pb-0 transition-opacity ${sort === 'impact' ? 'opacity-30 pointer-events-none' : ''}`}>
+          <div className="flex justify-center pb-2 md:pb-0">
             <DateNavigator
               selectedDate={selectedDate}
               onDateChange={handleDateChange}
-              disabled={isSearching || sort === 'impact'}
+              disabled={isSearching}
             />
           </div>
 
