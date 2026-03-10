@@ -1,12 +1,13 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import { useAuth } from '@/providers/AuthProvider';
 import { useBoard, Board } from '@/providers/BoardProvider';
 import SettingsMenu from '@/components/layout/SettingsMenu';
+import { updateProfile } from '@/lib/api';
 
 // ── Board labels ──────────────────────────────────────────────────────────────
 // Each board shows labels in its own language so the UI feels consistent:
@@ -18,14 +19,47 @@ const BOARD_LABELS: Record<Board, { american: string; chinese: string }> = {
   zh: { american: '英文资讯',   chinese: '中文资讯'     },
 };
 
+// ── Language toggle button (A/文) ─────────────────────────────────────────────
+// One-click switcher placed directly in the TopBar.  The active locale's
+// character is rendered at full opacity; the target character is dimmed so the
+// user can see at a glance which language they're currently in and what they'll
+// switch to.
+function LangToggleButton({ locale, onClick }: { locale: string; onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      title={locale === 'zh' ? 'Switch to English' : '切换为中文'}
+      className="flex items-center gap-0.5 px-2 py-1.5 rounded-md border border-gray-200 hover:border-gray-400 hover:bg-gray-50 transition-all flex-none select-none"
+    >
+      {/* "A" represents Latin / English; "文" represents Chinese */}
+      <span className={`text-xs font-bold leading-none ${locale === 'en' ? 'text-gray-900' : 'text-gray-400'}`}>A</span>
+      <span className="text-[10px] text-gray-300 leading-none">/</span>
+      <span className={`text-xs font-bold leading-none ${locale === 'zh' ? 'text-gray-900' : 'text-gray-400'}`}>文</span>
+    </button>
+  );
+}
+
 export default function TopBar() {
-  const locale               = useLocale();
-  const router               = useRouter();
-  const { user, isLoading }  = useAuth();
-  const { board, setBoard }  = useBoard();
-  const t                    = useTranslations('nav');
+  const locale                          = useLocale();
+  const router                          = useRouter();
+  const { user, isLoading, refreshUser} = useAuth();
+  const { board, setBoard }             = useBoard();
+  const t                               = useTranslations('nav');
 
   const labels = BOARD_LABELS[board];
+
+  // ── One-click language toggle ─────────────────────────────────────────────
+  // Mirrors the logic inside SettingsMenu so users can switch without opening it.
+  const handleLangToggle = useCallback(async () => {
+    const next = locale === 'zh' ? 'en' : 'zh';
+    if (user) {
+      try {
+        await updateProfile({ preferred_lang: next });
+        await refreshUser();
+      } catch { /* silent — navigation still happens */ }
+    }
+    router.push(`/${next}`);
+  }, [locale, user, router, refreshUser]);
 
   // ── Sync preferred_lang → URL locale on login ────────────────────────────
   // When a user logs in (user transitions from null → set) and they have a
@@ -97,7 +131,7 @@ export default function TopBar() {
             // Skeleton while checking session
             <div className="h-8 w-20 bg-gray-100 rounded-md animate-pulse" />
           ) : user ? (
-            // Logged in: Saved link + display name + Settings (contains Sign Out)
+            // Logged in: Saved link + display name + Lang toggle + Settings
             <div className="flex items-center gap-1.5 sm:gap-3 min-w-0">
               <Link
                 href={`/${locale}/saved`}
@@ -110,12 +144,14 @@ export default function TopBar() {
               <span className="text-sm font-medium text-gray-700 truncate max-w-[60px] sm:max-w-[140px]">
                 {user.display_name}
               </span>
-              {/* Settings hamburger menu (contains Sign Out) */}
+              {/* Language toggle — A/文 one-click switcher */}
+              <LangToggleButton locale={locale} onClick={handleLangToggle} />
               <SettingsMenu />
             </div>
           ) : (
-            // Not logged in: Settings (language) + Sign In
+            // Not logged in: Lang toggle + Settings + Sign In
             <div className="flex items-center gap-2">
+              <LangToggleButton locale={locale} onClick={handleLangToggle} />
               <SettingsMenu />
               <Link
                 href={`/${locale}/login`}
