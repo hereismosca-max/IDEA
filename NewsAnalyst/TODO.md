@@ -248,10 +248,16 @@
 - [x] Resend 验证通过（状态 Verified ✅）
 - [x] Railway 环境变量：`EMAIL_FROM=FinLens <noreply@finlens.io>`，`FRONTEND_BASE_URL=https://www.finlens.io`
 
-### 待完成
-- [ ] 移动端响应式适配
-- [ ] 抓取日志管理页
-- [ ] 错误处理与友好提示
+### 移动端响应式适配（2026-03-09 完成）
+- [x] 文章详情页：`flex-col-reverse md:flex-row`，侧边栏移动端水平排列在底部
+- [x] MarketTicker：移动端隐藏市场指标卡（`hidden md:flex`），HeadlineTicker 占满全宽
+- [x] HomeFeed 导航栏：移动端 SearchBar 独占全宽，DateNavigator 居中显示在下方
+- [x] TopBar：用户名截断（`truncate max-w-[60px]`），分隔符小屏隐藏
+- [x] MenuBar：右侧渐变遮罩提示可横向滑动
+
+### 待完成（低优先级，可与 Phase 3 并行）
+- [ ] 抓取日志管理页（内部工具，不阻塞用户功能）
+- [ ] 错误处理全站补完（当前主流程已有 fallback，可渐进式补强）
 
 ---
 
@@ -271,4 +277,4 @@
 
 ---
 
-_最后更新：2026-03-09（域名 finlens.io 上线；Resend 邮件生产化完成；noreply@finlens.io 正式发信）_
+_最后更新：2026-03-09（移动端响应式完成；Phase 2 核心功能全部交付；准备进入 Phase 3）_
