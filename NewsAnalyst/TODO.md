@@ -242,11 +242,11 @@
 - [x] 后端 CORS 新增 finlens.io + www.finlens.io（commit `0adb98d`）
 - [x] 代码品牌：email.py + config.py 由 "NewsAnalyst" 改为 "FinLens"，默认地址改为 finlens.io
 
-### 邮件生产化（待完成）
-- [ ] Resend 控制台添加 finlens.io 域名 → 获取 DKIM/SPF/DMARC DNS 记录
-- [ ] Namecheap Advanced DNS 添加上述 TXT 记录
-- [ ] Resend 验证通过（状态变 Verified）
-- [ ] Railway 环境变量：`EMAIL_FROM=FinLens <noreply@finlens.io>`，`FRONTEND_BASE_URL=https://www.finlens.io`
+### 邮件生产化（2026-03-09 完成）
+- [x] Resend 控制台添加 finlens.io 域名 → 获取 DKIM/SPF/DMARC DNS 记录
+- [x] Namecheap Advanced DNS 添加 TXT 记录（SPF + DKIM；MX 无需添加，仅发信不收信）
+- [x] Resend 验证通过（状态 Verified ✅）
+- [x] Railway 环境变量：`EMAIL_FROM=FinLens <noreply@finlens.io>`，`FRONTEND_BASE_URL=https://www.finlens.io`
 
 ### 待完成
 - [ ] 移动端响应式适配
@@ -271,4 +271,4 @@
 
 ---
 
-_最后更新：2026-03-09（本地时区日期导航根本修复；date_from/date_to API 新增；PST/CST 任意时区"今天"与本地时钟一致）_
+_最后更新：2026-03-09（域名 finlens.io 上线；Resend 邮件生产化完成；noreply@finlens.io 正式发信）_

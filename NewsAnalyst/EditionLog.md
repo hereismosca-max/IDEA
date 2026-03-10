@@ -239,11 +239,16 @@
 - 后端 CORS 新增 `https://finlens.io` 和 `https://www.finlens.io`（commit `0adb98d`）
 - 邮件品牌由 "NewsAnalyst" 改为 "FinLens"；config 默认值更新为 finlens.io 发件地址
 
+**邮件生产化（2026-03-09 完成）**
+- Resend 验证 finlens.io 域名（DKIM + SPF + DMARC TXT 记录，Namecheap DNS 添加）
+- Railway 环境变量更新：`EMAIL_FROM=FinLens <noreply@finlens.io>`，`FRONTEND_BASE_URL=https://www.finlens.io`
+- 验证邮件 / 密码重置邮件已可发送至任意用户邮箱（此前仅限 Resend 账号邮箱）
+- 注：新域名初期可能进入垃圾箱，属正常现象；页面已提示用户 "Check your spam folder"，信誉随发信量自然累积
+
 **待完成（本版本剩余）**
-- 邮件生产化：Resend 验证 finlens.io 域名 + Railway 更新 `EMAIL_FROM` + `FRONTEND_BASE_URL`
 - 移动端响应式适配
 - 中文新闻源接入（Phase 4 开始时）
 
 ---
 
-_最后更新：2026-03-09（域名 finlens.io 上线 + 邮件品牌更新 + 本地时区日期导航修复）_
+_最后更新：2026-03-09（finlens.io 正式上线；noreply@finlens.io 邮件生产化完成；本地时区日期导航修复）_

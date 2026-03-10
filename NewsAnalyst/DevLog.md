@@ -79,12 +79,15 @@ EMAIL_FROM=FinLens <noreply@finlens.io>
 FRONTEND_BASE_URL=https://www.finlens.io
 ```
 
-**Resend 域名验证（用户操作）**：
-1. Resend 控制台 → Domains → Add Domain → 输入 `finlens.io`
-2. 获取 DKIM + SPF + DMARC 三条 DNS 记录
-3. 在 Namecheap Advanced DNS 中添加这些 TXT 记录
-4. 点击 Resend 的 "Verify" 按钮，等待 DNS 生效（通常 5-30 分钟）
-5. 状态变 "Verified" 后，更新 Railway `EMAIL_FROM` 环境变量
+**Resend 域名验证（已完成）**：
+1. Resend 控制台 → Domains → Add Domain → `finlens.io`
+2. Namecheap Advanced DNS 添加 DKIM TXT + SPF TXT + DMARC TXT（MX 无需添加，仅发信不收信）
+3. Resend 状态变 **Verified** ✅
+4. Railway 环境变量已更新：`EMAIL_FROM=FinLens <noreply@finlens.io>`，`FRONTEND_BASE_URL=https://www.finlens.io`
+
+**验证结果**：验证邮件成功发送至外部邮箱 ✅
+- 初期可能进垃圾箱，属新域名信誉积累期正常现象
+- 注册页 / 忘记密码页已有 "Check your spam folder" 提示，无需额外代码改动
 
 ---
 
