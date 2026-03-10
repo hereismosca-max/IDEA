@@ -105,6 +105,23 @@ export default async function ArticlePage({
 
   if (!article) notFound();
 
+  // In zh locale: build a title map for related articles.
+  // Uses title_zh already cached on the article object when available;
+  // otherwise calls the translate endpoint (cached 24h by Next.js fetch).
+  const relatedTitleMap = new Map<string, string>();
+  if (isZh && relatedArticles.length > 0) {
+    await Promise.all(
+      relatedArticles.map(async (r) => {
+        if (r.title_zh) {
+          relatedTitleMap.set(r.id, r.title_zh);
+        } else {
+          const trans = await getTranslation(r.id).catch(() => null);
+          if (trans?.title_zh) relatedTitleMap.set(r.id, trans.title_zh);
+        }
+      })
+    );
+  }
+
   // Locale-aware relative time — uses the same feed translation keys as NewsCard
   const timeAgo = (dateStr: string): string => {
     const diff = Date.now() - new Date(dateStr).getTime();
@@ -278,7 +295,7 @@ export default async function ArticlePage({
                   >
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-gray-800 line-clamp-2 group-hover:text-blue-700 transition-colors leading-snug">
-                        {related.title}
+                        {relatedTitleMap.get(related.id) ?? related.title}
                       </p>
                       <div className="flex items-center gap-2 mt-1">
                         <span className="text-xs text-blue-500 font-medium">{related.source.name}</span>
