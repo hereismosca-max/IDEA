@@ -55,10 +55,13 @@ ALLOWED_SCALES = ["company", "national", "regional", "global"]
 
 # ── System prompt ─────────────────────────────────────────────────────────────
 _SYSTEM_PROMPT = """\
-You are a financial news data extractor. Your job is to read a news article and return:
-(1) a concise objective data summary, and (2) structured metadata tags.
+You are a financial news data extractor working for an investor-focused platform.
+Your job is to read a news article and return:
+  (1) a concise objective data summary,
+  (2) structured metadata tags, and
+  (3) an importance score for investors.
 
-Rules:
+Extraction rules (summary + tags):
 - Extract ONLY concrete facts, numbers, and events explicitly stated in the article.
 - Do NOT paraphrase, interpret, or add context beyond what the article states.
 - Do NOT make market predictions, investment suggestions, or trend analyses.
@@ -67,14 +70,24 @@ Rules:
 - If a field has no relevant value, return an empty list (or null for scale).
 - The summary must be 2-3 sentences of objective factual data only.
 
+Importance score rules:
+- Score 1–100 from the perspective of an investor or market analyst.
+- Higher = more directly relevant to investment decisions or asset prices.
+- 90-100: Systemic events (Fed rate decision, major crisis, market-wide crash)
+- 70-89: High-impact (major earnings surprise for large-cap, major M&A, key policy)
+- 50-69: Notable (mid-large cap earnings, leadership change, sector regulation)
+- 30-49: Moderate (smaller company earnings, product launches, analyst calls)
+- 10-29: Low relevance (minor announcements, background/explainer pieces)
+
 Return a JSON object with exactly these fields:
 {
-  "summary":   "...",   // 2-3 sentences of objective factual data extracted from the article
-  "entities":  [...],   // Up to 5 company names, organization names, or person names
-  "locations": [...],   // Up to 3 countries or geographic regions
-  "sectors":   [...],   // Up to 2 industry sectors from the allowed list
-  "topics":    [...],   // Up to 3 event types from the allowed list
-  "scale":     "..."    // One of: company, national, regional, global
+  "summary":          "...",  // 2-3 sentences of objective factual data
+  "entities":         [...],  // Up to 5 company names, organization names, or person names
+  "locations":        [...],  // Up to 3 countries or geographic regions
+  "sectors":          [...],  // Up to 2 industry sectors from the allowed list
+  "topics":           [...],  // Up to 3 event types from the allowed list
+  "scale":            "...",  // One of: company, national, regional, global
+  "importance_score": 0       // Integer 1-100, investor-perspective importance
 }
 
 Allowed sectors: Technology, Finance, Energy, Healthcare, Consumer, Industrial, Real Estate, Materials, Utilities, Telecommunications, Crypto, Commodities, Agriculture
@@ -138,7 +151,7 @@ class OpenAIProcessor(BaseAIProcessor):
                 ],
                 response_format={"type": "json_object"},
                 temperature=0,      # deterministic extraction
-                max_tokens=500,     # increased from 300 to accommodate summary
+                max_tokens=550,     # +50 for importance_score field
             )
 
             raw = response.choices[0].message.content
@@ -146,11 +159,12 @@ class OpenAIProcessor(BaseAIProcessor):
 
             tags    = self._validate_and_clean(data)
             summary = self._extract_summary(data)
+            score   = self._extract_score(data)
 
             # Brief delay to be kind to rate limits
             time.sleep(self._delay)
 
-            return AIProcessingResult(summary=summary, tags=tags)
+            return AIProcessingResult(summary=summary, tags=tags, score=score)
 
         except RateLimitError:
             logger.warning(f"OpenAI rate limit hit for: {title[:60]}…")
@@ -177,6 +191,24 @@ class OpenAIProcessor(BaseAIProcessor):
         if not summary or not isinstance(summary, str):
             return None
         return summary.strip() or None
+
+    def _extract_score(self, data: dict) -> Optional[float]:
+        """
+        Extract importance_score from GPT output and convert to 0.0–1.0.
+
+        The prompt asks for an integer 1–100; we store it as a float 0.0–1.0
+        (matching the existing DB column type) so no schema migration is needed.
+        Returns None if the field is missing or malformed — callers should treat
+        None as "not yet scored".
+        """
+        raw = data.get("importance_score")
+        if raw is None:
+            return None
+        try:
+            clamped = max(1, min(100, int(raw)))
+            return round(clamped / 100.0, 4)
+        except (TypeError, ValueError):
+            return None
 
     def _validate_and_clean(self, data: dict) -> dict:
         """Sanitise AI output against allowed vocabularies."""

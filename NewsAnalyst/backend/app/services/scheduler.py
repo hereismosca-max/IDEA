@@ -101,6 +101,7 @@ def run_fetch_job():
                                 .values(
                                     ai_summary=ai_result.summary,
                                     ai_tags=ai_result.tags,
+                                    ai_score=ai_result.score,   # 0.0–1.0; None if LLM skipped
                                     ai_processed_at=datetime.now(timezone.utc),
                                 )
                             )
@@ -166,7 +167,8 @@ def run_fetch_job():
                     )
                     if ai_result.summary or ai_result.tags:
                         article.ai_summary = ai_result.summary
-                        article.ai_tags = ai_result.tags
+                        article.ai_tags    = ai_result.tags
+                        article.ai_score   = ai_result.score   # 0.0–1.0; None if LLM skipped
                     else:
                         no_content_orphans += 1
                     article.ai_processed_at = datetime.now(timezone.utc)

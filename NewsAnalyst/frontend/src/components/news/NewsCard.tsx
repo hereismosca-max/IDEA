@@ -176,16 +176,27 @@ export default function NewsCard({ article }: NewsCardProps) {
           <p className="text-xs text-gray-500 leading-relaxed line-clamp-3">{displayText}</p>
         )}
 
-        {/* AI score badge — visible only when score exists */}
-        {article.ai_score !== null && (
-          <div className="mt-3 flex items-center gap-1">
-            <span className="text-xs text-gray-400">Relevance</span>
+        {/* AI impact score — visible only when score exists */}
+        {article.ai_score !== null && article.ai_score !== undefined && (
+          <div className="mt-3 flex items-center gap-1.5">
+            <span className="text-[10px] font-medium text-gray-400 uppercase tracking-wide flex-none">Impact</span>
             <div className="flex-1 h-1 bg-gray-100 rounded-full overflow-hidden">
               <div
-                className="h-full bg-blue-400 rounded-full"
-                style={{ width: `${Math.round(article.ai_score * 100)}%` }}
+                className="h-full rounded-full"
+                style={{
+                  width: `${Math.round(article.ai_score * 100)}%`,
+                  // Colour shifts: low→blue-300, mid→blue-500, high→indigo-600
+                  backgroundColor: article.ai_score >= 0.7
+                    ? '#4f46e5'   // indigo-600
+                    : article.ai_score >= 0.4
+                    ? '#3b82f6'   // blue-500
+                    : '#93c5fd',  // blue-300
+                }}
               />
             </div>
+            <span className="text-[10px] tabular-nums text-gray-400 flex-none">
+              {Math.round(article.ai_score * 100)}
+            </span>
           </div>
         )}
       </Link>
