@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import { useAuth } from '@/providers/AuthProvider';
@@ -19,23 +19,93 @@ const BOARD_LABELS: Record<Board, { american: string; chinese: string }> = {
   zh: { american: '英文资讯',   chinese: '中文资讯'     },
 };
 
-// ── Language toggle button (A/文) ─────────────────────────────────────────────
-// One-click switcher placed directly in the TopBar.  The active locale's
-// character is rendered at full opacity; the target character is dimmed so the
-// user can see at a glance which language they're currently in and what they'll
-// switch to.
-function LangToggleButton({ locale, onClick }: { locale: string; onClick: () => void }) {
+// ── Supported languages — add new entries here to extend the picker ───────────
+const LANGUAGES = [
+  { code: 'en', label: 'English', char: 'A'  },
+  { code: 'zh', label: '中文',    char: '文' },
+] as const;
+
+type LangCode = (typeof LANGUAGES)[number]['code'];
+
+// ── Language dropdown (A/文 ▾) ────────────────────────────────────────────────
+// Extensible language picker in the TopBar. Adding a new language only requires
+// a new entry in the LANGUAGES array above — no component changes needed.
+function LangDropdown({
+  locale,
+  onSelect,
+}: {
+  locale: string;
+  onSelect: (code: LangCode) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  // Close on outside click
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [open]);
+
   return (
-    <button
-      onClick={onClick}
-      title={locale === 'zh' ? 'Switch to English' : '切换为中文'}
-      className="flex items-center gap-0.5 px-2 py-1.5 rounded-md border border-gray-200 hover:border-gray-400 hover:bg-gray-50 transition-all flex-none select-none"
-    >
-      {/* "A" represents Latin / English; "文" represents Chinese */}
-      <span className={`text-xs font-bold leading-none ${locale === 'en' ? 'text-gray-900' : 'text-gray-400'}`}>A</span>
-      <span className="text-[10px] text-gray-300 leading-none">/</span>
-      <span className={`text-xs font-bold leading-none ${locale === 'zh' ? 'text-gray-900' : 'text-gray-400'}`}>文</span>
-    </button>
+    <div ref={ref} className="relative flex-none">
+      {/* Trigger button: shows A/文 chars + chevron */}
+      <button
+        onClick={() => setOpen((o) => !o)}
+        title="Switch language / 切换语言"
+        className={`flex items-center gap-1 px-2 py-1.5 rounded-md border text-xs font-medium transition-all select-none ${
+          open
+            ? 'bg-gray-100 border-gray-300 text-gray-900'
+            : 'border-gray-200 text-gray-500 hover:border-gray-400 hover:text-gray-700 hover:bg-gray-50'
+        }`}
+      >
+        {/* Show all language chars; active one is dark, others dimmed */}
+        {LANGUAGES.map((l, i) => (
+          <span key={l.code} className="flex items-center gap-0.5">
+            {i > 0 && <span className="text-[10px] text-gray-300 leading-none">/</span>}
+            <span className={`font-bold leading-none ${locale === l.code ? 'text-gray-900' : 'text-gray-400'}`}>
+              {l.char}
+            </span>
+          </span>
+        ))}
+        {/* Chevron */}
+        <svg
+          className={`w-3 h-3 text-gray-400 transition-transform ${open ? 'rotate-180' : ''}`}
+          fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+
+      {/* Dropdown panel */}
+      {open && (
+        <div className="absolute right-0 top-full mt-1.5 w-36 bg-white border border-gray-200 rounded-lg shadow-lg z-50 py-1 overflow-hidden">
+          {LANGUAGES.map((l) => (
+            <button
+              key={l.code}
+              onClick={() => { onSelect(l.code); setOpen(false); }}
+              className={`w-full flex items-center gap-2.5 px-3 py-2 text-sm transition-colors text-left ${
+                locale === l.code
+                  ? 'bg-gray-50 text-gray-900 font-semibold'
+                  : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+              }`}
+            >
+              {/* Radio dot */}
+              <span
+                className={`w-2.5 h-2.5 rounded-full border-2 flex-none transition-colors ${
+                  locale === l.code ? 'border-blue-600 bg-blue-600' : 'border-gray-300'
+                }`}
+              />
+              <span className="font-mono text-xs text-gray-400 w-4 flex-none">{l.char}</span>
+              {l.label}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -48,10 +118,11 @@ export default function TopBar() {
 
   const labels = BOARD_LABELS[board];
 
-  // ── One-click language toggle ─────────────────────────────────────────────
-  // Mirrors the logic inside SettingsMenu so users can switch without opening it.
-  const handleLangToggle = useCallback(async () => {
-    const next = locale === 'zh' ? 'en' : 'zh';
+  // ── Language change handler — used by LangDropdown ──────────────────────
+  // Saves the preference when logged in, then navigates to the new locale.
+  // Adding a new language only requires adding it to the LANGUAGES array above.
+  const handleLangChange = useCallback(async (next: LangCode) => {
+    if (next === locale) return; // already on this locale
     if (user) {
       try {
         await updateProfile({ preferred_lang: next });
@@ -145,13 +216,13 @@ export default function TopBar() {
                 {user.display_name}
               </span>
               {/* Language toggle — A/文 one-click switcher */}
-              <LangToggleButton locale={locale} onClick={handleLangToggle} />
+              <LangDropdown locale={locale} onSelect={handleLangChange} />
               <SettingsMenu />
             </div>
           ) : (
             // Not logged in: Lang toggle + Settings + Sign In
             <div className="flex items-center gap-2">
-              <LangToggleButton locale={locale} onClick={handleLangToggle} />
+              <LangDropdown locale={locale} onSelect={handleLangChange} />
               <SettingsMenu />
               <Link
                 href={`/${locale}/login`}
