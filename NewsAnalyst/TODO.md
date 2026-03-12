@@ -275,6 +275,54 @@
 - [x] `backend/scripts/backfill_scores.py`：对所有 `ai_score IS NULL` 的历史文章 LLM 打分（约 3431 篇，<$1）
 - [x] 前端 NewsCard：`Relevance` 标签改为 `Impact` + 颜色梯度 + 分数数字
 
+### Impact 排序 + Feed UX（2026-03-10 完成）
+- [x] 后端 `articles.py`：新增 `?sort=impact`，`ORDER BY ai_score DESC NULLS LAST`，日期过滤始终保留
+- [x] `NewsFeed.tsx`：sort 类型扩展为 `'latest' | 'popular' | 'impact'`
+- [x] `HomeFeed.tsx`：新增 `sort` state + Latest ↔ ⚡Impact 切换按钮（desktop + mobile 两处）
+- [x] Impact 模式性能修复：移除绕过日期过滤的逻辑，避免全表 3400+ 行扫描
+- [x] Impact 模式 DateNavigator 修复：移除误加的 `pointer-events-none` / `disabled`，日期切换恢复可用
+- [x] NewsCard Impact 条布局修复：卡片 `flex flex-col`，评分条始终固定底部，多行标题不错位
+
+### Settings 按钮重设计（2026-03-10 完成）
+- [x] 汉堡图标 ≡ → 齿轮图标（SVG）+ 文字标签
+- [x] 文字标签接入 i18n：`t('title')`（settings 命名空间）
+
+### 语言切换器重设计（2026-03-10 完成）
+- [x] A/文 toggle → `LangDropdown` 可扩展下拉菜单组件
+- [x] `LANGUAGES` 数组驱动，扩展语言只需追加一条记录，无需改组件
+- [x] 按钮文字：`tS('language')`，随 locale 自动切换 "Language" / "语言"
+- [x] 外部点击关闭：`useRef` + `document.addEventListener`
+
+### 全站 i18n 补完（2026-03-10 完成）
+- [x] Feed 层 5 处修复：板块切换标签、时间显示、搜索框占位、排序按钮、Settings 按钮
+- [x] 新增 `feed` namespace key：`searchPlaceholder` / `sortLatest` / `sortImpact`
+- [x] `timeAgo()` 函数重写为 hook-based（`useTranslations('feed')`），替换原始 60 行硬编码英文函数
+- [x] 新增 `article` namespace（约 15 个 key）：覆盖文章详情页所有字符串
+- [x] 新增 `auth` namespace（约 25 个 key）：覆盖登录/注册/忘记密码页所有字符串
+- [x] `ShareButton.tsx`：接入 `useTranslations('article')`，"Share"/"Copied!" 翻译
+- [x] `SaveButton.tsx`：接入 `useTranslations('article')`，"Save"/"Saved"/验证提示/重发邮件 全部翻译
+- [x] `article/[id]/page.tsx`：Server Component 使用 `getTranslations('article'/'feed')`；`timeAgo` locale-aware；所有 `isZh ? '...' : '...'` 内联三元改为 `t('key')`
+- [x] `login/page.tsx`：全页面硬编码 → `useTranslations('auth')`
+- [x] `register/page.tsx`：同上，含注册成功页 + 错误提示
+- [x] `forgot-password/page.tsx`：同上，邮件地址插值拆分 key 保留加粗样式
+
+### NewsCard 摘要弹窗（2026-03-10 完成）
+- [x] 移除卡片内联摘要文字（`<p line-clamp-3>`）
+- [x] 标题取消截断（移除 `line-clamp-2`），完整展示
+- [x] 移除 ZH 专属"查看中文摘要"内联展开区域
+- [x] 统一新增底部"查看摘要"按钮（EN + ZH，有摘要时显示）
+- [x] 摘要弹窗：`fixed inset-0 z-50`，`backdrop-blur-sm bg-black/40` 背景虚化
+- [x] 弹窗内：完整标题 + 摘要全文 + "阅读全文"链接
+- [x] ZH 模式：点击时如无缓存即 fetch 翻译，loading 态显示 spinning icon
+- [x] 三种关闭方式：背景点击 / ✕ 按钮 / `Escape` 键
+- [x] 新增 i18n key：`viewSummary` / `translating` / `noSummary` / `readFullArticle`
+
+### 相关资讯标题翻译（2026-03-10 完成）
+- [x] `article/[id]/page.tsx`：zh locale 下批量构建 `relatedTitleMap`（Map<id, title_zh>）
+- [x] 优先读文章对象自带的 `title_zh`（DB 缓存，0 额外请求）
+- [x] 未缓存时并发调 `getTranslation(r.id)`（Next.js fetch 缓存 24h）
+- [x] 渲染改为 `relatedTitleMap.get(related.id) ?? related.title`
+
 ### 智能推荐（后续）
 - [ ] 基于标签的智能推荐（Related Articles 雏形已有，待扩展）
 
@@ -288,4 +336,4 @@
 
 ---
 
-_最后更新：2026-03-10（AI 重要性评分上线；3457 篇历史文章 backfill 完成，0 errors；新文章自动打分）_
+_最后更新：2026-03-10（Impact 排序 + NewsCard 摘要弹窗 + LangDropdown + 全站 i18n 补完 100% + 相关资讯标题翻译）_

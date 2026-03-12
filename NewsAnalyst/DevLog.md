@@ -5,6 +5,209 @@
 
 ---
 
+## 2026-03-10 · Impact 排序 · NewsCard 摘要弹窗 · 全站 i18n 补完
+
+### 一、Impact 排序功能（Latest ↔ Impact 切换）
+
+**背景**：AI 重要性评分（ai_score）已完成全量 backfill（3457 篇），但前端只按时间排序，没有利用这个数据。
+
+**后端**（`backend/app/api/v1/routes/articles.py`）：
+```python
+elif sort == "impact":
+    query = query.order_by(text("ai_score DESC NULLS LAST"), Article.published_at.desc())
+```
+- 主排序：`ai_score DESC NULLS LAST`（无分数的文章排最后）
+- 次排序：同分时按发布时间降序
+- 日期过滤始终保留（Impact 模式只在当天文章里排序，不全表扫描）
+
+**前端**：
+- `NewsFeed.tsx`：sort 类型扩展为 `'latest' | 'popular' | 'impact'`
+- `HomeFeed.tsx`：新增 `sort` state（默认 `'latest'`），切换按钮挂在 SearchBar 右侧
+- `api.ts`：`fetchArticles()` 透传 `sort` 参数
+- 底部终止文案区分：Impact 模式显示 `— Top N articles by impact —`
+
+**关键 Bug 修复（Impact 模式）**：
+- 初版实现绕过了日期过滤，导致全表扫描 3400+ 行，加载 4-5 秒
+- 修复：Impact 模式保留日期过滤，每天文章约 20-50 篇，速度恢复正常
+- 同步修复：Impact 模式下 DateNavigator 被误设为 `disabled`（`pointer-events-none`），导致日期切换功能消失；改回正常可交互状态
+
+---
+
+### 二、Settings 按钮重设计
+
+**原**：汉堡图标 ≡（三横线）
+**改**：齿轮图标（SVG `path` 实现）+ 旁边文字标签（通过 `useTranslations('settings')` → `t('title')` 接入 i18n）
+- 按钮样式：`flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border`，统一 TopBar 风格
+
+---
+
+### 三、语言切换器重设计（A/文 → LangDropdown）
+
+**演进路径**：
+1. 初版：A/文 toggle 按钮（直接切换，无下拉）
+2. 第二版：用户希望扩展性，改为下拉菜单
+3. 第三版：按钮文字从 A/文 改为 "Language"/"语言"（更通用）
+
+**最终实现**（`TopBar.tsx` 内嵌 `LangDropdown` 组件）：
+```tsx
+const LANGUAGES = [
+  { code: 'en', label: 'English', char: 'A'  },
+  { code: 'zh', label: '中文',    char: '文' },
+] as const;
+```
+- 扩展模式：加新语言只需在 `LANGUAGES` 数组追加一条，无需改组件代码
+- 按钮文字：`tS('language')`（settings 命名空间），随 locale 自动切换 "Language"/"语言"
+- 下拉面板：radio dot 列表，选中立即保存到后端 + 导航新 locale
+- 外部点击关闭：`useRef` + `document.addEventListener`
+
+---
+
+### 四、i18n 全面扫描修复（5 处漏洞）
+
+用户截图标注了切换中文后仍显示英文的 5 个区域：
+
+| # | 位置 | 原因 | 修复方式 |
+|---|---|---|---|
+| 1 | 板块切换器 | `BOARD_LABELS` 以 `board`（内容语言）为 key，应以 `locale`（UI 语言）为 key | 改为 `BOARD_LABELS[(locale as Board)]` |
+| 2 | Settings 按钮 | `<span>Settings</span>` 硬编码 | 改为 `<span>{t('title')}</span>` |
+| 3 | 时间显示（如"49 min ago"） | `timeAgo()` 独立函数，返回硬编码英文字符串 | 重写为 hook-based，用 `useTranslations('feed')` 的现有 key |
+| 4 | 搜索框占位文本 | `placeholder="Search articles…"` 硬编码 | `placeholder={t('searchPlaceholder')}`，新增 i18n key |
+| 5 | Latest/Impact 切换 | 按钮文字硬编码 | `t('sortLatest')` / `t('sortImpact')`，新增 i18n key |
+
+**新增 i18n key**（`messages/en.json` + `zh.json` 的 `feed` namespace）：
+- `searchPlaceholder` → "Search articles…" / "搜索文章…"
+- `sortLatest` → "Latest" / "最新"
+- `sortImpact` → "Impact" / "影响"
+
+---
+
+### 五、NewsCard 布局重设计 + 摘要弹窗
+
+**用户需求**：中文模式已有"查看中文摘要"展开按钮，英文模式保持显示内联摘要文字不统一；希望统一为点击触发的弹窗形式，弹窗居中，背景虚化。
+
+**卡片层改动**：
+- 标题：移除 `line-clamp-2`，改为全量显示（不截断）
+- 摘要文字：移除 `<p className="line-clamp-3">` 内联显示
+- 原 ZH "查看中文摘要" 内联展开区域整体移除
+- 底部新增统一的"View Summary / 查看摘要"按钮（有摘要内容时显示）
+
+**弹窗实现**（`NewsCard.tsx`）：
+```tsx
+// 背景层
+<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm"
+     onClick={() => setModalOpen(false)}>
+  // 弹窗卡片
+  <div className="relative bg-white rounded-2xl shadow-2xl p-6 max-w-lg w-full mx-4 max-h-[80vh] overflow-y-auto"
+       onClick={(e) => e.stopPropagation()}>
+```
+- 关闭方式：点击背景 / 点击 ✕ 按钮 / 按 `Escape` 键
+- ZH 模式：点击时如无缓存摘要，先 loading 翻译再开弹窗；有缓存直接开弹窗
+- 弹窗内容：来源 + 时间 + 完整标题 + 分隔线 + 摘要全文 + "Read full article →" 链接
+
+**新增 i18n key**（`feed` namespace）：
+- `viewSummary` → "View Summary" / "查看摘要"
+- `translating` → "Translating…" / "翻译中…"
+- `noSummary` → "No summary available." / "暂无摘要。"
+- `readFullArticle` → "Read full article" / "阅读全文"
+
+---
+
+### 六、全站剩余 i18n 补完
+
+**背景**：上轮修复了 Feed 层的 5 处漏洞，本轮扫描发现文章详情页、认证页面均存在大量硬编码英文文字。
+
+**新增两个 i18n 命名空间**：
+
+**`article` namespace**（覆盖文章详情页所有字符串）：
+- `back / share / copied / save / saved / saveTitleUnsaved / saveTitleSaved`
+- `verifyToSave / emailSent / resendEmail / sending`
+- `relatedArticles / readOriginal / noSummary / companies / locations / scale`
+
+**`auth` namespace**（覆盖登录/注册/忘记密码页所有字符串）：
+- `signIn / signingIn / email / password / forgotPassword / noAccount / createOne`
+- `invalidCredentials / loginFailed`
+- `createAccount / creatingAccount / displayName / namePlaceholder / passwordPlaceholder`
+- `passwordTooShort / emailAlreadyTaken / registrationFailed / alreadyHaveAccount / signInLink`
+- `checkInboxTitle / verificationSentTo / verificationExpiry / continueBrowsing / checkSpam`
+- `forgotPasswordTitle / forgotPasswordSubtitle / sendResetLink / sending / rememberedIt`
+- `checkInboxResetTitle / checkInboxResetPre / checkInboxResetPost / resetLinkExpiry / backToSignIn`
+
+**受影响文件**：
+
+| 文件 | 改动 |
+|---|---|
+| `ShareButton.tsx` | 加 `useTranslations('article')`，"Share"/"Copied!" → `t('share')`/`t('copied')` |
+| `SaveButton.tsx` | 加 `useTranslations('article')`，全部硬编码文字 → `t(...)` |
+| `article/[id]/page.tsx` | 加 `getTranslations('article'/'feed')`（Server Component）；`timeAgo()` 改为 tFeed keys；所有 `isZh ? '...' : '...'` 内联三元替换为 `t('key')` |
+| `login/page.tsx` | 加 `useTranslations('auth')`，全页面硬编码替换 |
+| `register/page.tsx` | 同上，含注册成功页和错误提示 |
+| `forgot-password/page.tsx` | 同上；`checkInboxResetPre/Post` 拆分 key 保留邮件地址的加粗样式 |
+
+**Server Component 特殊处理**：文章详情页是 `async` Server Component，无法使用 `useTranslations` hook，改用 `getTranslations` from `next-intl/server`，在 `Promise.all` 并发获取。
+
+---
+
+### 七、相关资讯标题翻译（批量翻译机制）
+
+**问题**：文章详情页底部"相关资讯"卡片的标题未被翻译，始终显示英文原文。
+
+**根因**：`{related.title}` 直接渲染，无任何翻译逻辑。主文章通过专门的 `getTranslation(id)` 调用获取翻译，相关文章没有对应逻辑。
+
+**修复策略**（最小代价）：
+```tsx
+// zh locale 下，批量构建相关文章标题 Map
+const relatedTitleMap = new Map<string, string>();
+if (isZh && relatedArticles.length > 0) {
+  await Promise.all(
+    relatedArticles.map(async (r) => {
+      if (r.title_zh) {
+        relatedTitleMap.set(r.id, r.title_zh); // DB 已缓存，直接用
+      } else {
+        const trans = await getTranslation(r.id).catch(() => null); // 调翻译 API
+        if (trans?.title_zh) relatedTitleMap.set(r.id, trans.title_zh);
+      }
+    })
+  );
+}
+// 渲染时：
+{relatedTitleMap.get(related.id) ?? related.title}
+```
+
+**性能说明**：
+- 已被翻译过的文章（`title_zh` 存 DB）：直接命中，0 额外请求
+- 未翻译的文章：最多 5 个并发 `getTranslation()` 请求，结果被 Next.js fetch 缓存 24 小时
+- 下次同一文章被打开，所有相关文章标题均已缓存，无额外开销
+
+---
+
+### 八、Impact 标签翻译
+
+`NewsCard.tsx` 底部评分条的 `"Impact"` 标签硬编码，在中文模式下不翻译。
+
+**修复**：`{tFeed('sortImpact')}`（复用已有 `feed.sortImpact` key，无需新增）
+- EN：**IMPACT**（CSS `uppercase` 作用）
+- ZH：**影响**
+
+---
+
+### 本轮提交记录
+
+| Commit | 内容摘要 |
+|---|---|
+| — | Impact 排序后端 + 前端切换 UI |
+| — | NewsCard flex 布局修复（Impact 条固定底部） |
+| — | Impact 排序性能修复 + DateNavigator 恢复可用 |
+| — | Settings 按钮齿轮图标 + i18n |
+| — | LangDropdown 可扩展下拉语言切换器 |
+| — | Language 按钮文字改为 "Language"/"语言" |
+| `57e4689` | i18n 全面扫描：5 处漏洞修复（板块标签/时间/搜索框/排序按钮/Settings） |
+| — | NewsCard 摘要弹窗：移除内联摘要，统一弹窗模式（EN+ZH） |
+| — | 全站 i18n：article + auth 命名空间，8 个文件 |
+| — | 相关资讯标题批量翻译（zh locale） |
+| — | Impact 标签 i18n |
+
+---
+
 ## 2026-03-09 · Phase 3 启动 · UI 品牌重塑 · AI 评分方案确定
 
 ### 一、TopBar 品牌重塑（commit `4f16f85`）
