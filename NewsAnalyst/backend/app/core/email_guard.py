@@ -1,0 +1,135 @@
+"""
+email_guard.py — Disposable / throwaway email domain blocklist.
+
+Blocks the most-abused patterns.  To add a new domain, append it to
+DISPOSABLE_DOMAINS below (no other changes needed).
+"""
+
+DISPOSABLE_DOMAINS: frozenset[str] = frozenset(
+    {
+        # ── Generic / obvious test domains ────────────────────────────────────
+        "test.com",
+        "example.com",
+        "fake.com",
+        "noreply.com",
+        "nomail.com",
+        "trash.com",
+        "junk.com",
+        "nobody.com",
+        "null.com",
+        "invalid.com",
+        # ── Mailinator family ─────────────────────────────────────────────────
+        "mailinator.com",
+        "mailinator2.com",
+        "trashmail.com",
+        "trashmail.me",
+        "trashmail.net",
+        "trashmail.org",
+        "trashmail.io",
+        "trashmail.at",
+        "trashmail.xyz",
+        # ── Guerrilla / temp-mail services ───────────────────────────────────
+        "guerrillamail.com",
+        "guerrillamail.net",
+        "guerrillamail.org",
+        "guerrillamail.de",
+        "guerrillamail.biz",
+        "guerrillamail.info",
+        "grr.la",
+        "spam4.me",
+        "temp-mail.org",
+        "tempmail.com",
+        "tempmail.net",
+        "tempmail.io",
+        "temp-mail.ru",
+        "getairmail.com",
+        "filzmail.com",
+        "sharklasers.com",
+        "guerrillamailblock.com",
+        "yopmail.com",
+        "yopmail.fr",
+        "cool.fr.nf",
+        "jetable.fr.nf",
+        "nospam.ze.tc",
+        "nomail.xl.cx",
+        "mega.zik.dj",
+        "speed.1s.fr",
+        "courriel.fr.nf",
+        "moncourrier.fr.nf",
+        "monemail.fr.nf",
+        "monmail.fr.nf",
+        # ── 10-minute / short-lived mail ─────────────────────────────────────
+        "10minutemail.com",
+        "10minutemail.net",
+        "10minutemail.org",
+        "10minutemail.de",
+        "10minemail.com",
+        "minute-mail.net",
+        "dispostable.com",
+        "throwam.com",
+        "throwam.net",
+        "maildrop.cc",
+        "mailnull.com",
+        "mailnesia.com",
+        "spamgourmet.com",
+        "spamgourmet.net",
+        "spamgourmet.org",
+        "getnada.com",
+        "nada.email",
+        # ── Fake/bot-common TLDs ──────────────────────────────────────────────
+        "fakeinbox.com",
+        "fakemail.net",
+        "fakemail.com",
+        "fake-mail.net",
+        "binkmail.com",
+        "bobmail.info",
+        "dayrep.com",
+        "einrot.com",
+        "fleckens.hu",
+        "gustr.com",
+        "jourrapide.com",
+        "objectmail.com",
+        "obobbo.com",
+        "rhyta.com",
+        "superrito.com",
+        "teleworm.us",
+        # ── More disposable providers ─────────────────────────────────────────
+        "discard.email",
+        "discardmail.com",
+        "discardmail.de",
+        "spamherelots.com",
+        "spamhereplease.com",
+        "spamtrap.ro",
+        "crapmail.org",
+        "throwaway.email",
+        "throwam.com",
+        "mytrashmail.com",
+        "sogetthis.com",
+        "trashdevil.com",
+        "trashdevil.de",
+        "mailslapping.com",
+        "notmailinator.com",
+        "vomoto.com",
+        "incognitomail.org",
+        "incognitomail.net",
+        "trashcanmail.com",
+        "spam.la",
+        "spam.su",
+        "0-mail.com",
+        "027168.com",
+        "0815.ru",
+        "0815.su",
+        "0clickemail.com",
+        "0wnd.net",
+        "0wnd.org",
+    }
+)
+
+
+def is_disposable_email(email: str) -> bool:
+    """Return True if the email's domain is in the disposable blocklist."""
+    try:
+        domain = email.rsplit("@", 1)[1].lower()
+    except IndexError:
+        return False
+    return domain in DISPOSABLE_DOMAINS

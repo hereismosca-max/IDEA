@@ -1,11 +1,13 @@
 import secrets
 from datetime import datetime, timedelta, timezone
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
 from app.core.email import send_password_reset_email, send_verification_email
+from app.core.email_guard import is_disposable_email
+from app.core.limiter import limiter
 from app.core.security import (
     create_access_token,
     get_current_user,
@@ -40,8 +42,15 @@ def _utcnow() -> datetime:
 # ── Register ──────────────────────────────────────────────────────────────────
 
 @router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
-def register(payload: RegisterRequest, db: Session = Depends(get_db)):
+@limiter.limit("5/hour")
+def register(request: Request, payload: RegisterRequest, db: Session = Depends(get_db)):
     """Register a new user and send an email verification link."""
+    if is_disposable_email(payload.email):
+        raise HTTPException(
+            status_code=400,
+            detail="Please use a real email address to register",
+        )
+
     existing = db.query(User).filter(User.email == payload.email).first()
     if existing:
         raise HTTPException(status_code=400, detail="Email already registered")
@@ -186,7 +195,8 @@ def resend_verification(
 # ── Password reset ────────────────────────────────────────────────────────────
 
 @router.post("/forgot-password", response_model=MessageResponse)
-def forgot_password(payload: ForgotPasswordRequest, db: Session = Depends(get_db)):
+@limiter.limit("3/hour")
+def forgot_password(request: Request, payload: ForgotPasswordRequest, db: Session = Depends(get_db)):
     """
     Request a password reset link.
     Always returns 200 — never reveals whether the email is registered.
