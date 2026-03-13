@@ -53,6 +53,12 @@ def register(request: Request, payload: RegisterRequest, db: Session = Depends(g
         or (request.client.host if request.client else None)
     )
     if not verify_turnstile_token(payload.captcha_token, client_ip):
+        logger.warning(
+            "CAPTCHA rejected — ip=%s token_len=%d "
+            "(hint: check TURNSTILE_SECRET_KEY matches the site key in Cloudflare)",
+            client_ip,
+            len(payload.captcha_token),
+        )
         raise HTTPException(status_code=400, detail="CAPTCHA verification failed. Please try again.")
 
     # ── Email validation ──────────────────────────────────────────────────────

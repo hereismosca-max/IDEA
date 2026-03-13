@@ -188,6 +188,62 @@ def run_fetch_job():
     logger.info("─── Scheduled fetch job complete ───")
 
 
+def cleanup_unverified_accounts():
+    """
+    Delete user accounts that registered more than 24 h ago but never verified
+    their email address.  Runs hourly via APScheduler and once at startup.
+    Keeps the database clean without manual intervention.
+    """
+    from app.core.database import SessionLocal
+    from app.models.user import User
+    from app.models.vote import ArticleVote
+    from app.models.article import UserSavedArticle
+    from datetime import timedelta
+
+    cutoff = datetime.now(timezone.utc) - timedelta(hours=24)
+    db = SessionLocal()
+    try:
+        expired = (
+            db.query(User)
+            .filter(
+                User.email_verified == False,  # noqa: E712
+                User.created_at < cutoff,
+            )
+            .all()
+        )
+        if not expired:
+            logger.debug("Cleanup: no expired unverified accounts found")
+            return
+
+        ids = [u.id for u in expired]
+        emails = [u.email for u in expired]
+
+        # Remove child rows first to satisfy FK constraints
+        db.query(ArticleVote).filter(
+            ArticleVote.user_id.in_(ids)
+        ).delete(synchronize_session=False)
+        db.query(UserSavedArticle).filter(
+            UserSavedArticle.user_id.in_(ids)
+        ).delete(synchronize_session=False)
+
+        deleted = (
+            db.query(User)
+            .filter(User.id.in_(ids))
+            .delete(synchronize_session=False)
+        )
+        db.commit()
+        logger.info(
+            "Cleanup: deleted %d unverified account(s) older than 24 h — %s",
+            deleted,
+            emails,
+        )
+    except Exception as exc:
+        logger.error("Cleanup job failed: %s", exc)
+        db.rollback()
+    finally:
+        db.close()
+
+
 def start_scheduler():
     import threading
 
@@ -197,9 +253,19 @@ def start_scheduler():
         id="fetch_news",
         replace_existing=True,
     )
+
+    # Clean up unverified accounts every hour
+    scheduler.add_job(
+        cleanup_unverified_accounts,
+        trigger=IntervalTrigger(hours=1),
+        id="cleanup_unverified",
+        replace_existing=True,
+    )
+
     scheduler.start()
     logger.info(
-        f"Scheduler started — interval: every {settings.FETCH_INTERVAL_MINUTES} min"
+        f"Scheduler started — fetch: every {settings.FETCH_INTERVAL_MINUTES} min, "
+        "cleanup: every 1 h"
     )
 
     # Run the initial fetch in a daemon background thread so the FastAPI event
@@ -214,9 +280,15 @@ def start_scheduler():
         except Exception as exc:
             logger.error("Initial background fetch failed: %s", exc)
 
-    thread = threading.Thread(target=_initial_fetch, daemon=True, name="initial-fetch")
-    thread.start()
-    logger.info("Initial fetch dispatched to background thread")
+    def _initial_cleanup():
+        try:
+            cleanup_unverified_accounts()
+        except Exception as exc:
+            logger.error("Initial cleanup failed: %s", exc)
+
+    threading.Thread(target=_initial_fetch,   daemon=True, name="initial-fetch").start()
+    threading.Thread(target=_initial_cleanup, daemon=True, name="initial-cleanup").start()
+    logger.info("Initial fetch + cleanup dispatched to background threads")
 
 
 def stop_scheduler():

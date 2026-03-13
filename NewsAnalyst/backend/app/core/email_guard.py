@@ -119,12 +119,18 @@ def _local_part_is_suspicious(local: str) -> bool:
         if pat.search(local):
             return True
 
-    # Keyboard mash: very long local with almost no vowels
-    # (e.g. dsfdsafdsfsfdsf — 15 chars, 1 vowel)
-    if len(local) >= 10:
-        vowel_ratio = sum(1 for c in local if c in _VOWELS) / len(local)
-        if vowel_ratio < 0.10:
-            return True
+    # Vowel check — scaled by string length:
+    #   4–9 chars  → require ≥ 1 vowel  (catches "sdss", "qwrt", "dkjfh")
+    #   ≥ 10 chars → require vowel ratio > 10 %  (catches "dsfdsafdsfsfdsf")
+    # Strings ≤ 3 chars ("mr", "xyz") are too short to judge reliably.
+    if len(local) >= 4:
+        vowels_found = sum(1 for c in local if c in _VOWELS)
+        if len(local) <= 9:
+            if vowels_found == 0:
+                return True
+        else:
+            if vowels_found / len(local) < 0.10:
+                return True
 
     return False
 

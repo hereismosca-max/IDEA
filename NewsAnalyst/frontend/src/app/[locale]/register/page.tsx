@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useLocale, useTranslations } from 'next-intl';
 import { Turnstile, type TurnstileInstance } from '@marsidev/react-turnstile';
 import { useAuth } from '@/providers/AuthProvider';
+import { resendVerification } from '@/lib/api';
 
 const SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? '';
 
@@ -21,6 +22,7 @@ export default function RegisterPage() {
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [registered, setRegistered] = useState(false);
+  const [resendState, setResendState] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
 
   const turnstileRef = useRef<TurnstileInstance>(null);
   // Track whether the widget has settled (success or error) to drive the timeout fallback
@@ -72,6 +74,17 @@ export default function RegisterPage() {
     }
   };
 
+  // ── Resend handler ─────────────────────────────────────────────────────────
+  const handleResend = async () => {
+    setResendState('sending');
+    try {
+      await resendVerification();
+      setResendState('sent');
+    } catch {
+      setResendState('error');
+    }
+  };
+
   // ── Success state ─────────────────────────────────────────────────────────
   if (registered) {
     return (
@@ -88,7 +101,25 @@ export default function RegisterPage() {
           >
             {t('continueBrowsing')}
           </Link>
-          <p className="mt-4 text-xs text-gray-400">{t('checkSpam')}</p>
+
+          {/* Resend verification email */}
+          <div className="mt-6">
+            {resendState === 'sent' ? (
+              <p className="text-sm text-green-600">{t('resendSent')}</p>
+            ) : resendState === 'error' ? (
+              <p className="text-sm text-red-500">{t('resendError')}</p>
+            ) : (
+              <button
+                onClick={handleResend}
+                disabled={resendState === 'sending'}
+                className="text-sm text-gray-400 hover:text-gray-600 underline underline-offset-2 transition-colors disabled:opacity-50"
+              >
+                {resendState === 'sending' ? t('resending') : t('resendEmail')}
+              </button>
+            )}
+          </div>
+
+          <p className="mt-3 text-xs text-gray-400">{t('checkSpam')}</p>
         </div>
       </div>
     );
