@@ -335,17 +335,19 @@ def get_article(
     if not article:
         raise HTTPException(status_code=404, detail="Article not found")
 
-    # Count upvotes and downvotes
-    upvotes = (
-        db.query(func.count(ArticleVote.id))
-        .filter(ArticleVote.article_id == article_id, ArticleVote.vote == 1)
-        .scalar() or 0
-    )
-    downvotes = (
-        db.query(func.count(ArticleVote.id))
-        .filter(ArticleVote.article_id == article_id, ArticleVote.vote == -1)
-        .scalar() or 0
-    )
+    # Count upvotes and downvotes in a single query using conditional aggregation.
+    # Previously this was 2 separate COUNT queries; combining saves a DB round-trip.
+    vote_row = db.execute(
+        text(
+            "SELECT "
+            "  COUNT(*) FILTER (WHERE vote = 1)  AS upvotes, "
+            "  COUNT(*) FILTER (WHERE vote = -1) AS downvotes "
+            "FROM article_votes WHERE article_id = :aid"
+        ),
+        {"aid": str(article_id)},
+    ).fetchone()
+    upvotes   = int(vote_row[0]) if vote_row else 0
+    downvotes = int(vote_row[1]) if vote_row else 0
 
     # Determine the caller's current vote (None if unauthenticated)
     user_vote = None

@@ -114,7 +114,12 @@ class OpenAIProcessor(BaseAIProcessor):
             model:   Model name (default: gpt-4o-mini).
             delay:   Seconds to wait between calls (rate-limit courtesy).
         """
-        self._client = OpenAI(api_key=api_key)
+        self._client = OpenAI(
+            api_key=api_key,
+            timeout=30.0,   # Hard cap: abort if OpenAI doesn't respond within 30 s.
+                            # Without this, a stalled call can block the scheduler
+                            # indefinitely, freezing all subsequent article processing.
+        )
         self._model = model
         self._delay = delay
         logger.info(f"OpenAIProcessor initialised — model: {model}")

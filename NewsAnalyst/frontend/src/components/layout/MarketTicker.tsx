@@ -77,19 +77,21 @@ function HeadlineTicker() {
   // Uses the /articles/headlines endpoint which prioritises global/national scale events.
   // When locale='zh', also fetch Chinese title translations for all headlines in parallel.
   useEffect(() => {
+    let cancelled = false; // cleanup flag prevents stale state updates after unmount/re-run
     setItems([]);
     setTitleMap({});
     setIdx(0);
     setVisible(true);
     fetchHeadlines(board, 5)
       .then(articles => {
+        if (cancelled) return;
         setItems(articles);
         if (isZh) {
           // Fire translate calls for every headline in parallel; update map as each resolves
           articles.forEach(a => {
             translateArticle(a.id, 'zh')
               .then(t => {
-                if (t.title_zh) {
+                if (!cancelled && t.title_zh) {
                   setTitleMap(prev => ({ ...prev, [a.id]: t.title_zh! }));
                 }
               })
@@ -98,6 +100,7 @@ function HeadlineTicker() {
         }
       })
       .catch(() => {});
+    return () => { cancelled = true; };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [board, isZh]);
 
@@ -178,7 +181,7 @@ export default function MarketTicker() {
 
   useEffect(() => {
     load();
-    const id = setInterval(load, 15_000); // ← 15 s polling (was 60 s)
+    const id = setInterval(load, 60_000); // 60 s polling — market data updates ~1 min; 15 s was excessive
     return () => clearInterval(id);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

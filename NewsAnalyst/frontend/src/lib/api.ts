@@ -5,30 +5,54 @@ const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 // ── Core request helper ───────────────────────────────────────────────────────
 
+// Default timeout: 12 s for all API calls.
+// Prevents the UI from hanging forever when the Railway backend is slow to wake
+// or when a network request silently stalls (fetch() has no built-in timeout).
+const REQUEST_TIMEOUT_MS = 12_000;
+
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const token = getToken();
-  const res = await fetch(`${API_BASE}${path}`, {
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...options?.headers,
-    },
-    ...options,
-  });
 
-  if (!res.ok) {
-    // Try to surface the backend's detail message
-    let detail = res.statusText;
-    try {
-      const body = await res.json();
-      if (body?.detail) detail = body.detail;
-    } catch { /* ignore */ }
-    const err = new Error(detail) as Error & { status: number };
-    err.status = res.status;
-    throw err;
+  // AbortController lets us cancel the request after REQUEST_TIMEOUT_MS.
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+
+  try {
+    const res = await fetch(`${API_BASE}${path}`, {
+      // Spread caller options first so our signal wins (overrides any signal in options)
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...options?.headers,
+      },
+      signal: controller.signal,
+    });
+
+    if (!res.ok) {
+      // Try to surface the backend's detail message
+      let detail = res.statusText;
+      try {
+        const body = await res.json();
+        if (body?.detail) detail = body.detail;
+      } catch { /* ignore */ }
+      const err = new Error(detail) as Error & { status: number };
+      err.status = res.status;
+      throw err;
+    }
+
+    return res.json();
+  } catch (e) {
+    // Re-throw AbortError as a friendlier timeout error
+    if (e instanceof Error && e.name === 'AbortError') {
+      const err = new Error('Request timed out — please try again') as Error & { status: number };
+      err.status = 408;
+      throw err;
+    }
+    throw e;
+  } finally {
+    clearTimeout(timeoutId);
   }
-
-  return res.json();
 }
 
 // ── Articles ──────────────────────────────────────────────────────────────────
