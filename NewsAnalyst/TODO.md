@@ -255,6 +255,34 @@
 - [x] TopBar：用户名截断（`truncate max-w-[60px]`），分隔符小屏隐藏
 - [x] MenuBar：右侧渐变遮罩提示可横向滑动
 
+### 安全、账号管理与稳定性（2026-03-13）
+
+#### Cloudflare Turnstile CAPTCHA
+- [x] 排查 site key 失效导致注册按钮永久 disabled 的根因（Cloudflare JS SDK 抛出未捕获异常，不触发 React `onError`）
+- [x] 新增 8 秒超时兜底：`useEffect` + `captchaResolvedRef` 检测 widget 是否 resolve，超时则 `setCaptchaUnavailable(true)` 解锁按钮
+- [x] Widget 切换为 `size: 'invisible'`（Cloudflare 控制台同步改为 Invisible 模式）
+- [x] 更新 Vercel `NEXT_PUBLIC_TURNSTILE_SITE_KEY` 为有效 key
+- [x] `captcha.py`：空 token 静默返回 true（widget 未加载时的降级策略）
+- [x] `auth.py`：CAPTCHA 拒绝时输出 ip + token_len 诊断日志
+
+#### 邮箱校验强化
+- [x] `email_guard.py` 扩展辅音检查：4-9 字符字符串要求至少 1 个元音，否则判定为可疑
+- [x] 覆盖案例：`sdss`、`qwrt`、`sdssqwrt` 等全辅音乱码邮箱被拒绝；`john`、`alice` 等正常名字放行
+
+#### 未验证账号自动清除
+- [x] `scheduler.py` 新增 `cleanup_unverified_accounts()`：查询并删除超 24 小时未验证的账号
+- [x] 外键安全删除顺序：`article_votes` → `user_saved_articles` → `users`
+- [x] 调度策略：`IntervalTrigger(hours=1)` 每小时运行；启动时立即执行一次（daemon thread）
+
+#### 注册流程改进
+- [x] 注册成功页新增"重发验证邮件"按钮（`idle → sending → sent/error` 状态机）
+- [x] `frontend/messages/en.json` + `zh.json` 新增 `auth.resendEmail/resending/resendSent/resendError`
+
+#### 配置诊断与可观测性
+- [x] `main.py` 启动时打印各关键环境变量状态（`SET ✓` / `MISSING ✗`）
+- [x] 新增 `GET /health/services` 端点：返回 email / captcha / database 配置状态，不暴露实际 key 值
+- [x] `email.py` 新增 429 专项错误日志（配额耗尽时明确提示 Resend 用量和重置时间）
+
 ### 待完成（低优先级，可与 Phase 3 并行）
 - [ ] 抓取日志管理页（内部工具，不阻塞用户功能）
 - [ ] 错误处理全站补完（当前主流程已有 fallback，可渐进式补强）
@@ -336,4 +364,4 @@
 
 ---
 
-_最后更新：2026-03-10（Impact 排序 + NewsCard 摘要弹窗 + LangDropdown + 全站 i18n 补完 100% + 相关资讯标题翻译）_
+_最后更新：2026-03-13（Turnstile CAPTCHA 修复 + 邮箱校验强化 + 未验证账号自动清除 + 配置诊断 + 注册重发邮件按钮）_

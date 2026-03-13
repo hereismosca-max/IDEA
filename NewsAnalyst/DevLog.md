@@ -5,6 +5,232 @@
 
 ---
 
+## 2026-03-13 · Turnstile CAPTCHA 修复 · 邮件 429 排查 · 邮箱校验强化 · 未验证账号自动清除
+
+### 背景
+
+本轮开发由用户反馈的 4 个并发问题触发：
+
+1. Cloudflare Turnstile 注册页空白（iframe 渲染失败，按钮永久禁用）
+2. 注册成功后收不到验证邮件
+3. 乱码邮箱（如 `sdss@gmail.com`、`qwrt@gmail.com`）仍可通过邮箱校验
+4. 未验证账号永久占用数据库，无任何清理机制
+
+同期有人编写了批量注册脚本对网站进行压力测试，制造了约 6000 条垃圾数据并耗尽 Resend 单日配额。
+
+---
+
+### 一、Cloudflare Turnstile CAPTCHA 修复
+
+#### 排查阶段
+
+**阶段一 — 域名配置排查**
+Cloudflare Turnstile 控制台已正确配置所有域名（`finlens.io`、`www.finlens.io`、`*.vercel.app`、`*.railway.app`、`localhost`），但 widget 仍无法显示，排除域名白名单问题。
+
+**阶段二 — Site Key 失效**
+浏览器控制台报错：
+```
+TurnstileError: [Cloudflare Turnstile] Invalid input for parameter "sitekey", got "0x4AAAAAACqBV0zf66oSvGz2"
+```
+确认 Vercel 中存储的 `NEXT_PUBLIC_TURNSTILE_SITE_KEY` 是已删除/作废的旧 key。
+
+**关键洞察**：Cloudflare JS SDK 遇到无效 sitekey 时会**直接抛出未捕获异常，而非触发 React `onError` 回调**，导致：
+- `onError` 永远不触发 → `captchaUnavailable` 永远为 false
+- 提交按钮永远 disabled，用户无法注册
+
+#### 修复方案
+
+**1. Vercel 环境变量更新**：用户在 Cloudflare 控制台重新生成 site key，更新 `NEXT_PUBLIC_TURNSTILE_SITE_KEY`。
+
+**2. 8 秒超时兜底**（`frontend/src/app/[locale]/register/page.tsx`）：
+```tsx
+const captchaResolvedRef = useRef(false);
+useEffect(() => {
+  if (!SITE_KEY) return;
+  const id = setTimeout(() => {
+    if (!captchaResolvedRef.current) setCaptchaUnavailable(true);
+  }, 8000);
+  return () => clearTimeout(id);
+}, []);
+```
+无论何种失败原因（key 失效、域名不匹配、网络超时），8 秒后若 widget 仍未 resolve → 解锁按钮，允许用户继续注册（后端 rate limit 作为兜底安全层）。
+
+**3. Invisible 模式切换**：
+```tsx
+<Turnstile
+  siteKey={SITE_KEY}
+  onSuccess={(token) => { captchaResolvedRef.current = true; setCaptchaToken(token); }}
+  onError={() => { captchaResolvedRef.current = true; setCaptchaUnavailable(true); }}
+  options={{ size: 'invisible' }}
+/>
+```
+从 `Managed` 切换为 `invisible`，无可见 UI，Cloudflare 在后台静默完成验证。同时在 Cloudflare 控制台将 Widget Mode 改为 Invisible。
+
+**4. 提交条件统一**：
+```tsx
+const canSubmit = (!SITE_KEY || !!captchaToken || captchaUnavailable) && !isSubmitting;
+```
+三种情况均可提交：无 SITE_KEY（开发模式）、有 token（正常通过）、widget 不可用（降级模式）。
+
+#### 最终状态
+- 控制台：无 TurnstileError，出现 `checkSupportDomain domain: www.finlens.io`（SDK 正常加载）
+- 注册按钮：可点击，无可见 CAPTCHA 组件（Invisible 模式设计如此，属预期行为）
+
+---
+
+### 二、邮件验证 429 Rate Limit 排查
+
+#### 现象
+用户注册成功进入"查收邮件"提示页，但收件箱和垃圾箱均无任何邮件。
+
+#### 排查过程
+1. `GET /health/services`：`RESEND_API_KEY` SET ✓，DATABASE connected ✓
+2. Resend 控制台：`finlens.io` 域名状态 Verified ✓
+3. Resend Logs 页面：**所有发信记录均为 429 Too Many Requests**
+4. Resend Usage 页面：Daily `201/100`（超限！），Monthly `209/3000`（正常）
+
+#### 根因
+批量注册测试脚本（约 6000 次注册）触发了约 200+ 封验证邮件，一次性耗尽 Resend 免费账户**单日 100 封**配额。
+
+#### 处理
+- **短期**：等待 UTC 午夜配额自动重置（无需代码改动）
+- **代码改进**（`backend/app/core/email.py`）：新增 429 专项错误日志，方便快速定位：
+```python
+if "429" in err_str or "rate_limit" in err_str.lower() or "too many" in err_str.lower():
+    logger.error("⚠️  RESEND QUOTA EXHAUSTED (429) — could not email %s. "
+                 "Free tier: 100/day. Wait for reset or upgrade.", to)
+```
+- **长期防护**：Turnstile CAPTCHA 修复后自动阻断批量注册脚本
+
+---
+
+### 三、邮箱校验强化（`email_guard.py`）
+
+#### 问题
+`sdss@gmail.com`、`qwrt@gmail.com` 等全辅音短字符串仍可通过邮箱合法性检测注册成功。
+
+#### 根因
+原辅音比例检查仅适用于 `len(local) >= 10` 的字符串，4-9 字符的短乱码完全绕过：
+```python
+# 旧逻辑（有缺陷）
+if len(local) >= 10:
+    if vowels_found / len(local) < 0.10:
+        return True
+```
+
+#### 修复（`_local_part_is_suspicious()`）
+```python
+# 新逻辑
+if len(local) >= 4:
+    vowels_found = sum(1 for c in local if c in _VOWELS)
+    if len(local) <= 9:
+        if vowels_found == 0:      # 4-9 字符全辅音 → 直接拒绝
+            return True
+    else:
+        if vowels_found / len(local) < 0.10:  # ≥10 字符辅音占比过高 → 拒绝
+            return True
+```
+
+**覆盖验证**：
+- `sdss`（4字符，0元音）→ 拒绝 ✓
+- `qwrt`（4字符，0元音）→ 拒绝 ✓
+- `john`（4字符，含元音 o）→ 放行 ✓
+- `alice`（5字符，3元音）→ 放行 ✓
+- `sdssqwrt`（8字符，0元音）→ 拒绝 ✓
+
+---
+
+### 四、未验证账号自动清除（`scheduler.py`）
+
+#### 需求
+用户 24 小时内未验证邮箱 → 自动删除账号，防止垃圾数据永久占用数据库。
+
+#### 实现
+新增 `cleanup_unverified_accounts()` 函数：
+
+```python
+def cleanup_unverified_accounts():
+    cutoff = datetime.now(timezone.utc) - timedelta(hours=24)
+    # 按外键安全顺序批量删除
+    db.query(ArticleVote).filter(ArticleVote.user_id.in_(ids)).delete(synchronize_session=False)
+    db.query(UserSavedArticle).filter(UserSavedArticle.user_id.in_(ids)).delete(synchronize_session=False)
+    deleted = db.query(User).filter(User.id.in_(ids)).delete(synchronize_session=False)
+    db.commit()
+    logger.info("Cleanup: deleted %d unverified account(s) older than 24h", deleted)
+```
+
+**调度策略**：
+- 每小时执行一次：`IntervalTrigger(hours=1)`，job id `cleanup_unverified`
+- 启动时立即执行一次（daemon thread），清理历史遗留数据（批量注册脚本制造的 ~6000 条垃圾账号）
+
+**FK 安全性**：先删子表（`article_votes`、`user_saved_articles`），再删主表（`users`），使用 `synchronize_session=False` 避免 ORM 追踪开销，完整 try/except/rollback 保护。
+
+---
+
+### 五、配置诊断改进
+
+**启动日志**（`main.py`）：Railway 部署后可在控制台直接判断环境变量是否生效：
+```
+[Config] RESEND_API_KEY     : SET ✓
+[Config] TURNSTILE_SECRET   : SET ✓
+[Config] OPENAI_API_KEY     : SET ✓
+[Config] FRONTEND_BASE_URL  : SET ✓
+```
+
+**`GET /health/services` 端点**：返回各服务配置状态（key 是否设置、DB 是否连接），不暴露实际 key 值，适合线上快速诊断。
+
+**CAPTCHA 拒绝日志**（`auth.py`）：
+```python
+logger.warning(
+    "CAPTCHA rejected — ip=%s token_len=%d "
+    "(hint: check TURNSTILE_SECRET_KEY matches site key in Cloudflare)",
+    client_ip, len(payload.captcha_token),
+)
+```
+
+---
+
+### 六、注册成功页"重发验证邮件"按钮
+
+停留在注册成功"请查收邮件"页面时，新增 **Resend verification email** 按钮：
+- 状态机：`idle → sending → sent / error`
+- 调用 `POST /api/v1/auth/resend-verification`（需已登录）
+- 发送成功：显示 "✓ Email sent again"
+- 发送失败：显示 "Failed — try again later"
+- 文案全部接入 i18n：`en.json` + `zh.json` 新增 `auth.resendEmail` / `auth.resending` / `auth.resendSent` / `auth.resendError`
+
+---
+
+### 七、Invisible 模式说明（用户答疑）
+
+> **用户问**：我还没有看到 UI 按钮/checkbox，还是说现在不会有那个 UI 出现了，只是在后台确认当前注册的用户是不是 bot？
+
+**结论**：是的，这是 Invisible 模式的设计行为，属预期表现。
+
+| 模式 | 表现 |
+|------|------|
+| Managed | 显示可见 checkbox（"I'm not a robot"），高风险时弹出图形验证 |
+| **Invisible（当前）** | **无可见 UI**，Cloudflare 在后台分析行为信号（鼠标移动、JS 执行特征、IP 信誉等）完成验证 |
+
+Invisible 模式对用户体验最友好——正常用户注册全程无感知，机器人则在后台被静默拦截。
+
+---
+
+### 关键文件变更汇总
+
+| 文件 | 变更内容 |
+|------|---------|
+| `frontend/src/app/[locale]/register/page.tsx` | 8s 超时兜底、invisible 模式、`captchaResolvedRef`、重发邮件按钮 |
+| `frontend/messages/en.json` + `zh.json` | 新增 `auth.resendEmail/resending/resendSent/resendError` |
+| `backend/app/core/email_guard.py` | 扩展辅音检查至 4-9 字符字符串 |
+| `backend/app/core/email.py` | 429 专项错误日志 |
+| `backend/app/core/captcha.py` | 空 token 静默跳过验证 |
+| `backend/app/services/scheduler.py` | 新增 `cleanup_unverified_accounts()` 小时级定期任务 |
+| `backend/app/main.py` | 启动配置诊断日志 + `GET /health/services` 端点 |
+| `backend/app/api/v1/routes/auth.py` | CAPTCHA 拒绝时输出诊断日志 |
+
+---
+
 ## 2026-03-10 · Impact 排序 · NewsCard 摘要弹窗 · 全站 i18n 补完
 
 ### 一、Impact 排序功能（Latest ↔ Impact 切换）

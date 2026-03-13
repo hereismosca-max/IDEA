@@ -288,10 +288,19 @@
 - **相关资讯标题**：文章详情页底部相关文章标题在 zh locale 下批量翻译（优先读 DB 缓存，未缓存时并发调翻译 API）
 - **Impact 标签**：NewsCard 评分条的 "IMPACT" 标签接入 i18n（复用 `feed.sortImpact`）
 
+**安全与账号管理（2026-03-13）**
+- Cloudflare Turnstile CAPTCHA 修复：从 Managed 切换为 Invisible 模式（后台静默验证，无可见 UI）；新增 8 秒超时兜底机制，防止 site key 失效或网络异常导致注册按钮永久 disabled；修复 Vercel 中存储的失效 site key
+- 邮箱合法性校验强化：`email_guard.py` 扩展辅音检查范围至 4-9 字符字符串（零元音即拒绝），拦截 `sdss@gmail.com`、`qwrt@gmail.com` 等全辅音乱码邮箱
+- 未验证账号自动清除：`scheduler.py` 新增 `cleanup_unverified_accounts()` 任务，每小时执行，自动删除注册超 24 小时仍未验证邮箱的账号（按外键安全顺序级联删除）；启动时立即执行一次，清理历史遗留数据
+- 注册成功页新增"重发验证邮件"按钮（`idle → sending → sent/error` 状态机），含完整 i18n
+- Resend 429 专项错误日志：单日配额耗尽时输出明确提示，方便定位
+- 配置诊断：Railway 启动日志打印各关键环境变量状态（`SET ✓` / `MISSING ✗`）；新增 `GET /health/services` 端点，线上快速诊断服务可用性
+- CAPTCHA 拒绝日志：记录客户端 IP + token 长度，附带配置检查提示
+
 **待完成（低优先级，留后续迭代）**
 - 中文新闻源接入（Phase 4 开始时）
 - 抓取日志管理页（内部工具）
 
 ---
 
-_最后更新：2026-03-10（Impact 排序 + NewsCard 摘要弹窗 + 语言切换器重设计 + 全站 i18n 补完 100%）_
+_最后更新：2026-03-13（Turnstile CAPTCHA 修复 + 邮箱校验强化 + 未验证账号自动清除 + 配置诊断改进）_
