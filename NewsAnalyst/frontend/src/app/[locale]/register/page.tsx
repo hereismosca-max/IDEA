@@ -146,18 +146,16 @@ export default function RegisterPage() {
             />
           </div>
 
-          {/* Cloudflare Turnstile CAPTCHA — hidden once unavailable to remove blank space */}
+          {/* Cloudflare Turnstile — invisible mode: no visual widget, silent background check */}
           {SITE_KEY && !captchaUnavailable && (
-            <div className="flex justify-center">
-              <Turnstile
-                ref={turnstileRef}
-                siteKey={SITE_KEY}
-                onSuccess={(token) => { captchaResolvedRef.current = true; setCaptchaToken(token); setCaptchaUnavailable(false); }}
-                onError={() => { captchaResolvedRef.current = true; setCaptchaToken(''); setCaptchaUnavailable(true); }}
-                onExpire={() => { setCaptchaToken(''); }}
-                options={{ theme: 'light', size: 'normal' }}
-              />
-            </div>
+            <Turnstile
+              ref={turnstileRef}
+              siteKey={SITE_KEY}
+              onSuccess={(token) => { captchaResolvedRef.current = true; setCaptchaToken(token); setCaptchaUnavailable(false); }}
+              onError={() => { captchaResolvedRef.current = true; setCaptchaToken(''); setCaptchaUnavailable(true); }}
+              onExpire={() => { setCaptchaToken(''); }}
+              options={{ size: 'invisible' }}
+            />
           )}
 
           {error && (
