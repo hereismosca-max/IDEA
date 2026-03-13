@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from app.core.database import get_db
 from app.core.email import send_password_reset_email, send_verification_email
-from app.core.email_guard import is_disposable_email
+from app.core.email_guard import validate_email_for_registration
 from app.core.limiter import limiter
 from app.core.security import (
     create_access_token,
@@ -45,11 +45,9 @@ def _utcnow() -> datetime:
 @limiter.limit("5/hour")
 def register(request: Request, payload: RegisterRequest, db: Session = Depends(get_db)):
     """Register a new user and send an email verification link."""
-    if is_disposable_email(payload.email):
-        raise HTTPException(
-            status_code=400,
-            detail="Please use a real email address to register",
-        )
+    err = validate_email_for_registration(payload.email)
+    if err:
+        raise HTTPException(status_code=400, detail=err)
 
     existing = db.query(User).filter(User.email == payload.email).first()
     if existing:
