@@ -72,7 +72,17 @@ def _send(*, to: str, subject: str, html: str) -> None:
         )
         logger.info("Email sent to %s — %s | Resend id: %s", to, subject, getattr(result, "id", result))
     except Exception as exc:
-        logger.error("Resend API error sending to %s: %s", to, exc)
+        err_str = str(exc)
+        if "429" in err_str or "rate_limit" in err_str.lower() or "too many" in err_str.lower():
+            logger.error(
+                "⚠️  RESEND QUOTA EXHAUSTED (429) — could not email %s.\n"
+                "  → Check usage at https://resend.com/overview\n"
+                "  → Free tier: 100/day, 3 000/month. Upgrade or wait for reset.\n"
+                "  → The user can retry via the 'Resend email' button on the site.",
+                to,
+            )
+        else:
+            logger.error("Resend API error sending to %s: %s", to, exc)
         raise  # re-raise so caller can handle/log
 
 
