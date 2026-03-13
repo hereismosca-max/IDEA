@@ -283,6 +283,22 @@
 - [x] 新增 `GET /health/services` 端点：返回 email / captcha / database 配置状态，不暴露实际 key 值
 - [x] `email.py` 新增 429 专项错误日志（配额耗尽时明确提示 Resend 用量和重置时间）
 
+#### 稳定性与性能修复（2026-03-13）
+- [x] 排查慢加载根因：Supabase Session Pooler 连接耗尽（`MaxClientsInSessionMode`）+ 无 DB 索引
+- [x] DATABASE_URL port 5432 → 6543（Transaction Pooler），永久更新 Railway 环境变量
+- [x] SQLAlchemy 连接池调整：pool_size=10, max_overflow=15, pool_recycle=1800
+- [x] Alembic 迁移 `c3f1a9e2d847`：创建 `ix_articles_feed` + `ix_articles_impact` 复合索引（响应 2-5s → 166ms）
+- [x] 文章详情页投票 N+1 查询合并：2 次 COUNT → 1 次 `COUNT(*) FILTER` 条件聚合
+- [x] OpenAI 客户端新增 30s timeout（防调度器线程永久阻塞）
+- [x] Frontend fetch 新增 12s AbortController timeout（消灭永久 loading）
+- [x] MarketTicker 轮询 15s → 60s；HeadlineTicker Promise cancelled flag 防内存泄漏
+
+#### 新闻源拓展（2026-03-13）
+- [x] 第一轮：新增 Reuters / Bloomberg / Wall Street Journal（5 → 8 源）
+- [x] 评估 ChatGPT "Top 25 Financial News Sources" 清单，测试所有候选 RSS 可用性
+- [x] 第二轮：新增 TechCrunch（AI/科技）/ AP News（全球宏观）/ Axios（高密度商业）（8 → 11 源）
+- [x] `registry.py` + `seed.py` 更新，seed 入生产 DB，Railway 部署确认 11 sources is_active ✓
+
 ### 待完成（低优先级，可与 Phase 3 并行）
 - [ ] 抓取日志管理页（内部工具，不阻塞用户功能）
 - [ ] 错误处理全站补完（当前主流程已有 fallback，可渐进式补强）
@@ -364,4 +380,4 @@
 
 ---
 
-_最后更新：2026-03-13（Turnstile CAPTCHA 修复 + 邮箱校验强化 + 未验证账号自动清除 + 配置诊断 + 注册重发邮件按钮）_
+_最后更新：2026-03-13（稳定性修复 + DB 索引 + Transaction Pooler + 新闻源扩展至 11 个）_

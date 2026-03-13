@@ -297,10 +297,22 @@
 - 配置诊断：Railway 启动日志打印各关键环境变量状态（`SET ✓` / `MISSING ✗`）；新增 `GET /health/services` 端点，线上快速诊断服务可用性
 - CAPTCHA 拒绝日志：记录客户端 IP + token 长度，附带配置检查提示
 
+**稳定性与性能修复（2026-03-13）**
+- **Supabase Transaction Pooler 迁移**：DATABASE_URL port 5432 → 6543，解决 `MaxClientsInSessionMode` 连接耗尽问题；SQLAlchemy 连接池调整 pool_size=10 + max_overflow=15
+- **复合 DB 索引**（Alembic migration `c3f1a9e2d847`）：`ix_articles_feed` + `ix_articles_impact`；接口响应 2-5s → **166ms**
+- **N+1 查询优化**：投票计数 2 次 COUNT → 1 次条件聚合
+- **OpenAI 30s / Frontend 12s timeout**：消灭调度器挂起和 UI 永久 loading 问题
+- **MarketTicker**：轮询 15s → 60s；Promise cancelled flag 防内存泄漏
+
+**新闻源拓展（5 → 11）（2026-03-13）**
+- 第一轮：+Reuters / Bloomberg / Wall Street Journal → 8 源
+- 第二轮（评估 ChatGPT Top 25 清单后）：+TechCrunch / AP News / Axios → **11 源**
+- 覆盖维度：金融财经 + AI/科技 + 全球宏观中立线 + 高密度商业短报
+
 **待完成（低优先级，留后续迭代）**
 - 中文新闻源接入（Phase 4 开始时）
 - 抓取日志管理页（内部工具）
 
 ---
 
-_最后更新：2026-03-13（Turnstile CAPTCHA 修复 + 邮箱校验强化 + 未验证账号自动清除 + 配置诊断改进）_
+_最后更新：2026-03-13（稳定性修复 + DB 索引 + Transaction Pooler + 新闻源 5→11）_
