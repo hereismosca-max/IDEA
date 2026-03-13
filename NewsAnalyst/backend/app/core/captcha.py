@@ -23,6 +23,11 @@ def verify_turnstile_token(token: str, remote_ip: str | None = None) -> bool:
         # Not configured — skip (dev/test mode)
         return True
 
+    if not token.strip():
+        # Empty token: widget failed to load on the client (domain not whitelisted,
+        # network issue, etc.). Fall through to rate-limit as the backstop.
+        return True
+
     payload: dict[str, str] = {
         "secret": settings.TURNSTILE_SECRET_KEY,
         "response": token,

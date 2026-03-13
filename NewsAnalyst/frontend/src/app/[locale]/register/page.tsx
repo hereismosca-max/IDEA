@@ -17,6 +17,7 @@ export default function RegisterPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [captchaToken, setCaptchaToken] = useState('');
+  const [captchaUnavailable, setCaptchaUnavailable] = useState(false);
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [registered, setRegistered] = useState(false);
@@ -30,8 +31,8 @@ export default function RegisterPage() {
       setError(t('passwordTooShort'));
       return;
     }
-    // SITE_KEY set but no token yet → guard (shouldn't happen as button is disabled)
-    if (SITE_KEY && !captchaToken) {
+    // SITE_KEY set but no token yet and widget loaded OK → reject
+    if (SITE_KEY && !captchaToken && !captchaUnavailable) {
       setError(t('captchaRequired'));
       return;
     }
@@ -49,8 +50,10 @@ export default function RegisterPage() {
         setError(t('registrationFailed'));
       }
       // Reset CAPTCHA so user can retry
-      turnstileRef.current?.reset();
-      setCaptchaToken('');
+      if (!captchaUnavailable) {
+        turnstileRef.current?.reset();
+        setCaptchaToken('');
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -78,7 +81,7 @@ export default function RegisterPage() {
     );
   }
 
-  const canSubmit = (!SITE_KEY || !!captchaToken) && !isSubmitting;
+  const canSubmit = (!SITE_KEY || !!captchaToken || captchaUnavailable) && !isSubmitting;
 
   // ── Registration form ─────────────────────────────────────────────────────
   return (
@@ -136,8 +139,8 @@ export default function RegisterPage() {
               <Turnstile
                 ref={turnstileRef}
                 siteKey={SITE_KEY}
-                onSuccess={(token) => setCaptchaToken(token)}
-                onError={() => { setCaptchaToken(''); }}
+                onSuccess={(token) => { setCaptchaToken(token); setCaptchaUnavailable(false); }}
+                onError={() => { setCaptchaToken(''); setCaptchaUnavailable(true); }}
                 onExpire={() => { setCaptchaToken(''); }}
                 options={{ theme: 'light', size: 'normal' }}
               />
