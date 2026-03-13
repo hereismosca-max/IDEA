@@ -2,11 +2,13 @@
 Seed Script
 ===========
 Inserts initial data into the database:
-  - 5 news sources (English)
+  - 8 news sources (English)   ← updated 2026-03-13: added Reuters, Bloomberg, WSJ
   - 7 categories (English)
 
 Run from the backend/ directory:
   python scripts/seed.py
+
+The script is idempotent — existing rows are skipped, only new entries are inserted.
 """
 
 import sys
@@ -20,6 +22,7 @@ from app.models.source import Source
 from app.models.category import Category
 
 SOURCES = [
+    # ── Original sources ──────────────────────────────────────────────────────
     {
         "name": "Financial Times",
         "rss_url": "https://www.ft.com/rss/home/uk",
@@ -48,6 +51,25 @@ SOURCES = [
         "name": "MarketWatch",
         "rss_url": "https://feeds.marketwatch.com/marketwatch/topstories/",
         "base_url": "https://www.marketwatch.com",
+        "language": "en",
+    },
+    # ── Added 2026-03-13 ──────────────────────────────────────────────────────
+    {
+        "name": "Reuters",
+        "rss_url": "https://feeds.reuters.com/reuters/businessNews",
+        "base_url": "https://www.reuters.com",
+        "language": "en",
+    },
+    {
+        "name": "Bloomberg",
+        "rss_url": "https://feeds.bloomberg.com/markets/news.rss",
+        "base_url": "https://www.bloomberg.com",
+        "language": "en",
+    },
+    {
+        "name": "Wall Street Journal",
+        "rss_url": "https://feeds.a.dj.com/rss/RSSMarketsMain.xml",
+        "base_url": "https://www.wsj.com",
         "language": "en",
     },
 ]

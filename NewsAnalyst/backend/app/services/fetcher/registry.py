@@ -9,9 +9,19 @@ Fields:
   rss_url  — RSS feed URL
   base_url — Media homepage
   language — 'en' or 'zh'
+
+Source notes:
+  Reuters     — Major news wire; feeds.reuters.com verified accessible from Railway (US-West).
+  Bloomberg   — feeds.bloomberg.com publicly available (30 articles/feed); content paywalled
+                but RSS titles/snippets are enough for AI tagging.
+  WSJ         — Wall Street Journal (Dow Jones); feeds.a.dj.com publicly available RSS;
+                content paywalled but snippets are sufficient for summaries.
+  FT          — Financial Times; heavily paywalled, but RSS titles are valuable signal.
+  BBC Business — Broad coverage; low paywall rate, good for macro/policy context.
 """
 
 NEWS_SOURCES = [
+    # ── Original 5 sources ────────────────────────────────────────────────────
     {
         "name": "Financial Times",
         "rss_url": "https://www.ft.com/rss/home/uk",
@@ -40,6 +50,25 @@ NEWS_SOURCES = [
         "name": "MarketWatch",
         "rss_url": "https://feeds.marketwatch.com/marketwatch/topstories/",
         "base_url": "https://www.marketwatch.com",
+        "language": "en",
+    },
+    # ── New sources added 2026-03-13 ──────────────────────────────────────────
+    {
+        "name": "Reuters",
+        "rss_url": "https://feeds.reuters.com/reuters/businessNews",
+        "base_url": "https://www.reuters.com",
+        "language": "en",
+    },
+    {
+        "name": "Bloomberg",
+        "rss_url": "https://feeds.bloomberg.com/markets/news.rss",
+        "base_url": "https://www.bloomberg.com",
+        "language": "en",
+    },
+    {
+        "name": "Wall Street Journal",
+        "rss_url": "https://feeds.a.dj.com/rss/RSSMarketsMain.xml",
+        "base_url": "https://www.wsj.com",
         "language": "en",
     },
 ]
