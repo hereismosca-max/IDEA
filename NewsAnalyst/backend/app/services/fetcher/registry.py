@@ -18,6 +18,12 @@ Source notes:
                 content paywalled but snippets are sufficient for summaries.
   FT          — Financial Times; heavily paywalled, but RSS titles are valuable signal.
   BBC Business — Broad coverage; low paywall rate, good for macro/policy context.
+  TechCrunch  — Top startup/VC/AI news; techcrunch.com/feed/ confirmed 20 articles (2026-03-13).
+                Critical for AI & tech sector signals — largest market driver in 2025-26.
+  AP News     — Associated Press global newswire; feeds.apnews.com DNS fails locally (VPN/proxy)
+                but accessible from Railway US-West (same pattern as Reuters). Neutral, fast.
+  Axios       — High signal-to-noise short-form business news; api.axios.com/feed/ confirmed
+                100 articles live (2026-03-13). Covers AI policy, markets, geopolitics.
 """
 
 NEWS_SOURCES = [
@@ -52,7 +58,7 @@ NEWS_SOURCES = [
         "base_url": "https://www.marketwatch.com",
         "language": "en",
     },
-    # ── New sources added 2026-03-13 ──────────────────────────────────────────
+    # ── Added 2026-03-13 ──────────────────────────────────────────────────────
     {
         "name": "Reuters",
         "rss_url": "https://feeds.reuters.com/reuters/businessNews",
@@ -69,6 +75,25 @@ NEWS_SOURCES = [
         "name": "Wall Street Journal",
         "rss_url": "https://feeds.a.dj.com/rss/RSSMarketsMain.xml",
         "base_url": "https://www.wsj.com",
+        "language": "en",
+    },
+    # ── Added 2026-03-13 (cross-domain expansion) ─────────────────────────────
+    {
+        "name": "TechCrunch",
+        "rss_url": "https://techcrunch.com/feed/",
+        "base_url": "https://techcrunch.com",
+        "language": "en",
+    },
+    {
+        "name": "AP News",
+        "rss_url": "https://feeds.apnews.com/rss/business",
+        "base_url": "https://apnews.com",
+        "language": "en",
+    },
+    {
+        "name": "Axios",
+        "rss_url": "https://api.axios.com/feed/",
+        "base_url": "https://www.axios.com",
         "language": "en",
     },
 ]

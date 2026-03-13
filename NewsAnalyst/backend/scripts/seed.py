@@ -2,7 +2,7 @@
 Seed Script
 ===========
 Inserts initial data into the database:
-  - 8 news sources (English)   ← updated 2026-03-13: added Reuters, Bloomberg, WSJ
+  - 11 news sources (English)  ← updated 2026-03-13: added TechCrunch, AP News, Axios
   - 7 categories (English)
 
 Run from the backend/ directory:
@@ -70,6 +70,25 @@ SOURCES = [
         "name": "Wall Street Journal",
         "rss_url": "https://feeds.a.dj.com/rss/RSSMarketsMain.xml",
         "base_url": "https://www.wsj.com",
+        "language": "en",
+    },
+    # ── Added 2026-03-13 (cross-domain expansion) ─────────────────────────────
+    {
+        "name": "TechCrunch",
+        "rss_url": "https://techcrunch.com/feed/",
+        "base_url": "https://techcrunch.com",
+        "language": "en",
+    },
+    {
+        "name": "AP News",
+        "rss_url": "https://feeds.apnews.com/rss/business",
+        "base_url": "https://apnews.com",
+        "language": "en",
+    },
+    {
+        "name": "Axios",
+        "rss_url": "https://api.axios.com/feed/",
+        "base_url": "https://www.axios.com",
         "language": "en",
     },
 ]
