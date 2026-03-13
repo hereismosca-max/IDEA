@@ -92,6 +92,10 @@ export function getCurrentUser(): Promise<User> {
   return request('/api/v1/auth/me');
 }
 
+export function deleteAccount(): Promise<void> {
+  return request('/api/v1/auth/me', { method: 'DELETE' });
+}
+
 export interface UpdateProfilePayload {
   display_name?: string;
   bio?: string;

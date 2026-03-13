@@ -10,7 +10,7 @@ import {
 } from 'react';
 import { User } from '@/types';
 import { getToken, setToken, removeToken } from '@/lib/auth';
-import { loginUser, registerUser, getCurrentUser } from '@/lib/api';
+import { loginUser, registerUser, getCurrentUser, deleteAccount as deleteAccountApi } from '@/lib/api';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -21,6 +21,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
   register: (email: string, password: string, displayName: string, captchaToken?: string) => Promise<void>;
+  deleteAccount: () => Promise<void>;
   refreshUser: () => Promise<void>;
 }
 
@@ -75,6 +76,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [login]
   );
 
+  const deleteAccount = useCallback(async () => {
+    await deleteAccountApi();
+    removeToken();
+    setTokenState(null);
+    setUser(null);
+  }, []);
+
   // Refresh current user from the server (e.g. after a profile update)
   const refreshUser = useCallback(async () => {
     try {
@@ -86,7 +94,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, token, isLoading, login, logout, register, refreshUser }}>
+    <AuthContext.Provider value={{ user, token, isLoading, login, logout, register, deleteAccount, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );

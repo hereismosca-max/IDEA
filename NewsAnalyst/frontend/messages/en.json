@@ -108,6 +108,11 @@
     "notifications": "Notifications",
     "display": "Display",
     "soon": "Soon",
-    "signOut": "Sign Out"
+    "signOut": "Sign Out",
+    "deleteAccount": "Delete Account",
+    "deleteConfirmText": "This is permanent and cannot be undone. All your data will be erased.",
+    "deleteConfirmBtn": "Yes, delete my account",
+    "deleting": "Deleting…",
+    "cancel": "Cancel"
   }
 }

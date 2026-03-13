@@ -108,6 +108,11 @@
     "notifications": "通知",
     "display": "外观",
     "soon": "即将推出",
-    "signOut": "退出登录"
+    "signOut": "退出登录",
+    "deleteAccount": "删除账户",
+    "deleteConfirmText": "此操作不可撤销，账户及所有数据将被永久清除。",
+    "deleteConfirmBtn": "确认，永久删除",
+    "deleting": "删除中…",
+    "cancel": "取消"
   }
 }

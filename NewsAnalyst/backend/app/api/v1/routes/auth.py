@@ -147,6 +147,33 @@ def update_me(
     return current_user
 
 
+# ── Delete account ────────────────────────────────────────────────────────────
+
+@router.delete("/me", status_code=status.HTTP_204_NO_CONTENT)
+def delete_me(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Permanently delete the authenticated user's account and all related data.
+    Returns 204 No Content on success.
+    """
+    from app.models.vote import ArticleVote
+    from app.models.article import UserSavedArticle
+
+    email = current_user.email  # capture before deletion for logging
+
+    # Delete child rows first to avoid FK constraint errors
+    db.query(ArticleVote).filter(ArticleVote.user_id == current_user.id).delete()
+    db.query(UserSavedArticle).filter(UserSavedArticle.user_id == current_user.id).delete()
+
+    db.delete(current_user)
+    db.commit()
+
+    logger.info("Account permanently deleted: %s", email)
+    # 204 — FastAPI returns an empty body automatically
+
+
 # ── Email verification ────────────────────────────────────────────────────────
 
 @router.post("/verify-email", response_model=MessageResponse)

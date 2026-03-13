@@ -12,9 +12,10 @@ import { updateProfile } from '@/lib/api';
 // Guests clicking Account or Notifications are redirected to /login.
 
 type ExpandedSection = 'account' | 'language' | null;
+type DeleteState = 'idle' | 'confirm' | 'deleting';
 
 export default function SettingsMenu() {
-  const { user, refreshUser, logout } = useAuth();
+  const { user, refreshUser, logout, deleteAccount } = useAuth();
   const locale = useLocale();
   const router = useRouter();
   const t = useTranslations('settings');
@@ -46,10 +47,12 @@ export default function SettingsMenu() {
   const [bio, setBio] = useState('');
   const [pronouns, setPronouns] = useState('');
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+  const [deleteState, setDeleteState] = useState<DeleteState>('idle');
 
-  // Sync form when Account section expands
+  // Sync form when Account section expands; reset delete state when it collapses
   useEffect(() => {
-    if (expanded !== 'account' || !user) return;
+    if (expanded !== 'account') { setDeleteState('idle'); return; }
+    if (!user) return;
     setDisplayName(user.display_name);
     setBio(user.bio ?? '');
     setPronouns(user.pronouns ?? '');
@@ -74,6 +77,19 @@ export default function SettingsMenu() {
       setTimeout(() => setSaveStatus('idle'), 3000);
     }
   }, [saveStatus, displayName, bio, pronouns, refreshUser]);
+
+  // ── Delete account ───────────────────────────────────────────────────────
+  const handleDeleteAccount = useCallback(async () => {
+    if (deleteState !== 'confirm') return;
+    setDeleteState('deleting');
+    try {
+      await deleteAccount();
+      setOpen(false);
+      router.push(`/${locale}`);
+    } catch {
+      setDeleteState('confirm'); // let user retry
+    }
+  }, [deleteState, deleteAccount, router, locale]);
 
   // ── Language change ──────────────────────────────────────────────────────
   const handleLangChange = useCallback(
@@ -221,6 +237,43 @@ export default function SettingsMenu() {
               >
                 {saveLabel}
               </button>
+
+              {/* ── Delete account ────────────────────────────────────────── */}
+              <div className="mt-3 pt-3 border-t border-gray-200">
+                {deleteState === 'idle' && (
+                  <button
+                    onClick={() => setDeleteState('confirm')}
+                    className="w-full flex items-center justify-center gap-1.5 py-1.5 text-xs font-medium text-red-400 hover:text-red-600 rounded-md hover:bg-red-50 transition-colors"
+                  >
+                    <svg className="w-3.5 h-3.5 flex-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                    {t('deleteAccount')}
+                  </button>
+                )}
+
+                {(deleteState === 'confirm' || deleteState === 'deleting') && (
+                  <div className="rounded-md bg-red-50 border border-red-200 p-2.5">
+                    <p className="text-xs text-red-700 font-medium mb-2">{t('deleteConfirmText')}</p>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => setDeleteState('idle')}
+                        disabled={deleteState === 'deleting'}
+                        className="flex-1 py-1 text-xs font-medium border border-gray-300 rounded-md text-gray-600 hover:bg-white transition-colors disabled:opacity-50"
+                      >
+                        {t('cancel')}
+                      </button>
+                      <button
+                        onClick={handleDeleteAccount}
+                        disabled={deleteState === 'deleting'}
+                        className="flex-1 py-1 text-xs font-semibold bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors disabled:opacity-50"
+                      >
+                        {deleteState === 'deleting' ? t('deleting') : t('deleteConfirmBtn')}
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           )}
 
