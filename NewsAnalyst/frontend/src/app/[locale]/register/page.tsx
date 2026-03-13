@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, FormEvent } from 'react';
+import { useState, useRef, useEffect, FormEvent } from 'react';
 import Link from 'next/link';
 import { useLocale, useTranslations } from 'next-intl';
 import { Turnstile, type TurnstileInstance } from '@marsidev/react-turnstile';
@@ -23,6 +23,19 @@ export default function RegisterPage() {
   const [registered, setRegistered] = useState(false);
 
   const turnstileRef = useRef<TurnstileInstance>(null);
+  // Track whether the widget has settled (success or error) to drive the timeout fallback
+  const captchaResolvedRef = useRef(false);
+
+  // Domain-mismatch silently blanks the iframe without firing onError.
+  // If the widget hasn't resolved after 8 s, treat it as unavailable so
+  // rate-limiting remains the only backstop and the button stays usable.
+  useEffect(() => {
+    if (!SITE_KEY) return;
+    const id = setTimeout(() => {
+      if (!captchaResolvedRef.current) setCaptchaUnavailable(true);
+    }, 8000);
+    return () => clearTimeout(id);
+  }, []);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -133,14 +146,14 @@ export default function RegisterPage() {
             />
           </div>
 
-          {/* Cloudflare Turnstile CAPTCHA */}
-          {SITE_KEY && (
+          {/* Cloudflare Turnstile CAPTCHA — hidden once unavailable to remove blank space */}
+          {SITE_KEY && !captchaUnavailable && (
             <div className="flex justify-center">
               <Turnstile
                 ref={turnstileRef}
                 siteKey={SITE_KEY}
-                onSuccess={(token) => { setCaptchaToken(token); setCaptchaUnavailable(false); }}
-                onError={() => { setCaptchaToken(''); setCaptchaUnavailable(true); }}
+                onSuccess={(token) => { captchaResolvedRef.current = true; setCaptchaToken(token); setCaptchaUnavailable(false); }}
+                onError={() => { captchaResolvedRef.current = true; setCaptchaToken(''); setCaptchaUnavailable(true); }}
                 onExpire={() => { setCaptchaToken(''); }}
                 options={{ theme: 'light', size: 'normal' }}
               />
