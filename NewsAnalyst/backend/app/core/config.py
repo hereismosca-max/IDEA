@@ -28,6 +28,9 @@ class Settings(BaseSettings):
     EMAIL_FROM: str = "FinLens <noreply@finlens.io>"
     FRONTEND_BASE_URL: str = "https://www.finlens.io"
 
+    # Cloudflare Turnstile CAPTCHA (leave empty to skip verification in dev)
+    TURNSTILE_SECRET_KEY: str = ""
+
 
 @lru_cache()
 def get_settings() -> Settings:

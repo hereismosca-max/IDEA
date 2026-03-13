@@ -70,6 +70,8 @@
     "passwordTooShort": "密码至少需要8位。",
     "emailAlreadyTaken": "该邮箱已被注册。",
     "registrationFailed": "注册失败，请重试。",
+    "captchaRequired": "请完成安全验证。",
+    "captchaFailed": "安全验证失败，请重试。",
     "alreadyHaveAccount": "已有账户？",
     "signInLink": "去登录",
     "checkInboxTitle": "请查收邮件！",

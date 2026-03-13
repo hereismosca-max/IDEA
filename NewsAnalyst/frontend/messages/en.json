@@ -70,6 +70,8 @@
     "passwordTooShort": "Password must be at least 8 characters.",
     "emailAlreadyTaken": "That email is already registered.",
     "registrationFailed": "Registration failed. Please try again.",
+    "captchaRequired": "Please complete the security check.",
+    "captchaFailed": "Security check failed. Please try again.",
     "alreadyHaveAccount": "Already have an account?",
     "signInLink": "Sign in",
     "checkInboxTitle": "Check your inbox!",

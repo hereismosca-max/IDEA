@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 
 from app.core.database import get_db
 from app.core.email import send_password_reset_email, send_verification_email
+from app.core.captcha import verify_turnstile_token
 from app.core.email_guard import validate_email_for_registration
 from app.core.limiter import limiter
 from app.core.security import (
@@ -45,6 +46,16 @@ def _utcnow() -> datetime:
 @limiter.limit("5/hour")
 def register(request: Request, payload: RegisterRequest, db: Session = Depends(get_db)):
     """Register a new user and send an email verification link."""
+    # ── CAPTCHA ───────────────────────────────────────────────────────────────
+    client_ip = (
+        request.headers.get("CF-Connecting-IP")
+        or request.headers.get("X-Forwarded-For", "").split(",")[0].strip()
+        or (request.client.host if request.client else None)
+    )
+    if not verify_turnstile_token(payload.captcha_token, client_ip):
+        raise HTTPException(status_code=400, detail="CAPTCHA verification failed. Please try again.")
+
+    # ── Email validation ──────────────────────────────────────────────────────
     err = validate_email_for_registration(payload.email)
     if err:
         raise HTTPException(status_code=400, detail=err)

@@ -77,11 +77,12 @@ export function loginUser(email: string, password: string): Promise<TokenRespons
 export function registerUser(
   email: string,
   password: string,
-  display_name: string
+  display_name: string,
+  captcha_token: string = ''
 ): Promise<unknown> {
   return request('/api/v1/auth/register', {
     method: 'POST',
-    body: JSON.stringify({ email, password, display_name }),
+    body: JSON.stringify({ email, password, display_name, captcha_token }),
   });
 }
 

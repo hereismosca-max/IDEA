@@ -20,7 +20,7 @@ interface AuthContextType {
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
-  register: (email: string, password: string, displayName: string) => Promise<void>;
+  register: (email: string, password: string, displayName: string, captchaToken?: string) => Promise<void>;
   refreshUser: () => Promise<void>;
 }
 
@@ -68,8 +68,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const register = useCallback(
-    async (email: string, password: string, displayName: string) => {
-      await registerUser(email, password, displayName);
+    async (email: string, password: string, displayName: string, captchaToken = '') => {
+      await registerUser(email, password, displayName, captchaToken);
       await login(email, password);
     },
     [login]

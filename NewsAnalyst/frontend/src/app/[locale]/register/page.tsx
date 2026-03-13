@@ -1,9 +1,12 @@
 'use client';
 
-import { useState, FormEvent } from 'react';
+import { useState, useRef, FormEvent } from 'react';
 import Link from 'next/link';
 import { useLocale, useTranslations } from 'next-intl';
+import { Turnstile, type TurnstileInstance } from '@marsidev/react-turnstile';
 import { useAuth } from '@/providers/AuthProvider';
+
+const SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? '';
 
 export default function RegisterPage() {
   const locale = useLocale();
@@ -13,9 +16,12 @@ export default function RegisterPage() {
   const [displayName, setDisplayName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [captchaToken, setCaptchaToken] = useState('');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [registered, setRegistered] = useState(false);
+
+  const turnstileRef = useRef<TurnstileInstance>(null);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -24,13 +30,27 @@ export default function RegisterPage() {
       setError(t('passwordTooShort'));
       return;
     }
+    // SITE_KEY set but no token yet → guard (shouldn't happen as button is disabled)
+    if (SITE_KEY && !captchaToken) {
+      setError(t('captchaRequired'));
+      return;
+    }
     setIsSubmitting(true);
     try {
-      await register(email, password, displayName);
-      setRegistered(true); // show success state instead of redirecting
+      await register(email, password, displayName, captchaToken);
+      setRegistered(true);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : '';
-      setError(message === 'Email already registered' ? t('emailAlreadyTaken') : t('registrationFailed'));
+      if (message === 'Email already registered') {
+        setError(t('emailAlreadyTaken'));
+      } else if (message.includes('CAPTCHA')) {
+        setError(t('captchaFailed'));
+      } else {
+        setError(t('registrationFailed'));
+      }
+      // Reset CAPTCHA so user can retry
+      turnstileRef.current?.reset();
+      setCaptchaToken('');
     } finally {
       setIsSubmitting(false);
     }
@@ -57,6 +77,8 @@ export default function RegisterPage() {
       </div>
     );
   }
+
+  const canSubmit = (!SITE_KEY || !!captchaToken) && !isSubmitting;
 
   // ── Registration form ─────────────────────────────────────────────────────
   return (
@@ -108,6 +130,20 @@ export default function RegisterPage() {
             />
           </div>
 
+          {/* Cloudflare Turnstile CAPTCHA */}
+          {SITE_KEY && (
+            <div className="flex justify-center">
+              <Turnstile
+                ref={turnstileRef}
+                siteKey={SITE_KEY}
+                onSuccess={(token) => setCaptchaToken(token)}
+                onError={() => { setCaptchaToken(''); }}
+                onExpire={() => { setCaptchaToken(''); }}
+                options={{ theme: 'light', size: 'normal' }}
+              />
+            </div>
+          )}
+
           {error && (
             <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md px-3 py-2">
               {error}
@@ -116,7 +152,7 @@ export default function RegisterPage() {
 
           <button
             type="submit"
-            disabled={isSubmitting}
+            disabled={!canSubmit}
             className="w-full bg-gray-900 text-white py-2 px-4 rounded-md text-sm font-medium hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isSubmitting ? t('creatingAccount') : t('createAccount')}

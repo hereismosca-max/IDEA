@@ -5,6 +5,7 @@ class RegisterRequest(BaseModel):
     email: EmailStr
     password: str
     display_name: str
+    captcha_token: str = ""  # Cloudflare Turnstile token; empty = skip (dev only)
 
 
 class LoginRequest(BaseModel):
