@@ -299,6 +299,15 @@
 - [x] 第二轮：新增 TechCrunch（AI/科技）/ AP News（全球宏观）/ Axios（高密度商业）（8 → 11 源）
 - [x] `registry.py` + `seed.py` 更新，seed 入生产 DB，Railway 部署确认 11 sources is_active ✓
 
+#### API 攻击防御（2026-03-13 第二轮）
+- [x] 排查根因：攻击者用 `page_size=100` 轰炸 `/api/v1/articles`（无 rate limit），`pool_timeout=30s` 导致连接池雪崩，Railway 日志洪水（500 logs/sec 丢失 2782 条）
+- [x] `articles.py`：5 个端点加 `@limiter.limit("60/min")`；translate 加 `@limiter.limit("20/min")`
+- [x] `articles.py`：所有列表端点 `page_size` 上限 100→20（验证：422 拦截）
+- [x] `database.py`：pool_timeout 30s→5s，pool_size 10→5，max_overflow 15→10，pool_recycle 1800→600
+- [x] `limiter.py`：改用 `_get_real_ip()` 读 CF-Connecting-IP / X-Forwarded-For（修正 Railway 内网 IP 问题）
+- [x] `Dockerfile`：uvicorn `--no-access-log`，消除攻击期间日志洪水
+- [x] 验证：`page_size=100` → HTTP 422 ✓；日志干净无 QueuePool 错误 ✓；API 响应 0.13s ✓
+
 ### 待完成（低优先级，可与 Phase 3 并行）
 - [ ] 抓取日志管理页（内部工具，不阻塞用户功能）
 - [ ] 错误处理全站补完（当前主流程已有 fallback，可渐进式补强）
@@ -380,4 +389,4 @@
 
 ---
 
-_最后更新：2026-03-13（稳定性修复 + DB 索引 + Transaction Pooler + 新闻源扩展至 11 个）_
+_最后更新：2026-03-13（稳定性修复 + DB 索引 + Transaction Pooler + 新闻源 5→11 + API 攻击防御）_

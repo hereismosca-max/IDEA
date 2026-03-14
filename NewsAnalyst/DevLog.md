@@ -5,7 +5,7 @@
 
 ---
 
-## 2026-03-13 · Turnstile CAPTCHA 修复 · 邮件 429 排查 · 邮箱校验强化 · 未验证账号自动清除 · 稳定性审查与性能修复 · 新闻源拓展（8→11）
+## 2026-03-13 · Turnstile CAPTCHA 修复 · 邮件 429 排查 · 邮箱校验强化 · 未验证账号自动清除 · 稳定性审查与性能修复 · 新闻源拓展（8→11） · 连接池攻击防御
 
 ### 背景
 
@@ -301,6 +301,93 @@ CREATE INDEX ix_articles_impact ON articles (is_active, language, ai_score DESC 
 
 ---
 
+### 十、连接池攻击防御（2026-03-13 第二轮）
+
+#### 根因分析
+
+**现象**：用户反馈网站无法正常使用，Railway 日志大量：
+```
+sqlalchemy.exc.TimeoutError: QueuePool limit of size 10 overflow 15 reached,
+connection timed out, timeout 30.00
+INFO: 100.64.0.x - "GET /api/v1/articles?page=1&page_size=100&language=en HTTP/1.1" 500 Internal Server Error
+Railway rate limit of 500 logs/sec reached for replica. Messages dropped: 2782
+```
+
+**根因**：多重叠加故障：
+
+| # | 根因 | 影响 |
+|---|------|------|
+| 1 | `/api/v1/articles` 端点**无 rate limiting** | 攻击者可无限速轰炸 |
+| 2 | 攻击者用 `page_size=100`（后端允许至 100） | 每请求持有连接时间更长 |
+| 3 | `pool_timeout=30s` | 超载时每请求排队 30 秒，连接槽全部挤死，后续请求全部 500 |
+| 4 | uvicorn access log 每请求 1 行 INFO | 攻击期间触发 Railway 500 logs/sec 限制，丢失 2782 条关键错误日志 |
+| 5 | `get_remote_address` 读到 Railway 内网 IP `100.64.x.x` | rate limit 对真实攻击者 IP 无效 |
+
+#### 修复内容
+
+**1. Rate limiting 覆盖文章端点（`articles.py`）**
+```python
+@router.get("")
+@limiter.limit("60/minute")   # GET /api/v1/articles
+def get_articles(request: Request, ...):
+
+@router.get("/headlines")
+@limiter.limit("60/minute")   # GET /api/v1/articles/headlines
+def get_headlines(request: Request, ...):
+
+@router.get("/saved")
+@limiter.limit("60/minute")   # GET /api/v1/articles/saved
+def get_saved_articles(request: Request, ...):
+
+@router.get("/{article_id}/translate")
+@limiter.limit("20/minute")   # 高成本 OpenAI 调用，更严格限制
+def translate_article_endpoint(request: Request, ...):
+
+@router.get("/{article_id}/related")
+@limiter.limit("60/minute")   # GET /api/v1/articles/{id}/related
+def get_related_articles(request: Request, ...):
+```
+
+**2. page_size 上限 100→20（所有列表端点）**
+```python
+page_size: int = Query(20, ge=1, le=20, ...)  # 攻击向量封堵
+```
+效果验证：`?page_size=100` → `HTTP 422 Unprocessable Entity` ✓
+
+**3. 连接池参数调整（`database.py`）**
+```python
+pool_size=5,        # 10→5：减小内存压力，Transaction Pooler 侧多路复用
+max_overflow=10,    # 15→10：总 15 连接，防止突发时池雪崩
+pool_timeout=5,     # 30s→5s：快速失败，不排队等候（关键！）
+pool_recycle=600,   # 1800→600：更频繁回收陈旧连接
+```
+
+**4. IP 提取修正（`limiter.py`）**
+```python
+def _get_real_ip(request: Request) -> str:
+    # CF-Connecting-IP → X-Forwarded-For → client.host
+    # Railway 内网 100.64.x.x 不再被当作 rate limit key
+```
+
+**5. uvicorn access log 抑制（`Dockerfile`）**
+```dockerfile
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--no-access-log"]
+# 攻击期间 500+ logs/sec → Railway 丢日志。应用层 ERROR 日志仍保留。
+```
+
+#### 验证结果
+
+| 测试 | 预期 | 实际 |
+|------|------|------|
+| `GET /api/v1/articles?page_size=100` | HTTP 422 | ✅ 422 |
+| `GET /api/v1/articles?page_size=20` | HTTP 200 | ✅ 200（0.13s） |
+| Railway 日志中 QueuePool 错误 | 消失 | ✅ 无 |
+| 日志中仅见 scheduler 正常日志 | 干净 | ✅ 干净 |
+
+Commit: `00e5e7f fix: harden API against connection pool exhaustion attacks`
+
+---
+
 ### 关键文件变更汇总
 
 | 文件 | 变更内容 |
@@ -313,8 +400,10 @@ CREATE INDEX ix_articles_impact ON articles (is_active, language, ai_score DESC 
 | `backend/app/services/scheduler.py` | 新增 `cleanup_unverified_accounts()` 小时级定期任务 |
 | `backend/app/main.py` | 启动配置诊断日志 + `GET /health/services` 端点 |
 | `backend/app/api/v1/routes/auth.py` | CAPTCHA 拒绝时输出诊断日志 |
-| `backend/app/core/database.py` | Transaction Pooler 连接池参数（pool_size=10, max_overflow=15） |
-| `backend/app/api/v1/routes/articles.py` | 投票 N+1 查询合并为单次条件聚合 |
+| `backend/app/core/database.py` | 连接池参数强化（pool_size 10→5, overflow 15→10, timeout 30s→5s, recycle 1800→600） |
+| `backend/app/api/v1/routes/articles.py` | 投票 N+1 查询合并；rate limiting 覆盖 5 个端点；page_size 上限 100→20 |
+| `backend/app/core/limiter.py` | `_get_real_ip` 函数，优先读 CF-Connecting-IP / X-Forwarded-For |
+| `backend/Dockerfile` | uvicorn `--no-access-log`（防止攻击期间日志洪水） |
 | `backend/app/services/ai/openai_processor.py` | OpenAI 客户端 30s timeout |
 | `backend/alembic/versions/c3f1a9e2d847_*.py` | 复合索引迁移（ix_articles_feed + ix_articles_impact） |
 | `frontend/src/lib/api.ts` | AbortController 12s 请求超时 |

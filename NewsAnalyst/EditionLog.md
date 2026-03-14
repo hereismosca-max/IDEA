@@ -309,10 +309,17 @@
 - 第二轮（评估 ChatGPT Top 25 清单后）：+TechCrunch / AP News / Axios → **11 源**
 - 覆盖维度：金融财经 + AI/科技 + 全球宏观中立线 + 高密度商业短报
 
+**API 攻击防御（2026-03-13 第二轮）**
+- **Rate limiting 全覆盖**：GET /articles、/headlines、/saved、/related（60/min per IP）；/translate（20/min）
+- **page_size 上限 100→20**：封堵大页攻击向量；超限请求直接 422
+- **连接池快速失败**：pool_timeout 30s→5s（不再等待排队），max_overflow 15→10，pool_size 10→5
+- **Railway IP 修正**：limiter 改用 `CF-Connecting-IP / X-Forwarded-For` 提取真实客户端 IP（原来读到内网 100.64.x.x）
+- **access log 抑制**：uvicorn `--no-access-log` 消除攻击期间 500+ logs/sec 日志洪水
+
 **待完成（低优先级，留后续迭代）**
 - 中文新闻源接入（Phase 4 开始时）
 - 抓取日志管理页（内部工具）
 
 ---
 
-_最后更新：2026-03-13（稳定性修复 + DB 索引 + Transaction Pooler + 新闻源 5→11）_
+_最后更新：2026-03-13（稳定性修复 + DB 索引 + Transaction Pooler + 新闻源 5→11 + API 攻击防御）_
