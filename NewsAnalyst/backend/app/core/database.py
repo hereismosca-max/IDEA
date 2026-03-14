@@ -5,14 +5,16 @@ from app.core.config import settings
 engine = create_engine(
     settings.DATABASE_URL,
     pool_pre_ping=True,      # Verify connections before using (handles stale connections)
-    pool_size=10,            # 10 persistent connections to the Transaction Pooler.
-                             # PgBouncer (Transaction mode) multiplexes these across many
-                             # concurrent requests, so 10 handles 100+ simultaneous users.
+    pool_size=5,             # 5 persistent connections to the Transaction Pooler.
+                             # PgBouncer (Transaction mode) multiplexes these efficiently;
+                             # smaller pool means less memory pressure and faster checkout.
                              # NOTE: Session Pooler (port 5432) allows ~15 total; by switching
                              # to Transaction Pooler (port 6543) we removed that hard cap.
-    max_overflow=15,         # Up to 25 total SQLAlchemy connections under burst load.
-    pool_timeout=30,         # Raise error after 30 s waiting for a connection slot.
-    pool_recycle=1800,       # Recycle connections every 30 min to avoid server-side timeouts.
+    max_overflow=10,         # Up to 15 total SQLAlchemy connections under burst load.
+                             # Reduced from 25 to prevent connection pool avalanche under attack.
+    pool_timeout=5,          # Fail fast: raise error after 5 s waiting for a connection slot.
+                             # Previously 30 s — long waits cascade into full pool exhaustion.
+    pool_recycle=600,        # Recycle connections every 10 min (was 30 min) to flush stale ones.
 )
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

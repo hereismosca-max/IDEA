@@ -1,11 +1,12 @@
 from datetime import datetime, timezone, timedelta
 
-from fastapi import APIRouter, Depends, Query, HTTPException
+from fastapi import APIRouter, Depends, Query, HTTPException, Request
 from sqlalchemy import or_, text, func
 from sqlalchemy.orm import Session, joinedload
 from typing import List, Optional
 
 from app.core.database import get_db
+from app.core.limiter import limiter
 from app.core.security import get_current_user, get_optional_user
 from app.models.article import Article, UserSavedArticle
 from app.models.vote import ArticleVote
@@ -58,9 +59,11 @@ SECTION_FILTERS = {
 
 
 @router.get("", response_model=ArticleListResponse)
+@limiter.limit("60/minute")
 def get_articles(
+    request: Request,
     page: int = Query(1, ge=1, description="Page number"),
-    page_size: int = Query(20, ge=1, le=100, description="Items per page"),
+    page_size: int = Query(20, ge=1, le=20, description="Items per page (max 20)"),
     language: str = Query("en", description="Language filter"),
     category_slug: Optional[str] = Query(None, description="Category slug filter"),
     date: Optional[str] = Query(None, description="Filter by date (YYYY-MM-DD, UTC). Ignored when 'search' or date_from/date_to are present."),
@@ -156,7 +159,9 @@ def get_articles(
 
 
 @router.get("/headlines", response_model=List[ArticleResponse])
+@limiter.limit("60/minute")
 def get_headlines(
+    request: Request,
     language: str = Query("en", description="Content language"),
     limit: int = Query(5, ge=1, le=20, description="Max number of headlines"),
     db: Session = Depends(get_db),
@@ -212,9 +217,11 @@ def get_headlines(
 
 
 @router.get("/saved", response_model=ArticleListResponse)
+@limiter.limit("60/minute")
 def get_saved_articles(
+    request: Request,
     page: int = Query(1, ge=1),
-    page_size: int = Query(20, ge=1, le=100),
+    page_size: int = Query(20, ge=1, le=20),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -245,7 +252,9 @@ def get_saved_articles(
 
 
 @router.get("/{article_id}/translate", response_model=ArticleTranslationResponse)
+@limiter.limit("20/minute")
 def translate_article_endpoint(
+    request: Request,
     article_id: str,
     lang: str = Query("zh", description="Target language code (currently only 'zh' is supported)"),
     db: Session = Depends(get_db),
@@ -371,7 +380,9 @@ def get_article(
 
 
 @router.get("/{article_id}/related", response_model=List[ArticleResponse])
+@limiter.limit("60/minute")
 def get_related_articles(
+    request: Request,
     article_id: str,
     limit: int = Query(5, ge=1, le=10),
     db: Session = Depends(get_db),

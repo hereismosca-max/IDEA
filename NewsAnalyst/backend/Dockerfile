@@ -15,4 +15,7 @@ EXPOSE 8000
 # Railway's DB may already have all tables (created manually / via Supabase),
 # and a failed alembic run can hang or block, preventing uvicorn from starting.
 # Run migrations manually when needed:  railway run alembic upgrade head
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# --no-access-log: suppress per-request INFO lines (each request = 1 log line).
+# Under attack these flood Railway's 500 logs/sec limit and drop critical error logs.
+# Application-level errors are still logged via the app's own logger.
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--no-access-log"]
