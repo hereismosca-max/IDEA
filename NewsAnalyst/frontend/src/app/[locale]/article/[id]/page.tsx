@@ -35,10 +35,10 @@ async function getRelatedArticles(id: string): Promise<Article[]> {
   }
 }
 
-/** Fetch (and lazily cache) the Chinese translation for the article detail page. */
-async function getTranslation(id: string): Promise<ArticleTranslation | null> {
+/** Fetch (and lazily cache) the translation for the article detail page. */
+async function getTranslation(id: string, lang: string): Promise<ArticleTranslation | null> {
   try {
-    const res = await fetch(`${API_BASE}/api/v1/articles/${id}/translate?lang=zh`, {
+    const res = await fetch(`${API_BASE}/api/v1/articles/${id}/translate?lang=${encodeURIComponent(lang)}`, {
       next: { revalidate: 86400 }, // cache translation for 24 h
     });
     if (!res.ok) return null;
@@ -65,8 +65,13 @@ export async function generateMetadata({
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
+const INTL_LOCALES: Record<string, string> = {
+  en: 'en-US', zh: 'zh-CN', 'zh-TW': 'zh-TW',
+  es: 'es-ES', fr: 'fr-FR', ko: 'ko-KR', ja: 'ja-JP',
+};
+
 function formatDate(dateStr: string, locale: string): string {
-  const intlLocale = locale === 'zh' ? 'zh-CN' : 'en-US';
+  const intlLocale = INTL_LOCALES[locale] ?? 'en-US';
   return new Intl.DateTimeFormat(intlLocale, {
     year: 'numeric',
     month: 'long',
@@ -92,32 +97,26 @@ export default async function ArticlePage({
 }: {
   params: { id: string; locale: string };
 }) {
-  const isZh = params.locale === 'zh';
+  const needsTranslation = params.locale !== 'en';
 
   // Fetch article data and translations in parallel
   const [article, relatedArticles, translation, t, tFeed] = await Promise.all([
     getArticle(params.id),
     getRelatedArticles(params.id),
-    isZh ? getTranslation(params.id) : Promise.resolve(null),
+    needsTranslation ? getTranslation(params.id, params.locale) : Promise.resolve(null),
     getTranslations('article'),
     getTranslations('feed'),
   ]);
 
   if (!article) notFound();
 
-  // In zh locale: build a title map for related articles.
-  // Uses title_zh already cached on the article object when available;
-  // otherwise calls the translate endpoint (cached 24h by Next.js fetch).
+  // In non-English locales: build a title map for related articles via translate endpoint.
   const relatedTitleMap = new Map<string, string>();
-  if (isZh && relatedArticles.length > 0) {
+  if (needsTranslation && relatedArticles.length > 0) {
     await Promise.all(
       relatedArticles.map(async (r) => {
-        if (r.title_zh) {
-          relatedTitleMap.set(r.id, r.title_zh);
-        } else {
-          const trans = await getTranslation(r.id).catch(() => null);
-          if (trans?.title_zh) relatedTitleMap.set(r.id, trans.title_zh);
-        }
+        const trans = await getTranslation(r.id, params.locale).catch(() => null);
+        if (trans?.title) relatedTitleMap.set(r.id, trans.title);
       })
     );
   }
@@ -137,9 +136,9 @@ export default async function ArticlePage({
   const tags = article.ai_tags;
   const bodyText = article.ai_summary || article.content_snippet;
 
-  // Use translated text when available in Chinese locale
-  const displayTitle   = (isZh && translation?.title_zh)      ? translation.title_zh    : article.title;
-  const displaySummary = (isZh && translation?.ai_summary_zh) ? translation.ai_summary_zh : bodyText;
+  // Use translated text when available in non-English locales
+  const displayTitle   = (needsTranslation && translation?.title)      ? translation.title      : article.title;
+  const displaySummary = (needsTranslation && translation?.ai_summary) ? translation.ai_summary : bodyText;
 
   return (
     <div className="max-w-3xl mx-auto">
@@ -194,9 +193,9 @@ export default async function ArticlePage({
             </h1>
 
             {/* Translation notice — only shown when a translation was applied */}
-            {isZh && translation?.title_zh && (
+            {needsTranslation && translation?.title && (
               <p className="text-xs text-gray-400 -mt-4 mb-6 italic">
-                原标题：{article.title}
+                {article.title}
               </p>
             )}
 

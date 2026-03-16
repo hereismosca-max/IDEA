@@ -1,14 +1,13 @@
 """
 Translation Service
 ===================
-Translates article titles and AI summaries into Chinese (Simplified)
-using GPT-4o-mini.  Translations are cached in the `articles` table
-(title_zh, ai_summary_zh columns) so each article is translated at most
-once.
+Translates article titles and AI summaries into the requested language
+using GPT-4o-mini.  Translations are cached in the `article_translations`
+table so each (article, lang) pair is translated at most once.
 
 Usage:
     from app.services.translator import translate_article
-    title_zh, summary_zh = translate_article(title, ai_summary)
+    title_t, summary_t = translate_article(title, ai_summary, lang='ja')
 """
 
 import json
@@ -33,27 +32,40 @@ def _get_client() -> Optional[OpenAI]:
     return _client
 
 
-_SYSTEM_PROMPT = """\
-You are a professional financial news translator.
-Translate the provided JSON fields from English to Simplified Chinese (简体中文).
-Return ONLY a valid JSON object with the same keys as the input.
-Rules:
-- Keep all proper nouns (company names, ticker symbols, people's names) as-is in English.
-- Keep numbers, dates, and financial figures as-is.
-- Produce natural, concise Chinese suitable for a news website.
-- Do NOT add any commentary, explanation, or markdown fences — just the JSON.
-"""
+_LANG_LABELS: dict = {
+    'zh':    'Simplified Chinese (简体中文)',
+    'zh-TW': 'Traditional Chinese (繁體中文)',
+    'es':    'Spanish (Español)',
+    'fr':    'French (Français)',
+    'ko':    'Korean (한국어)',
+    'ja':    'Japanese (日本語)',
+}
+
+
+def _system_prompt(lang: str) -> str:
+    label = _LANG_LABELS.get(lang, lang)
+    return (
+        f"You are a professional financial news translator.\n"
+        f"Translate the provided JSON fields from English to {label}.\n"
+        f"Return ONLY a valid JSON object with the same keys as the input.\n"
+        f"Rules:\n"
+        f"- Keep all proper nouns (company names, ticker symbols, people's names) as-is in English.\n"
+        f"- Keep numbers, dates, and financial figures as-is.\n"
+        f"- Produce natural, concise text suitable for a news website.\n"
+        f"- Do NOT add any commentary, explanation, or markdown fences — just the JSON."
+    )
 
 
 def translate_article(
     title: str,
     ai_summary: Optional[str],
+    lang: str = 'zh',
 ) -> Tuple[Optional[str], Optional[str]]:
     """
-    Translate a news article's title and AI summary to Simplified Chinese.
+    Translate a news article's title and AI summary to the given language.
 
-    Returns (title_zh, ai_summary_zh).  Returns (None, None) if the API key
-    is not configured or if the translation call fails.
+    Returns (translated_title, translated_summary).  Returns (None, None) if
+    the API key is not configured or if the translation call fails.
     """
     client = _get_client()
     if client is None:
@@ -71,7 +83,7 @@ def translate_article(
         response = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[
-                {"role": "system", "content": _SYSTEM_PROMPT},
+                {"role": "system", "content": _system_prompt(lang)},
                 {"role": "user",   "content": user_msg},
             ],
             temperature=0.2,
@@ -82,9 +94,9 @@ def translate_article(
         raw = response.choices[0].message.content or "{}"
         result = json.loads(raw)
 
-        title_zh: Optional[str] = result.get("title") or None
-        summary_zh: Optional[str] = result.get("ai_summary") or None
-        return title_zh, summary_zh
+        translated_title: Optional[str] = result.get("title") or None
+        translated_summary: Optional[str] = result.get("ai_summary") or None
+        return translated_title, translated_summary
 
     except (RateLimitError, APIError) as exc:
         logger.error("translate_article: OpenAI API error — %s", exc)

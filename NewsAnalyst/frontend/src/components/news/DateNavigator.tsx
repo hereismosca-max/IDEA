@@ -36,7 +36,11 @@ export default function DateNavigator({ selectedDate, onDateChange, disabled = f
   const isToday       = selectedLocal.getTime() === todayLocal.getTime();
 
   // Map next-intl locale code → Intl locale string for date formatting
-  const intlLocale = locale === 'zh' ? 'zh-CN' : 'en-US';
+  const INTL_LOCALES: Record<string, string> = {
+    en: 'en-US', zh: 'zh-CN', 'zh-TW': 'zh-TW',
+    es: 'es-ES', fr: 'fr-FR', ko: 'ko-KR', ja: 'ja-JP',
+  };
+  const intlLocale = INTL_LOCALES[locale] ?? 'en-US';
 
   // Close calendar when clicking outside
   useEffect(() => {

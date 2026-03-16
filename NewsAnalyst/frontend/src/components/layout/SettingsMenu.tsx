@@ -93,7 +93,7 @@ export default function SettingsMenu() {
 
   // ── Language change ──────────────────────────────────────────────────────
   const handleLangChange = useCallback(
-    async (newLang: 'en' | 'zh') => {
+    async (newLang: string) => {
       // Save to backend when logged in
       if (user) {
         try {
@@ -103,8 +103,7 @@ export default function SettingsMenu() {
       }
 
       // Navigate locale for everyone
-      if (newLang === 'en' && locale !== 'en') router.push('/en');
-      else if (newLang === 'zh' && locale !== 'zh') router.push('/zh');
+      if (newLang !== locale) router.push(`/${newLang}`);
 
       setOpen(false);
     },
@@ -112,7 +111,10 @@ export default function SettingsMenu() {
   );
 
   // ── Derived values ───────────────────────────────────────────────────────
-  const langBadge = locale === 'zh' ? '中文' : 'EN';
+  const LANG_BADGES: Record<string, string> = {
+    en: 'EN', zh: '中文', 'zh-TW': '繁中', es: 'ES', fr: 'FR', ko: '한', ja: '日',
+  };
+  const langBadge = LANG_BADGES[locale] ?? 'EN';
 
   const saveLabel =
     saveStatus === 'saving' ? t('saving') :
@@ -307,8 +309,13 @@ export default function SettingsMenu() {
             <div className="px-4 pb-3 bg-gray-50/60 border-b border-gray-100">
               {(
                 [
-                  { value: 'en' as const, label: t('langEn') },
-                  { value: 'zh' as const, label: t('langZh') },
+                  { value: 'en',    label: t('langEn')    },
+                  { value: 'zh',    label: t('langZh')    },
+                  { value: 'zh-TW', label: t('langZhTW')  },
+                  { value: 'es',    label: t('langEs')    },
+                  { value: 'fr',    label: t('langFr')    },
+                  { value: 'ko',    label: t('langKo')    },
+                  { value: 'ja',    label: t('langJa')    },
                 ]
               ).map(({ value, label }) => (
                 <button

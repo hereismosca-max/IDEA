@@ -125,7 +125,7 @@ def update_me(
     db: Session = Depends(get_db),
 ):
     """Update the current user's profile (display_name, bio, pronouns, preferred_lang)."""
-    _ALLOWED_LANGS = {"default", "en", "zh"}
+    _ALLOWED_LANGS = {"default", "en", "zh", "zh-TW", "es", "fr", "ko", "ja"}
 
     if payload.display_name is not None:
         name = payload.display_name.strip()

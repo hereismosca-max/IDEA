@@ -46,8 +46,9 @@ class ArticleResponse(BaseModel):
 class ArticleTranslationResponse(BaseModel):
     """Returned by GET /articles/{id}/translate."""
     article_id: uuid.UUID
-    title_zh: Optional[str] = None
-    ai_summary_zh: Optional[str] = None
+    lang: str
+    title: Optional[str] = None
+    ai_summary: Optional[str] = None
 
 
 class ArticleListResponse(BaseModel):

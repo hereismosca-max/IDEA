@@ -31,15 +31,13 @@ export interface Article {
   upvotes?: number;
   downvotes?: number;
   user_vote?: 1 | -1 | null;
-  // Chinese translation cache — present after /articles/{id}/translate is called
-  title_zh?: string | null;
-  ai_summary_zh?: string | null;
 }
 
 export interface ArticleTranslation {
   article_id: string;
-  title_zh: string | null;
-  ai_summary_zh: string | null;
+  lang: string;
+  title: string | null;
+  ai_summary: string | null;
 }
 
 export interface VoteCounts {

@@ -12,9 +12,9 @@ interface NewsCardProps {
 }
 
 export default function NewsCard({ article }: NewsCardProps) {
-  const locale = useLocale();
-  const isZh   = locale === 'zh';
-  const tFeed  = useTranslations('feed');
+  const locale           = useLocale();
+  const needsTranslation = locale !== 'en';
+  const tFeed            = useTranslations('feed');
 
   // Locale-aware relative time using the existing feed translation keys.
   // Shows only the most significant unit — clean and readable in any language.
@@ -32,27 +32,27 @@ export default function NewsCard({ article }: NewsCardProps) {
   // English summary / snippet shown in modal
   const displayText = article.ai_summary || article.content_snippet;
 
-  // ── Chinese translation state ──────────────────────────────────────────────
-  const [titleZh, setTitleZh]               = useState<string | null>(article.title_zh ?? null);
-  const [summaryZh, setSummaryZh]           = useState<string | null>(article.ai_summary_zh ?? null);
-  const [summaryLoading, setSummaryLoading] = useState(false);
-  const [modalOpen, setModalOpen]           = useState(false);
+  // ── Translation state ──────────────────────────────────────────────────────
+  const [translatedTitle, setTranslatedTitle]     = useState<string | null>(null);
+  const [translatedSummary, setTranslatedSummary] = useState<string | null>(null);
+  const [summaryLoading, setSummaryLoading]       = useState(false);
+  const [modalOpen, setModalOpen]                 = useState(false);
 
-  // Auto-translate title in the background when in Chinese locale.
+  // Auto-translate title in the background when not in English locale.
   useEffect(() => {
-    if (!isZh || titleZh) return;
+    if (!needsTranslation || translatedTitle) return;
     let cancelled = false;
-    translateArticle(article.id, 'zh')
+    translateArticle(article.id, locale)
       .then((t) => {
         if (!cancelled) {
-          setTitleZh(t.title_zh);
-          setSummaryZh(t.ai_summary_zh); // cache summary at no extra cost
+          setTranslatedTitle(t.title);
+          setTranslatedSummary(t.ai_summary); // cache summary at no extra cost
         }
       })
       .catch(() => { /* silent — fall back to English */ });
     return () => { cancelled = true; };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [article.id, isZh]);
+  }, [article.id, locale]);
 
   // Close modal on Escape key
   useEffect(() => {
@@ -62,17 +62,17 @@ export default function NewsCard({ article }: NewsCardProps) {
     return () => document.removeEventListener('keydown', onKey);
   }, [modalOpen]);
 
-  // Open the summary modal — fetch ZH translation if not yet available
+  // Open the summary modal — fetch translation if not yet available
   const handleOpenModal = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
 
-    if (isZh && !summaryZh) {
+    if (needsTranslation && !translatedSummary) {
       setSummaryLoading(true);
       try {
-        const t = await translateArticle(article.id, 'zh');
-        setSummaryZh(t.ai_summary_zh);
-        if (!titleZh) setTitleZh(t.title_zh);
+        const t = await translateArticle(article.id, locale);
+        setTranslatedSummary(t.ai_summary);
+        if (!translatedTitle) setTranslatedTitle(t.title);
       } catch { /* silent */ }
       finally { setSummaryLoading(false); }
     }
@@ -80,9 +80,9 @@ export default function NewsCard({ article }: NewsCardProps) {
     setModalOpen(true);
   };
 
-  const displayTitle  = (isZh && titleZh) ? titleZh : article.title;
-  // Modal shows Chinese summary in zh locale (falls back to EN); EN always shows EN
-  const modalSummary  = isZh ? (summaryZh || displayText) : displayText;
+  const displayTitle = (needsTranslation && translatedTitle) ? translatedTitle : article.title;
+  // Modal shows translated summary when available (falls back to EN)
+  const modalSummary = needsTranslation ? (translatedSummary || displayText) : displayText;
 
   return (
     <>

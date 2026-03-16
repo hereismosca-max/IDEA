@@ -21,8 +21,13 @@ const BOARD_LABELS: Record<Board, { american: string; chinese: string }> = {
 
 // ── Supported languages — add new entries here to extend the picker ───────────
 const LANGUAGES = [
-  { code: 'en', label: 'English', char: 'A'  },
-  { code: 'zh', label: '中文',    char: '文' },
+  { code: 'en',    label: 'English',   char: 'A'  },
+  { code: 'zh',    label: '中文',      char: '文' },
+  { code: 'zh-TW', label: '繁體中文',  char: '繁' },
+  { code: 'es',    label: 'Español',   char: 'E'  },
+  { code: 'fr',    label: 'Français',  char: 'F'  },
+  { code: 'ko',    label: '한국어',    char: '한' },
+  { code: 'ja',    label: '日本語',    char: '日' },
 ] as const;
 
 type LangCode = (typeof LANGUAGES)[number]['code'];
@@ -138,8 +143,8 @@ export default function TopBar() {
   // saved language preference, navigate to the matching URL locale.
   useEffect(() => {
     if (isLoading || !user) return;
-    if (user.preferred_lang === 'en' && locale !== 'en') router.push('/en');
-    else if (user.preferred_lang === 'zh' && locale !== 'zh') router.push('/zh');
+    const pref = user.preferred_lang;
+    if (pref && pref !== 'default' && pref !== locale) router.push(`/${pref}`);
     // 'default' → no navigation; board drives the content language
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id, isLoading]); // only re-run when the user identity changes

@@ -66,16 +66,16 @@ function HeadlineTicker() {
   const locale                = useLocale();
   const { board }             = useBoard();
   const [items, setItems]     = useState<Article[]>([]);
-  // Maps article.id → title_zh (populated in background when locale='zh')
+  // Maps article.id → translated title (populated in background when locale != 'en')
   const [titleMap, setTitleMap] = useState<Record<string, string>>({});
   const [idx, setIdx]         = useState(0);
   const [visible, setVisible] = useState(true);
 
-  const isZh = locale === 'zh';
+  const needsTranslation = locale !== 'en';
 
   // Fetch high-impact headlines whenever the board (language) changes.
   // Uses the /articles/headlines endpoint which prioritises global/national scale events.
-  // When locale='zh', also fetch Chinese title translations for all headlines in parallel.
+  // When locale is non-English, also fetch title translations for all headlines in parallel.
   useEffect(() => {
     let cancelled = false; // cleanup flag prevents stale state updates after unmount/re-run
     setItems([]);
@@ -86,13 +86,13 @@ function HeadlineTicker() {
       .then(articles => {
         if (cancelled) return;
         setItems(articles);
-        if (isZh) {
+        if (needsTranslation) {
           // Fire translate calls for every headline in parallel; update map as each resolves
           articles.forEach(a => {
-            translateArticle(a.id, 'zh')
+            translateArticle(a.id, locale)
               .then(t => {
-                if (!cancelled && t.title_zh) {
-                  setTitleMap(prev => ({ ...prev, [a.id]: t.title_zh! }));
+                if (!cancelled && t.title) {
+                  setTitleMap(prev => ({ ...prev, [a.id]: t.title! }));
                 }
               })
               .catch(() => {}); // silent fallback — English title stays
@@ -102,7 +102,7 @@ function HeadlineTicker() {
       .catch(() => {});
     return () => { cancelled = true; };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [board, isZh]);
+  }, [board, locale]);
 
   // Auto-cycle: fade out → swap → fade in every 4.5 s
   useEffect(() => {
@@ -129,8 +129,8 @@ function HeadlineTicker() {
   }
 
   const article      = items[idx];
-  // Use Chinese title if available (populated async); fall back to English
-  const displayTitle = (isZh && titleMap[article.id]) || article.title;
+  // Use translated title if available (populated async); fall back to English
+  const displayTitle = (needsTranslation && titleMap[article.id]) || article.title;
 
   return (
     <div className="flex-1 min-w-0 md:pl-4 overflow-hidden flex flex-col justify-center py-1">

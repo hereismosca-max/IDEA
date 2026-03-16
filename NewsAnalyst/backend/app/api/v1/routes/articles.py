@@ -251,18 +251,21 @@ def get_saved_articles(
     )
 
 
+_SUPPORTED_LANGS = {"zh", "zh-TW", "es", "fr", "ko", "ja"}
+
+
 @router.get("/{article_id}/translate", response_model=ArticleTranslationResponse)
 @limiter.limit("20/minute")
 def translate_article_endpoint(
     request: Request,
     article_id: str,
-    lang: str = Query("zh", description="Target language code (currently only 'zh' is supported)"),
+    lang: str = Query("zh", description="Target language code: zh, zh-TW, es, fr, ko, ja"),
     db: Session = Depends(get_db),
 ):
     """
-    Return the Chinese translation of an article's title and AI summary.
+    Return the translation of an article's title and AI summary in the requested language.
 
-    On first call: calls OpenAI to translate and caches the result in the DB.
+    On first call: calls OpenAI to translate and caches the result in article_translations.
     On subsequent calls: returns the cached translation immediately (no API cost).
 
     Must be defined BEFORE /{article_id} so FastAPI matches the literal path
@@ -284,38 +287,47 @@ def translate_article_endpoint(
     if not article:
         raise HTTPException(status_code=404, detail="Article not found")
 
-    if lang != "zh":
+    if lang not in _SUPPORTED_LANGS:
         raise HTTPException(status_code=400, detail=f"Unsupported translation language: {lang}")
 
-    # ── Check translation cache via raw SQL ──────────────────────────────────
-    # We deliberately avoid ORM column access (article.title_zh) because the
-    # migration that adds these columns may not have run yet on the target DB.
-    # Raw SQL with try/except degrades gracefully in that case.
+    # ── Check translation cache via article_translations table ───────────────
     try:
         row = db.execute(
-            text("SELECT title_zh, ai_summary_zh FROM articles WHERE id = :id"),
-            {"id": str(article_uuid)},
+            text(
+                "SELECT title, ai_summary FROM article_translations "
+                "WHERE article_id = :aid AND lang = :lang"
+            ),
+            {"aid": str(article_uuid), "lang": lang},
         ).fetchone()
         if row and (row[0] or row[1]):
             return ArticleTranslationResponse(
                 article_id=article_uuid,
-                title_zh=row[0],
-                ai_summary_zh=row[1],
+                lang=lang,
+                title=row[0],
+                ai_summary=row[1],
             )
     except Exception:
-        # Columns don't exist yet (migration pending) — fall through to translate
+        # Table doesn't exist yet (migration pending) — fall through to translate
         pass
 
     # ── Translate via OpenAI ─────────────────────────────────────────────────
-    title_zh, summary_zh = _translate(article.title, article.ai_summary)
+    translated_title, translated_summary = _translate(article.title, article.ai_summary, lang=lang)
 
-    # ── Cache result via raw SQL (silent no-op if columns don't exist yet) ───
+    # ── Cache result in article_translations ─────────────────────────────────
     try:
         db.execute(
             text(
-                "UPDATE articles SET title_zh = :tz, ai_summary_zh = :sz WHERE id = :id"
+                "INSERT INTO article_translations (article_id, lang, title, ai_summary) "
+                "VALUES (:aid, :lang, :title, :summary) "
+                "ON CONFLICT (article_id, lang) DO UPDATE "
+                "SET title = EXCLUDED.title, ai_summary = EXCLUDED.ai_summary"
             ),
-            {"tz": title_zh, "sz": summary_zh, "id": str(article_uuid)},
+            {
+                "aid": str(article_uuid),
+                "lang": lang,
+                "title": translated_title,
+                "summary": translated_summary,
+            },
         )
         db.commit()
     except Exception:
@@ -323,8 +335,9 @@ def translate_article_endpoint(
 
     return ArticleTranslationResponse(
         article_id=article_uuid,
-        title_zh=title_zh,
-        ai_summary_zh=summary_zh,
+        lang=lang,
+        title=translated_title,
+        ai_summary=translated_summary,
     )
 
 
