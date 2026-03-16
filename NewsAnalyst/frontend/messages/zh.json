@@ -123,5 +123,13 @@
     "deleteConfirmBtn": "确认，永久删除",
     "deleting": "删除中…",
     "cancel": "取消"
+  },
+  "notifications": {
+    "title": "通知",
+    "unread": "未读",
+    "empty": "暂无通知。",
+    "markAllRead": "全部标为已读",
+    "markRead": "标为已读",
+    "error": "通知加载失败。"
   }
 }

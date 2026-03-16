@@ -123,5 +123,13 @@
     "deleteConfirmBtn": "はい、アカウントを削除します",
     "deleting": "削除中…",
     "cancel": "キャンセル"
+  },
+  "notifications": {
+    "title": "通知",
+    "unread": "未読",
+    "empty": "まだ通知はありません。",
+    "markAllRead": "すべて既読にする",
+    "markRead": "既読にする",
+    "error": "通知の読み込みに失敗しました。"
   }
 }

@@ -16,6 +16,7 @@ from app.core.security import (
     verify_password,
 )
 from app.models.user import User
+from app.models.notification import Notification
 from app.schemas.auth import (
     ForgotPasswordRequest,
     LoginRequest,
@@ -203,6 +204,12 @@ def verify_email(payload: VerifyEmailRequest, db: Session = Depends(get_db)):
     user.email_verified = True
     user.email_verification_token = None
     user.email_verification_expires_at = None
+    db.add(Notification(
+        user_id=user.id,
+        type="email_verified",
+        title="Email verified",
+        body="Your email address has been successfully verified.",
+    ))
     db.commit()
     logger.info("Email verified: %s", user.email)
     return MessageResponse(message="Email verified successfully")
@@ -288,6 +295,12 @@ def reset_password(payload: ResetPasswordRequest, db: Session = Depends(get_db))
     user.password_hash = hash_password(payload.new_password)
     user.password_reset_token = None
     user.password_reset_expires_at = None
+    db.add(Notification(
+        user_id=user.id,
+        type="password_changed",
+        title="Password updated",
+        body="Your account password was successfully changed. If this wasn't you, contact support immediately.",
+    ))
     db.commit()
     logger.info("Password reset for user: %s", user.email)
     return MessageResponse(message="Password reset successfully")

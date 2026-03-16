@@ -93,6 +93,19 @@ export interface MarketSnapshot {
   cached_at:  string | null;
 }
 
+export interface Notification {
+  id: string;
+  type: string;
+  title: string;
+  body: string | null;
+  is_read: boolean;
+  created_at: string;
+}
+
+export interface UnreadCount {
+  count: number;
+}
+
 export interface MessageResponse {
   message: string;
 }

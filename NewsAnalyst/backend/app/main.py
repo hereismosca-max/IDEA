@@ -7,7 +7,7 @@ from slowapi.errors import RateLimitExceeded
 
 from app.core.config import settings
 from app.core.limiter import limiter
-from app.api.v1.routes import auth, articles, sources, categories, votes, saves, market
+from app.api.v1.routes import auth, articles, sources, categories, votes, saves, market, notifications
 from app.services.scheduler import start_scheduler, stop_scheduler
 from app.utils.logger import get_logger
 
@@ -66,7 +66,8 @@ app.include_router(votes.router,      prefix="/api/v1/articles",   tags=["votes"
 app.include_router(saves.router,      prefix="/api/v1/articles",   tags=["saves"])
 app.include_router(sources.router,    prefix="/api/v1/sources",    tags=["sources"])
 app.include_router(categories.router, prefix="/api/v1/categories", tags=["categories"])
-app.include_router(market.router,     prefix="/api/v1/market",     tags=["market"])
+app.include_router(market.router,         prefix="/api/v1/market",         tags=["market"])
+app.include_router(notifications.router,  prefix="/api/v1/notifications",  tags=["notifications"])
 
 
 # ── Health checks ─────────────────────────────────────────────────────────────

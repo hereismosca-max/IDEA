@@ -123,5 +123,13 @@
     "deleteConfirmBtn": "Oui, supprimer mon compte",
     "deleting": "Suppression…",
     "cancel": "Annuler"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "unread": "non lues",
+    "empty": "Aucune notification pour l'instant.",
+    "markAllRead": "Tout marquer comme lu",
+    "markRead": "Marquer comme lu",
+    "error": "Échec du chargement des notifications."
   }
 }

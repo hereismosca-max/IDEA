@@ -4,7 +4,7 @@ import { useRef, useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import { useAuth } from '@/providers/AuthProvider';
-import { updateProfile } from '@/lib/api';
+import { updateProfile, fetchUnreadCount } from '@/lib/api';
 
 // ── Settings menu (hamburger ≡) ────────────────────────────────────────────────
 // Visible to ALL users (guests + logged-in).
@@ -48,6 +48,16 @@ export default function SettingsMenu() {
   const [pronouns, setPronouns] = useState('');
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   const [deleteState, setDeleteState] = useState<DeleteState>('idle');
+
+  // ── Unread notification count ────────────────────────────────────────────
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+    if (!user) return;
+    fetchUnreadCount()
+      .then((data) => setUnreadCount(data.count))
+      .catch(() => { /* silent */ });
+  }, [user]);
 
   // Sync form when Account section expands; reset delete state when it collapses
   useEffect(() => {
@@ -342,8 +352,9 @@ export default function SettingsMenu() {
           {/* ── Notifications ─────────────────────────────────────────────────── */}
           <button
             onClick={() => {
-              if (!user) { router.push(`/${locale}/login`); setOpen(false); }
-              // Logged in: coming soon — no action yet
+              if (!user) { router.push(`/${locale}/login`); setOpen(false); return; }
+              router.push(`/${locale}/notifications`);
+              setOpen(false);
             }}
             className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 transition-colors text-left"
           >
@@ -353,14 +364,19 @@ export default function SettingsMenu() {
             </svg>
             <span className="flex-1 text-sm font-medium text-gray-700">{t('notifications')}</span>
             <div className="flex items-center gap-1.5 flex-none">
-              {!user && (
+              {!user ? (
                 <svg className="w-3.5 h-3.5 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                 </svg>
+              ) : unreadCount > 0 ? (
+                <span className="min-w-[18px] h-[18px] flex items-center justify-center rounded-full bg-blue-600 text-white text-[10px] font-bold px-1">
+                  {unreadCount > 99 ? '99+' : unreadCount}
+                </span>
+              ) : (
+                <svg className="w-3.5 h-3.5 text-gray-300 flex-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
               )}
-              <span className="text-xs font-semibold bg-amber-50 text-amber-600 border border-amber-200 px-1.5 py-0.5 rounded-md">
-                {t('soon')}
-              </span>
             </div>
           </button>
 

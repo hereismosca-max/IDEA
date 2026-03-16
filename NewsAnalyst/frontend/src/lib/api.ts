@@ -1,4 +1,4 @@
-import { Article, ArticleListResponse, ArticleTranslation, MarketSnapshot, MessageResponse, SaveStatus, TokenResponse, User, VoteCounts } from '@/types';
+import { Article, ArticleListResponse, ArticleTranslation, MarketSnapshot, MessageResponse, Notification, SaveStatus, TokenResponse, UnreadCount, User, VoteCounts } from '@/types';
 import { getToken } from '@/lib/auth';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
@@ -221,4 +221,22 @@ export function fetchHeadlines(language = 'en', limit = 5): Promise<Article[]> {
  */
 export function translateArticle(articleId: string, lang = 'zh'): Promise<ArticleTranslation> {
   return request(`/api/v1/articles/${articleId}/translate?lang=${lang}`);
+}
+
+// ── Notifications ─────────────────────────────────────────────────────────────
+
+export function fetchNotifications(page = 1, page_size = 30): Promise<Notification[]> {
+  return request(`/api/v1/notifications?page=${page}&page_size=${page_size}`);
+}
+
+export function fetchUnreadCount(): Promise<UnreadCount> {
+  return request('/api/v1/notifications/unread-count');
+}
+
+export function markNotificationRead(id: string): Promise<unknown> {
+  return request(`/api/v1/notifications/${id}/read`, { method: 'PATCH' });
+}
+
+export function markAllNotificationsRead(): Promise<unknown> {
+  return request('/api/v1/notifications/read-all', { method: 'POST' });
 }

@@ -123,5 +123,13 @@
     "deleteConfirmBtn": "Yes, delete my account",
     "deleting": "Deleting…",
     "cancel": "Cancel"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "unread": "unread",
+    "empty": "No notifications yet.",
+    "markAllRead": "Mark all as read",
+    "markRead": "Mark as read",
+    "error": "Failed to load notifications."
   }
 }
