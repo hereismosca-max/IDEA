@@ -65,10 +65,14 @@ function LangDropdown({
             : 'border-gray-200 text-gray-500 hover:border-gray-400 hover:text-gray-700 hover:bg-gray-50'
         }`}
       >
-        {tS('language')}
-        {/* Chevron */}
+        {/* Mobile: show current locale char (A / 文); Desktop: show "Language" label */}
+        <span className="sm:hidden font-mono">
+          {LANGUAGES.find((l) => l.code === locale)?.char ?? 'A'}
+        </span>
+        <span className="hidden sm:inline">{tS('language')}</span>
+        {/* Chevron — hidden on mobile to save space */}
         <svg
-          className={`w-3 h-3 text-gray-400 transition-transform ${open ? 'rotate-180' : ''}`}
+          className={`hidden sm:block w-3 h-3 text-gray-400 transition-transform ${open ? 'rotate-180' : ''}`}
           fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
         >
           <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
