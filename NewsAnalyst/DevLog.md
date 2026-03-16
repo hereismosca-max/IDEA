@@ -5,6 +5,127 @@
 
 ---
 
+## 2026-03-16 · 移动端响应式全面优化
+
+### 背景
+
+用户在手机浏览器（Safari/iOS）测试时发现两处布局问题：
+
+1. **TopBar 拥挤**：未登录时 `[Logo] [Board Switcher] [Language▾ Settings Sign In]` 全部挤在 h-14 单行，元素重叠或溢出
+2. **Market Ticker 缺失**：行情指数卡片（S&P 500 / NASDAQ 等）在移动端被 `hidden md:flex` 完全隐藏，仅显示 HeadlineTicker
+
+---
+
+### 一、TopBar 移动端 2 行布局（`TopBar.tsx`）
+
+#### 根因
+
+原布局：`[flex-1 Logo] [Board Switcher] [flex-1 User Section]` 三列单行，在 375px 宽手机上 Board Switcher（约 160px）+ 用户控件（约 220px）+ Logo（约 65px）= 445px，超出可用宽度 343px（375px - 32px padding）。
+
+#### 修复
+
+**移动端 2 行布局（< 640px）**：
+- 第 1 行（h-14）：Logo（左）+ 用户控件（右）—— Board Switcher 不在此行
+- 第 2 行：Board Switcher 居中显示，用 `border-t border-gray-100` 细线分隔
+
+```tsx
+{/* Row 1: Logo + User Section (always) */}
+<div className="max-w-7xl mx-auto px-4 h-14 flex items-center">
+  <div className="flex-1 min-w-0">/* Logo */</div>
+  <div className="hidden sm:block flex-none">/* Board Switcher — desktop only */</div>
+  <div className="flex-1 flex justify-end min-w-0">/* User Section */</div>
+</div>
+
+{/* Row 2: Board Switcher — mobile only */}
+<div className="sm:hidden border-t border-gray-100 py-2 flex justify-center">
+  {boardSwitcher}
+</div>
+```
+
+Board Switcher JSX 提取为 `boardSwitcher` 变量，两处复用，无重复代码。
+
+**桌面端（sm+）**：完全保持原有 3 列单行布局，无任何改动。
+
+---
+
+### 二、登录态移动端溢出修复（`TopBar.tsx` + `SettingsMenu.tsx`）
+
+#### 根因
+
+登录后用户控件：`Saved | display_name | Language▾(button) | Settings(button)`
+
+各元素最小宽度合计约 280px，加上 Logo 65px + padding 32px = 377px，超出 iPhone SE（375px）。
+
+#### 修复
+
+**Language 按钮**：
+- 移动端（`< sm`）：隐藏 "Language" 文字和 chevron，仅显示当前语言字符（`A` 或 `文`），约 28px
+- 桌面端（`sm+`）：保持 `"Language ▾"` 原样
+
+```tsx
+<span className="sm:hidden font-mono">
+  {LANGUAGES.find((l) => l.code === locale)?.char ?? 'A'}
+</span>
+<span className="hidden sm:inline">{tS('language')}</span>
+<svg className={`hidden sm:block w-3 h-3 ...`}>/* chevron */</svg>
+```
+
+**Settings 按钮**（`SettingsMenu.tsx`）：
+- 移动端：隐藏 "Settings" 文字标签，仅显示齿轮图标，约 30px
+- 桌面端：保持 `"⚙ Settings"` 原样
+
+```tsx
+<span className="hidden sm:inline">{t('title')}</span>
+```
+
+**SettingsMenu 下拉面板**：新增 `max-w-[calc(100vw-1rem)]` 防止极窄屏溢出。
+
+修复后移动端登录态右侧总宽约 175px，页面总宽 65 + 32 + 175 = 272px，在 375px 上余量充足，用户名正常显示。
+
+---
+
+### 三、MarketTicker 移动端行情卡片显示（`MarketTicker.tsx`）
+
+#### 背景
+
+行情区原来在移动端完全隐藏 `hidden md:flex`，HeadlineTicker 独占全宽。用户希望移动端也能看到指数卡片。
+
+#### 修复
+
+移动端改为 **2 行布局**：
+- 第 1 行：指数卡片横向滚动（`overflow-x-auto scrollbar-none`），同一份 loading/indicator JSX
+- 第 2 行：HeadlineTicker 全宽
+
+桌面端（`md+`）：`[指数卡片] | [HeadlineTicker]` 横排不变。
+
+```tsx
+{/* Mobile: indicator cards scrollable row */}
+<div className="flex md:hidden items-center gap-2 overflow-x-auto scrollbar-none pb-2">
+  {loading ? skeletons : indicators.map(ind => <IndicatorCard ... />)}
+</div>
+
+{/* Main row */}
+<div className="flex items-center">
+  <div className="hidden md:flex ...">/* Desktop cards */</div>
+  <div className="hidden md:block ...">/* Divider */</div>
+  <HeadlineTicker />
+</div>
+```
+
+指数卡片在移动端可向右横划查看全部 6 个指标（S&P 500 / NASDAQ / DJIA / VIX / 10Y Yield / Gold）。
+
+---
+
+### 关键文件变更汇总
+
+| 文件 | 变更内容 |
+|------|---------|
+| `frontend/src/components/layout/TopBar.tsx` | 2 行布局（Board Switcher 移至第 2 行）；Language 按钮移动端仅显示语言字符 |
+| `frontend/src/components/layout/SettingsMenu.tsx` | Settings 按钮移动端隐藏文字标签；下拉面板加 `max-w-[calc(100vw-1rem)]` |
+| `frontend/src/components/layout/MarketTicker.tsx` | 移动端新增指数卡片横向滚动行；桌面端布局不变 |
+
+---
+
 ## 2026-03-13 · Turnstile CAPTCHA 修复 · 邮件 429 排查 · 邮箱校验强化 · 未验证账号自动清除 · 稳定性审查与性能修复 · 新闻源拓展（8→11） · 连接池攻击防御
 
 ### 背景

@@ -245,11 +245,17 @@
 - 验证邮件 / 密码重置邮件已可发送至任意用户邮箱（此前仅限 Resend 账号邮箱）
 - 注：新域名初期可能进入垃圾箱，属正常现象；页面已提示用户 "Check your spam folder"，信誉随发信量自然累积
 
-**移动端响应式适配（2026-03-09 完成）**
+**移动端响应式适配（2026-03-09 第一轮）**
 - 文章详情页侧边栏移动端变为底部水平行（`flex-col-reverse md:flex-row`）
 - MarketTicker 移动端隐藏市场指标卡，HeadlineTicker 占满全宽
 - HomeFeed 导航栏移动端竖向堆叠：SearchBar 全宽 + DateNavigator 居中
 - TopBar 用户名超长截断；MenuBar 右侧渐变提示可滑动
+
+**移动端响应式优化（2026-03-16 第二轮）**
+- **TopBar 2 行布局**：移动端（< 640px）Board Switcher 移至独立第 2 行居中显示，第 1 行保留 Logo + 用户控件，彻底解决单行拥挤问题；桌面端 3 列单行不变
+- **MarketTicker 指数卡片移动端显示**：行情卡片不再在移动端隐藏，改为第 1 行横向滚动展示，HeadlineTicker 在第 2 行全宽；桌面端横排不变
+- **Language / Settings 按钮移动端精简**：移动端 Language 按钮仅显示当前语言字符（`A`/`文`），Settings 按钮仅显示齿轮图标，节省约 120px；桌面端文字标签保留
+- **SettingsMenu 下拉防溢出**：`max-w-[calc(100vw-1rem)]` 防止极窄屏下拉面板溢出右侧
 
 **品牌重塑（2026-03-09）**
 - Logo：`NewsAnalyst` → `FinLens`，slogan "Your scope to see the world"（桌面端显示）
@@ -322,4 +328,4 @@
 
 ---
 
-_最后更新：2026-03-13（稳定性修复 + DB 索引 + Transaction Pooler + 新闻源 5→11 + API 攻击防御）_
+_最后更新：2026-03-16（移动端响应式第二轮：TopBar 2 行布局 + MarketTicker 指数卡片移动端显示 + 按钮精简）_
