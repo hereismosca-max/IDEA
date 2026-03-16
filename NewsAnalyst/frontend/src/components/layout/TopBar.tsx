@@ -201,10 +201,8 @@ export default function TopBar() {
           </Link>
         </div>
 
-        {/* ── Center: Board switcher — desktop only ────────────────────────── */}
-        <div className="hidden sm:block flex-none">
-          {boardSwitcher}
-        </div>
+        {/* ── Center: Board switcher — hidden until Chinese sources are ready ── */}
+        {/* <div className="hidden sm:block flex-none">{boardSwitcher}</div> */}
 
         {/* ── Right: User section ───────────────────────────────────────────── */}
         <div className="flex-1 flex justify-end min-w-0">
@@ -243,10 +241,8 @@ export default function TopBar() {
 
       </div>
 
-      {/* ── Mobile-only second row: Board switcher ───────────────────────────── */}
-      <div className="sm:hidden border-t border-gray-100 py-2 flex justify-center">
-        {boardSwitcher}
-      </div>
+      {/* ── Mobile-only second row: Board switcher — hidden until Chinese sources are ready ── */}
+      {/* <div className="sm:hidden border-t border-gray-100 py-2 flex justify-center">{boardSwitcher}</div> */}
     </header>
   );
 }
