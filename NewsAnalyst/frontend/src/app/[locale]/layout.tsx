@@ -5,6 +5,7 @@ import { getMessages } from 'next-intl/server';
 import TopBar from '@/components/layout/TopBar';
 import { AuthProvider } from '@/providers/AuthProvider';
 import { BoardProvider } from '@/providers/BoardProvider';
+import { DisplayProvider, DISPLAY_FLASH_SCRIPT } from '@/providers/DisplayProvider';
 import '../globals.css';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -24,13 +25,21 @@ export default async function LocaleLayout({
   const messages = await getMessages();
 
   return (
-    <html lang={locale}>
-      <body className={`${inter.className} bg-gray-50 min-h-screen`}>
+    // suppressHydrationWarning prevents React warning about the `dark`/`compact`
+    // classes that the inline flash-prevention script adds before hydration.
+    <html lang={locale} suppressHydrationWarning>
+      <head>
+        {/* Runs synchronously before React hydrates — prevents dark-mode flash */}
+        <script dangerouslySetInnerHTML={{ __html: DISPLAY_FLASH_SCRIPT }} />
+      </head>
+      <body className={`${inter.className} bg-gray-50 dark:bg-gray-950 min-h-screen transition-colors duration-200`}>
         <NextIntlClientProvider messages={messages}>
           <AuthProvider>
             <BoardProvider>
-              <TopBar />
-              <main className="max-w-7xl mx-auto px-4 py-6">{children}</main>
+              <DisplayProvider>
+                <TopBar />
+                <main className="max-w-7xl mx-auto px-4 py-6">{children}</main>
+              </DisplayProvider>
             </BoardProvider>
           </AuthProvider>
         </NextIntlClientProvider>

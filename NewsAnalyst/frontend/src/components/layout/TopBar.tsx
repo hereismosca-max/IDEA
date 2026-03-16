@@ -66,8 +66,8 @@ function LangDropdown({
         title={tS('language')}
         className={`flex items-center gap-1 px-2.5 py-1.5 rounded-md border text-xs font-medium transition-all select-none ${
           open
-            ? 'bg-gray-100 border-gray-300 text-gray-900'
-            : 'border-gray-200 text-gray-500 hover:border-gray-400 hover:text-gray-700 hover:bg-gray-50'
+            ? 'bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100'
+            : 'border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:border-gray-400 dark:hover:border-gray-500 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800'
         }`}
       >
         {/* Mobile: show current locale char (A / 文); Desktop: show "Language" label */}
@@ -86,24 +86,23 @@ function LangDropdown({
 
       {/* Dropdown panel */}
       {open && (
-        <div className="absolute right-0 top-full mt-1.5 w-36 bg-white border border-gray-200 rounded-lg shadow-lg z-50 py-1 overflow-hidden">
+        <div className="absolute right-0 top-full mt-1.5 w-36 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50 py-1 overflow-hidden">
           {LANGUAGES.map((l) => (
             <button
               key={l.code}
               onClick={() => { onSelect(l.code); setOpen(false); }}
               className={`w-full flex items-center gap-2.5 px-3 py-2 text-sm transition-colors text-left ${
                 locale === l.code
-                  ? 'bg-gray-50 text-gray-900 font-semibold'
-                  : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                  ? 'bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 font-semibold'
+                  : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100'
               }`}
             >
-              {/* Radio dot */}
               <span
                 className={`w-2.5 h-2.5 rounded-full border-2 flex-none transition-colors ${
-                  locale === l.code ? 'border-blue-600 bg-blue-600' : 'border-gray-300'
+                  locale === l.code ? 'border-blue-600 bg-blue-600' : 'border-gray-300 dark:border-gray-600'
                 }`}
               />
-              <span className="font-mono text-xs text-gray-400 w-4 flex-none">{l.char}</span>
+              <span className="font-mono text-xs text-gray-400 dark:text-gray-500 w-4 flex-none">{l.char}</span>
               {l.label}
             </button>
           ))}
@@ -176,7 +175,7 @@ export default function TopBar() {
   );
 
   return (
-    <header className="border-b border-gray-200 bg-white sticky top-0 z-50">
+    <header className="border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 sticky top-0 z-50">
       {/*
         Desktop (sm+): 3-column single row
           [flex-1  Left: Logo]  [Center: Board switcher]  [flex-1  Right: User]
@@ -192,10 +191,10 @@ export default function TopBar() {
             href={`/${locale}`}
             className="inline-flex flex-col leading-none hover:opacity-75 transition-opacity"
           >
-            <span className="text-xl font-black tracking-tight text-gray-900">
+            <span className="text-xl font-black tracking-tight text-gray-900 dark:text-gray-100">
               Fin<span className="text-blue-600">Lens</span>
             </span>
-            <span className="hidden sm:block text-[9px] font-medium tracking-[0.18em] text-gray-400 uppercase mt-0.5">
+            <span className="hidden sm:block text-[9px] font-medium tracking-[0.18em] text-gray-400 dark:text-gray-500 uppercase mt-0.5">
               Your scope to see the world
             </span>
           </Link>
@@ -207,18 +206,18 @@ export default function TopBar() {
         {/* ── Right: User section ───────────────────────────────────────────── */}
         <div className="flex-1 flex justify-end min-w-0">
           {isLoading ? (
-            <div className="h-8 w-20 bg-gray-100 rounded-md animate-pulse" />
+            <div className="h-8 w-20 bg-gray-100 dark:bg-gray-800 rounded-md animate-pulse" />
           ) : user ? (
             // Logged in: Saved link + display name + Lang toggle + Settings
             <div className="flex items-center gap-1.5 sm:gap-3 min-w-0">
               <Link
                 href={`/${locale}/saved`}
-                className="text-sm text-gray-500 hover:text-gray-900 transition-colors flex-none"
+                className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors flex-none"
               >
                 {t('saved')}
               </Link>
-              <span className="text-gray-300 hidden sm:inline">|</span>
-              <span className="text-sm font-medium text-gray-700 truncate max-w-[72px] sm:max-w-[140px]">
+              <span className="text-gray-300 dark:text-gray-600 hidden sm:inline">|</span>
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-200 truncate max-w-[72px] sm:max-w-[140px]">
                 {user.display_name}
               </span>
               <LangDropdown locale={locale} onSelect={handleLangChange} />
@@ -231,7 +230,7 @@ export default function TopBar() {
               <SettingsMenu />
               <Link
                 href={`/${locale}/login`}
-                className="text-sm text-gray-600 hover:text-gray-900 border border-gray-200 px-3 py-1.5 rounded-md transition-colors hover:border-gray-400 whitespace-nowrap"
+                className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 border border-gray-200 dark:border-gray-700 px-3 py-1.5 rounded-md transition-colors hover:border-gray-400 dark:hover:border-gray-500 whitespace-nowrap"
               >
                 {t('signIn')}
               </Link>

@@ -6,6 +6,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { Article } from '@/types';
 import SaveButton from '@/components/article/SaveButton';
 import { translateArticle } from '@/lib/api';
+import { useDisplay } from '@/providers/DisplayProvider';
 
 interface NewsCardProps {
   article: Article;
@@ -15,6 +16,8 @@ export default function NewsCard({ article }: NewsCardProps) {
   const locale           = useLocale();
   const needsTranslation = locale !== 'en';
   const tFeed            = useTranslations('feed');
+  const { density }      = useDisplay();
+  const compact          = density === 'compact';
 
   // Locale-aware relative time using the existing feed translation keys.
   // Shows only the most significant unit — clean and readable in any language.
@@ -87,7 +90,7 @@ export default function NewsCard({ article }: NewsCardProps) {
   return (
     <>
       {/* ── Card ─────────────────────────────────────────────────────────── */}
-      <div className="relative bg-white border border-gray-200 rounded-lg hover:border-gray-400 hover:shadow-sm transition-all group flex flex-col">
+      <div className={`relative bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm transition-all group flex flex-col`}>
 
         {/* Bookmark button — absolute positioned, outside Link to avoid navigation */}
         <div className="absolute top-2 right-2 z-10">
@@ -97,7 +100,7 @@ export default function NewsCard({ article }: NewsCardProps) {
         {/* Clickable content area — flex column so impact bar pins to bottom */}
         <Link
           href={`/${locale}/article/${article.id}`}
-          className="flex flex-col flex-1 p-4 pr-12"
+          className={`flex flex-col flex-1 pr-12 ${compact ? 'p-3' : 'p-4'}`}
         >
           {/* Content grows to fill space, pushing impact bar down */}
           <div className="flex-1">
@@ -106,21 +109,21 @@ export default function NewsCard({ article }: NewsCardProps) {
               <span className="text-xs font-semibold text-blue-600 uppercase tracking-wide">
                 {article.source.name}
               </span>
-              <span className="text-gray-300">·</span>
-              <span className="text-xs text-gray-400">{timeAgo(article.published_at)}</span>
+              <span className="text-gray-300 dark:text-gray-600">·</span>
+              <span className="text-xs text-gray-400 dark:text-gray-500">{timeAgo(article.published_at)}</span>
             </div>
 
             {/* Full title — no line-clamp; translated in zh locale once ready */}
-            <h2 className="text-sm font-semibold text-gray-900 leading-snug group-hover:text-blue-700 transition-colors">
+            <h2 className="text-sm font-semibold text-gray-900 dark:text-gray-100 leading-snug group-hover:text-blue-700 dark:group-hover:text-blue-400 transition-colors">
               {displayTitle}
             </h2>
           </div>
 
           {/* AI impact score — always at the bottom of the card */}
           {article.ai_score !== null && article.ai_score !== undefined && (
-            <div className="mt-3 pt-3 border-t border-gray-100 flex items-center gap-1.5">
-              <span className="text-[10px] font-medium text-gray-400 uppercase tracking-wide flex-none">{tFeed('sortImpact')}</span>
-              <div className="flex-1 h-1 bg-gray-100 rounded-full overflow-hidden">
+            <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-800 flex items-center gap-1.5">
+              <span className="text-[10px] font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wide flex-none">{tFeed('sortImpact')}</span>
+              <div className="flex-1 h-1 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
                 <div
                   className="h-full rounded-full"
                   style={{
@@ -133,7 +136,7 @@ export default function NewsCard({ article }: NewsCardProps) {
                   }}
                 />
               </div>
-              <span className="text-[10px] tabular-nums text-gray-400 flex-none">
+              <span className="text-[10px] tabular-nums text-gray-400 dark:text-gray-500 flex-none">
                 {Math.round(article.ai_score * 100)}
               </span>
             </div>
@@ -142,7 +145,7 @@ export default function NewsCard({ article }: NewsCardProps) {
 
         {/* View Summary button — shown only when summary content exists */}
         {displayText && (
-          <div className="border-t border-gray-100 px-4 py-2">
+          <div className={`border-t border-gray-100 dark:border-gray-800 py-2 ${compact ? 'px-3' : 'px-4'}`}>
             <button
               onClick={handleOpenModal}
               disabled={summaryLoading}
@@ -179,13 +182,13 @@ export default function NewsCard({ article }: NewsCardProps) {
         >
           {/* Modal card — stop clicks from bubbling to backdrop */}
           <div
-            className="relative bg-white rounded-2xl shadow-2xl p-6 max-w-lg w-full mx-4 max-h-[80vh] overflow-y-auto"
+            className="relative bg-white dark:bg-gray-900 rounded-2xl shadow-2xl p-6 max-w-lg w-full mx-4 max-h-[80vh] overflow-y-auto border border-gray-100 dark:border-gray-700"
             onClick={(e) => e.stopPropagation()}
           >
             {/* ✕ Close button */}
             <button
               onClick={() => setModalOpen(false)}
-              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
+              className="absolute top-4 right-4 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
               aria-label="Close"
             >
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -198,30 +201,30 @@ export default function NewsCard({ article }: NewsCardProps) {
               <span className="text-xs font-semibold text-blue-600 uppercase tracking-wide">
                 {article.source.name}
               </span>
-              <span className="text-gray-300">·</span>
-              <span className="text-xs text-gray-400">{timeAgo(article.published_at)}</span>
+              <span className="text-gray-300 dark:text-gray-600">·</span>
+              <span className="text-xs text-gray-400 dark:text-gray-500">{timeAgo(article.published_at)}</span>
             </div>
 
             {/* Title */}
-            <h2 className="text-base font-bold text-gray-900 leading-snug mb-4 pr-6">
+            <h2 className="text-base font-bold text-gray-900 dark:text-gray-100 leading-snug mb-4 pr-6">
               {displayTitle}
             </h2>
 
-            <div className="border-t border-gray-100 mb-4" />
+            <div className="border-t border-gray-100 dark:border-gray-800 mb-4" />
 
             {/* Summary content */}
             {modalSummary ? (
-              <p className="text-sm text-gray-700 leading-relaxed">{modalSummary}</p>
+              <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">{modalSummary}</p>
             ) : (
-              <p className="text-sm text-gray-400 italic">{tFeed('noSummary')}</p>
+              <p className="text-sm text-gray-400 dark:text-gray-500 italic">{tFeed('noSummary')}</p>
             )}
 
             {/* Link to full article */}
-            <div className="mt-5 pt-4 border-t border-gray-100">
+            <div className="mt-5 pt-4 border-t border-gray-100 dark:border-gray-800">
               <Link
                 href={`/${locale}/article/${article.id}`}
                 onClick={() => setModalOpen(false)}
-                className="text-xs font-semibold text-blue-600 hover:text-blue-800 transition-colors"
+                className="text-xs font-semibold text-blue-600 hover:text-blue-800 dark:hover:text-blue-400 transition-colors"
               >
                 {tFeed('readFullArticle')} →
               </Link>
