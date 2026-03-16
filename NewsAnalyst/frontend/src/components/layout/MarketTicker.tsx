@@ -188,10 +188,10 @@ export default function MarketTicker() {
 
   return (
     <div className="border-b border-gray-100 bg-white">
-      <div className="max-w-7xl mx-auto px-4 py-2 flex items-center">
+      <div className="max-w-7xl mx-auto px-4 py-2">
 
-        {/* ── Left: Market mini cards — hidden on mobile to give HeadlineTicker full width ── */}
-        <div className="hidden md:flex items-center gap-2 flex-none overflow-x-auto scrollbar-none">
+        {/* ── Mobile-only: indicator cards row (horizontally scrollable) ── */}
+        <div className="flex md:hidden items-center gap-2 overflow-x-auto scrollbar-none pb-2">
           {loading ? (
             [...Array(6)].map((_, i) => <SkeletonCard key={i} />)
           ) : (
@@ -199,11 +199,25 @@ export default function MarketTicker() {
           )}
         </div>
 
-        {/* ── Divider — hidden on mobile (no market cards to separate) ─── */}
-        <div className="hidden md:block w-px self-stretch bg-gray-200 flex-none mx-4" />
+        {/* ── Main row: [desktop cards] [divider] [HeadlineTicker] ─────── */}
+        <div className="flex items-center">
 
-        {/* ── Right: Scrolling headline ticker ─────────────────────────── */}
-        <HeadlineTicker />
+          {/* Desktop: market cards */}
+          <div className="hidden md:flex items-center gap-2 flex-none overflow-x-auto scrollbar-none">
+            {loading ? (
+              [...Array(6)].map((_, i) => <SkeletonCard key={i} />)
+            ) : (
+              indicators.map(ind => <IndicatorCard key={ind.symbol} ind={ind} />)
+            )}
+          </div>
+
+          {/* Divider — desktop only */}
+          <div className="hidden md:block w-px self-stretch bg-gray-200 flex-none mx-4" />
+
+          {/* Headline ticker — full width on mobile, right side on desktop */}
+          <HeadlineTicker />
+
+        </div>
 
       </div>
     </div>
