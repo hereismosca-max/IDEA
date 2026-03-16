@@ -146,7 +146,7 @@ export default function SettingsMenu() {
 
       {/* ── Dropdown panel ──────────────────────────────────────────────────── */}
       {open && (
-        <div className="absolute right-0 top-full mt-2 w-72 bg-white border border-gray-200 rounded-xl shadow-xl z-50 overflow-hidden py-1">
+        <div className="absolute right-0 top-full mt-2 w-72 max-w-[calc(100vw-1rem)] bg-white border border-gray-200 rounded-xl shadow-xl z-50 overflow-hidden py-1">
 
           {/* ── Account ──────────────────────────────────────────────────────── */}
           <button

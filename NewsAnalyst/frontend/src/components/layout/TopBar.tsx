@@ -140,63 +140,66 @@ export default function TopBar() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id, isLoading]); // only re-run when the user identity changes
 
+  // Board switcher buttons — shared between desktop (inline) and mobile (second row)
+  const boardSwitcher = (
+    <div className="flex items-center gap-0.5 rounded-lg border border-gray-200 bg-white p-0.5 select-none">
+      <button
+        onClick={() => setBoard('en')}
+        className={`px-3 py-1 text-xs font-semibold rounded-md transition-colors ${
+          board === 'en'
+            ? 'bg-gray-900 text-white'
+            : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+        }`}
+      >
+        {labels.american}
+      </button>
+      <button
+        onClick={() => setBoard('zh')}
+        className={`px-3 py-1 text-xs font-semibold rounded-md transition-colors ${
+          board === 'zh'
+            ? 'bg-gray-900 text-white'
+            : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+        }`}
+      >
+        {labels.chinese}
+      </button>
+    </div>
+  );
+
   return (
     <header className="border-b border-gray-200 bg-white sticky top-0 z-50">
       {/*
-        3-column layout:
+        Desktop (sm+): 3-column single row
           [flex-1  Left: Logo]  [Center: Board switcher]  [flex-1  Right: User]
-        The equal flex-1 wings keep the switcher visually centred.
+        Mobile (<sm): 2-row layout
+          Row 1: Logo (left) + User controls (right)
+          Row 2: Board switcher (full-width, centered)
       */}
       <div className="max-w-7xl mx-auto px-4 h-14 flex items-center">
 
         {/* ── Left: Logo ───────────────────────────────────────────────────── */}
-        <div className="flex-1">
+        <div className="flex-1 min-w-0">
           <Link
             href={`/${locale}`}
             className="inline-flex flex-col leading-none hover:opacity-75 transition-opacity"
           >
-            {/* Wordmark: "Fin" in charcoal, "Lens" in blue — highlights the lens metaphor */}
             <span className="text-xl font-black tracking-tight text-gray-900">
               Fin<span className="text-blue-600">Lens</span>
             </span>
-            {/* Tagline: uppercase + wide tracking for a premium, editorial feel */}
             <span className="hidden sm:block text-[9px] font-medium tracking-[0.18em] text-gray-400 uppercase mt-0.5">
               Your scope to see the world
             </span>
           </Link>
         </div>
 
-        {/* ── Center: Board (region) switcher ──────────────────────────────── */}
-        <div className="flex items-center gap-0.5 rounded-lg border border-gray-200 bg-white p-0.5 select-none">
-          {/* American board button */}
-          <button
-            onClick={() => setBoard('en')}
-            className={`px-3 py-1 text-xs font-semibold rounded-md transition-colors ${
-              board === 'en'
-                ? 'bg-gray-900 text-white'
-                : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
-            }`}
-          >
-            {labels.american}
-          </button>
-
-          {/* Chinese board button */}
-          <button
-            onClick={() => setBoard('zh')}
-            className={`px-3 py-1 text-xs font-semibold rounded-md transition-colors ${
-              board === 'zh'
-                ? 'bg-gray-900 text-white'
-                : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
-            }`}
-          >
-            {labels.chinese}
-          </button>
+        {/* ── Center: Board switcher — desktop only ────────────────────────── */}
+        <div className="hidden sm:block flex-none">
+          {boardSwitcher}
         </div>
 
         {/* ── Right: User section ───────────────────────────────────────────── */}
         <div className="flex-1 flex justify-end min-w-0">
           {isLoading ? (
-            // Skeleton while checking session
             <div className="h-8 w-20 bg-gray-100 rounded-md animate-pulse" />
           ) : user ? (
             // Logged in: Saved link + display name + Lang toggle + Settings
@@ -208,11 +211,9 @@ export default function TopBar() {
                 {t('saved')}
               </Link>
               <span className="text-gray-300 hidden sm:inline">|</span>
-              {/* Truncate long display names on small screens */}
-              <span className="text-sm font-medium text-gray-700 truncate max-w-[60px] sm:max-w-[140px]">
+              <span className="text-sm font-medium text-gray-700 truncate max-w-[72px] sm:max-w-[140px]">
                 {user.display_name}
               </span>
-              {/* Language toggle — A/文 one-click switcher */}
               <LangDropdown locale={locale} onSelect={handleLangChange} />
               <SettingsMenu />
             </div>
@@ -223,7 +224,7 @@ export default function TopBar() {
               <SettingsMenu />
               <Link
                 href={`/${locale}/login`}
-                className="text-sm text-gray-600 hover:text-gray-900 border border-gray-200 px-3 py-1.5 rounded-md transition-colors hover:border-gray-400"
+                className="text-sm text-gray-600 hover:text-gray-900 border border-gray-200 px-3 py-1.5 rounded-md transition-colors hover:border-gray-400 whitespace-nowrap"
               >
                 {t('signIn')}
               </Link>
@@ -231,6 +232,11 @@ export default function TopBar() {
           )}
         </div>
 
+      </div>
+
+      {/* ── Mobile-only second row: Board switcher ───────────────────────────── */}
+      <div className="sm:hidden border-t border-gray-100 py-2 flex justify-center">
+        {boardSwitcher}
       </div>
     </header>
   );
