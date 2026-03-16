@@ -22,15 +22,21 @@ export default function NewsFeed({ dateFrom, dateTo, category, search, sort = 'l
   const [hasNext, setHasNext] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
 
-  // Monotonically-increasing counter: each new fetch call claims the latest id.
-  // Any response that arrives with a stale id is silently discarded, preventing
-  // race conditions when the user navigates dates quickly (e.g. 8→7→8).
-  const reqIdRef = useRef(0);
+  // Each sort/filter change creates a new AbortController.
+  // Aborting the previous controller marks its signal as aborted so that
+  // the in-flight fetch result is silently discarded — preventing stale data
+  // from overwriting the current view and loading state from getting stuck.
+  const abortRef = useRef<AbortController | null>(null);
 
   const isChinese = language === 'zh';
 
   const loadArticles = async (pageNum: number, reset = false) => {
-    const thisId = ++reqIdRef.current;
+    // For full resets (sort/filter changes) cancel any in-flight request so
+    // its completion cannot accidentally clear or corrupt the new loading state.
+    if (reset) abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+
     try {
       reset ? setLoading(true) : setLoadingMore(true);
       const data: ArticleListResponse = await fetchArticles({
@@ -42,17 +48,17 @@ export default function NewsFeed({ dateFrom, dateTo, category, search, sort = 'l
         search: search || undefined,
         sort,
       });
-      // Discard if a newer request has already been issued
-      if (thisId !== reqIdRef.current) return;
+      // If this request was superseded by a newer one, discard its result.
+      if (controller.signal.aborted) return;
       setArticles((prev) => (reset ? data.items : [...prev, ...data.items]));
       setHasNext(data.has_next);
       setPage(pageNum);
     } catch {
-      if (thisId !== reqIdRef.current) return;
+      if (controller.signal.aborted) return; // intentionally cancelled — not an error
       setError('Failed to load articles. Please try again.');
     } finally {
-      // Only the latest request should touch loading state
-      if (thisId === reqIdRef.current) {
+      // Only clear loading state if this request was not superseded.
+      if (!controller.signal.aborted) {
         setLoading(false);
         setLoadingMore(false);
       }
