@@ -78,21 +78,22 @@ def get_articles(
     Supports full-text search across title + AI summary, date filtering,
     section filtering, and sorting by recency or popularity.
     """
-    query = (
-        db.query(Article)
-        .options(joinedload(Article.source))
-        .filter(
-            Article.is_active == True,
-            Article.language == language,
-            # Only surface articles with a real AI summary.
-            Article.ai_summary.isnot(None),
-        )
-    )
+    # ── Build shared filter list ───────────────────────────────────────────────
+    # Filters are collected into a list so the lean COUNT query and the full
+    # data query can reuse them without duplication.  The previous pattern of
+    # calling query.count() on a query that already carried joinedload() caused
+    # SQLAlchemy to wrap the whole joined SELECT inside a subquery just to count,
+    # running the expensive join + sort twice per request.
+    filters = [
+        Article.is_active == True,
+        Article.language == language,
+        Article.ai_summary.isnot(None),
+    ]
 
     # ── Search filter — when active, date filter is ignored ─────────────────
     if search and search.strip():
         term = f"%{search.strip()}%"
-        query = query.filter(
+        filters.append(
             or_(
                 Article.title.ilike(term),
                 Article.ai_summary.ilike(term),
@@ -103,10 +104,10 @@ def get_articles(
         try:
             from_dt = datetime.fromisoformat(date_from.replace("Z", "+00:00"))
             to_dt   = datetime.fromisoformat(date_to.replace("Z", "+00:00"))
-            query = query.filter(
+            filters.extend([
                 Article.published_at >= from_dt,
                 Article.published_at < to_dt,
-            )
+            ])
         except ValueError:
             raise HTTPException(status_code=400, detail="Invalid date_from/date_to format. Use ISO 8601.")
     elif date:
@@ -114,10 +115,10 @@ def get_articles(
         try:
             day_start = datetime.strptime(date, "%Y-%m-%d").replace(tzinfo=timezone.utc)
             day_end = day_start + timedelta(days=1)
-            query = query.filter(
+            filters.extend([
                 Article.published_at >= day_start,
                 Article.published_at < day_end,
-            )
+            ])
         except ValueError:
             raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD.")
 
@@ -125,11 +126,23 @@ def get_articles(
     if category_slug and category_slug != "all":
         section_filter = SECTION_FILTERS.get(category_slug)
         if section_filter is not None:
-            query = query.filter(section_filter)
+            filters.append(section_filter)
         else:
-            query = query.filter(text("false"))
+            filters.append(text("false"))
 
-    # ── Sort order ────────────────────────────────────────────────────────────
+    # ── Lean COUNT — no JOIN, no ORDER BY ────────────────────────────────────
+    # A plain SELECT COUNT(id) is far cheaper than letting SQLAlchemy wrap a
+    # joinedload query in a subquery, which would execute the full join + sort
+    # just to produce a single integer.
+    total = db.query(func.count(Article.id)).filter(*filters).scalar()
+
+    # ── Data query with eager loading and sort ────────────────────────────────
+    query = (
+        db.query(Article)
+        .options(joinedload(Article.source))
+        .filter(*filters)
+    )
+
     if sort == "popular":
         # Order by net vote score (upvotes − downvotes), then by recency as tiebreaker
         net_votes = (
@@ -146,7 +159,6 @@ def get_articles(
         # "latest" — default: newest published first
         query = query.order_by(Article.published_at.desc())
 
-    total = query.count()
     items = query.offset((page - 1) * page_size).limit(page_size).all()
 
     return ArticleListResponse(
