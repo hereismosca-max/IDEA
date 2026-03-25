@@ -52,7 +52,7 @@
 
 ### 部署
 - [x] 部署后端至 Railway（配置环境变量）— https://idea-production.up.railway.app
-- [x] 部署前端至 Vercel（配置 NEXT_PUBLIC_API_URL）— https://idea-brown.vercel.app
+- [x] 部署前端至 Vercel（配置 NEXT_PUBLIC_API_URL）— https://www.finlens.io
 - [x] 修复 CORS（`allow_origin_regex=r"https://.*\.vercel\.app"` 替代无效通配符字符串）
 - [x] 线上端到端验证 ✅
 

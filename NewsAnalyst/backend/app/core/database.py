@@ -4,6 +4,7 @@ from app.core.config import settings
 
 engine = create_engine(
     settings.DATABASE_URL,
+    connect_args={"prepare_threshold": None},  # Disable psycopg3 prepared statements (required for PgBouncer transaction mode)
     pool_pre_ping=True,      # Verify connections before using (handles stale connections)
     pool_size=5,             # 5 persistent connections to the Transaction Pooler.
                              # PgBouncer (Transaction mode) multiplexes these efficiently;

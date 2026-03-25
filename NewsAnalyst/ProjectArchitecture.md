@@ -164,7 +164,7 @@ news-aggregator/                    ← GitHub仓库根目录
 
 **部署**
 - [x] 部署后端至 Railway（https://idea-production.up.railway.app）
-- [x] 部署前端至 Vercel（https://idea-brown.vercel.app）
+- [x] 部署前端至 Vercel（https://www.finlens.io）
 - [x] 配置 Supabase Pro 数据库
 - [x] 线上环境联调验证
 

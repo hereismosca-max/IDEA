@@ -2,7 +2,7 @@
 
 Economic & Financial News Aggregator and Analyst
 
-**Live:** https://idea-brown.vercel.app | **API:** https://idea-production.up.railway.app/docs
+**Live:** https://www.finlens.io | **API:** https://idea-production.up.railway.app/docs
 
 ## Overview
 
@@ -57,7 +57,7 @@ API docs available at: `http://localhost:8000/docs`
 
 | Service | Provider | URL | Cost |
 |---------|----------|-----|------|
-| Frontend | Vercel | https://idea-brown.vercel.app | Free |
+| Frontend | Vercel | https://www.finlens.io | Free |
 | Backend | Railway | https://idea-production.up.railway.app | ~$10/mo |
 | Database | Supabase Pro | — | $25/mo |
 
