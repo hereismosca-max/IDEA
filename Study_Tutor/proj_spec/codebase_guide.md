@@ -39,7 +39,7 @@ Selected-course navigation is URL-restorable through `/?semester=[semester]&cour
 
 The practice and weakness pages validate the selected semester/course pair through `resolveCoursePath()` before rendering.
 
-`PracticeWorkspace` calls `/api/problem-generator/generate` when opened without a `problemId`. When opened from the problem set with a `problemId`, it calls `/api/problem-set/problem` to load that saved problem and its previous attempts. It displays the generated problem, creates separate answer boxes for generated problem parts, and shows a coordinate-grid diagram canvas above the answer boxes when the generated problem requires a graph or diagram. It submits answers to `/api/practice/attempts`, then displays the returned score and brief grader feedback.
+`PracticeWorkspace` calls `/api/problem-generator/generate` when opened without a `problemId`. When opened from the problem set with a `problemId`, it calls `/api/problem-set/problem` to load that saved problem and its previous attempts. It displays the generated problem, creates separate answer boxes for generated problem parts, and shows a coordinate-grid diagram canvas above the answer boxes when the generated problem requires a graph or diagram. It submits answers to `/api/practice/attempts`, then displays the returned score, brief grader feedback, and example solution.
 
 For older generated problems without explicit `answerParts`, `PracticeWorkspace` infers separate answer boxes from common subquestion labels in the problem text.
 

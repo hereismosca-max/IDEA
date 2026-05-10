@@ -1,0 +1,26 @@
+{
+  "course": "ECON 100B",
+  "semester": "Spring 2026",
+  "topic": "Solow Model Comparative Statics",
+  "problemType": "Applied long-form problem with graphical analysis",
+  "difficulty": "medium",
+  "problem": "A major earthquake destroys 40% of the physical capital stock in a small country that was previously in steady state. The country has a Cobb-Douglas production function Y = ĀK^(1/3)L^(2/3), with a saving rate s = 0.30, population growth rate n = 0.02, and depreciation rate d = 0.05.\n\nPart (a): Draw a Solow diagram showing the initial steady state. Clearly label your axes, the production function y = Āk^(1/3), the saving curve sy, the depreciation line (n+d)k, and mark the initial steady-state capital per worker k*.\n\nPart (b): Immediately after the earthquake, what happens to the actual capital per worker k? Does the steady-state capital per worker k* change? Explain briefly.\n\nPart (c): On your diagram from part (a), show where the economy is located immediately after the earthquake. Use arrows or another marker to indicate the short-run position.\n\nPart (d): Describe what happens to output per worker in the short run (right after the earthquake) and in the long run (after the economy fully adjusts). Be specific about whether output per worker rises, falls, or stays the same in each time period.\n\nPart (e): Will the economy eventually return to its original level of output per worker? Explain the economic intuition for why or why not, and describe the transition dynamics (will growth be faster or slower than the steady-state growth rate during recovery?).",
+  "answerParts": [
+    "Part (a)",
+    "Part (b)",
+    "Part (c)",
+    "Part (d)",
+    "Part (e)"
+  ],
+  "needsDrawing": true,
+  "expectedAnswer": "Part (a): Diagram should show k on horizontal axis, y on vertical axis. The production function y = Āk^(1/3) is a concave curve starting from origin. The saving curve sy lies below the production function (shifted down by factor s = 0.30). The depreciation line (n+d)k = 0.07k is a straight line from the origin. The intersection of sy and (n+d)k marks the steady state k*, which should be clearly labeled.\n\nPart (b): Immediately after the earthquake, the actual capital per worker k falls by 40% (from k* to approximately 0.6k*), since both capital K and labor L are given, and K fell by 40%. However, the steady-state capital per worker k* does NOT change because none of the parameters (s, n, d, Ā) changed. The earthquake destroyed existing capital but did not change the fundamentals of the economy.\n\nPart (c): The economy should be marked at a point to the LEFT of k* on the horizontal axis (at approximately 0.6k*). At this point, the sy curve lies ABOVE the (n+d)k line, indicating that investment exceeds depreciation and the economy will accumulate capital.\n\nPart (d): In the SHORT RUN (immediately after the earthquake), output per worker y falls because k has fallen and y = Āk^(1/3). With less capital per worker, productivity drops. In the LONG RUN (once the economy returns to steady state), output per worker returns to its original level y* = Ā(k*)^(1/3) because the economy converges back to the same steady state.\n\nPart (e): Yes, the economy will eventually return to its original level of output per worker. Economic intuition: Since the economy is now below its steady state (at 0.6k*), investment (sy) exceeds depreciation ((n+d)k), so capital per worker will grow. The Solow model predicts convergence to steady state. Transition dynamics: During recovery, the growth rate of output per worker will be FASTER than the steady-state growth rate (which is zero in per-capita terms) because the economy is further from steady state. The further below k* the economy is, the faster it grows (conditional convergence). Growth will gradually slow as k approaches k*.",
+  "gradingRubric": [
+    "Part (a) - 5 points: Correct Solow diagram with properly labeled axes (k horizontal, y vertical), all three curves shown (production function, sy, and (n+d)k line), steady state k* clearly marked at intersection",
+    "Part (b) - 4 points: Correctly identifies that actual k falls (2 pts) and that steady-state k* does NOT change because parameters are unchanged (2 pts)",
+    "Part (c) - 3 points: Economy marked to the left of k* on diagram, with clear indication that sy > (n+d)k at this point",
+    "Part (d) - 5 points: Short-run effect correctly stated (y falls, 2 pts) with reasoning (less capital, 1 pt); long-run effect correctly stated (y returns to original level, 2 pts)",
+    "Part (e) - 4 points: Correct conclusion that economy returns to original level (1 pt), explanation that investment exceeds depreciation below steady state (1 pt), transition dynamics showing faster-than-steady-state growth during recovery (1 pt), conditional convergence logic mentioned (1 pt)"
+  ],
+  "id": "2026-05-10T22-27-25-820Z-solow-model-comparative-statics",
+  "generatedAt": "2026-05-10T22:27:25.820Z"
+}

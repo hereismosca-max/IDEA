@@ -27,6 +27,7 @@ type GradeResult = {
   strengths: string[];
   improvements: string[];
   weaknessSignals: string[];
+  exampleSolution?: string;
 };
 
 type PracticeAttempt = {
@@ -408,16 +409,23 @@ export function PracticeWorkspace({
                     ) : null}
 
                     {attempt.grading ? (
-                      <div className="grid gap-4 md:grid-cols-2">
-                        <FeedbackList
-                          title="Strengths"
-                          items={attempt.grading.strengths}
-                        />
-                        <FeedbackList
-                          title="Improve"
-                          items={attempt.grading.improvements}
-                        />
-                      </div>
+                      <>
+                        <div className="grid gap-4 md:grid-cols-2">
+                          <FeedbackList
+                            title="Strengths"
+                            items={attempt.grading.strengths}
+                          />
+                          <FeedbackList
+                            title="Improve"
+                            items={attempt.grading.improvements}
+                          />
+                        </div>
+                        {attempt.grading.exampleSolution ? (
+                          <ExampleSolution
+                            solution={attempt.grading.exampleSolution}
+                          />
+                        ) : null}
+                      </>
                     ) : null}
 
                     {attempt.gradingError ? (
@@ -637,10 +645,26 @@ export function PracticeWorkspace({
                 ))}
               </div>
             ) : null}
+            {gradeResult.exampleSolution ? (
+              <ExampleSolution solution={gradeResult.exampleSolution} />
+            ) : null}
           </div>
         ) : null}
       </div>
     </section>
+  );
+}
+
+function ExampleSolution({ solution }: { solution: string }) {
+  return (
+    <div className="mt-4 rounded-md border border-slate-200 bg-white p-4">
+      <h3 className="text-sm font-semibold text-slate-800">
+        Example Solution
+      </h3>
+      <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-slate-700">
+        {solution}
+      </p>
+    </div>
   );
 }
 

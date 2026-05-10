@@ -64,7 +64,7 @@ Practice UI now supports multi-part generated problems by rendering separate ans
 
 Older generated problems that do not include explicit `answerParts` are now handled by detecting common part labels in the problem text, such as `(a)`, `(b)`, `Part a`, or numbered subquestions, so reopened problem-set items can still show separated answer boxes.
 
-Added local practice persistence and OpenAI grading. Clicking `Submit Answer` sends the generated problem, expected answer, rubric, typed answers, and optional canvas image to the Answer Grader Agent. The resulting percentage score, brief feedback, strengths, improvements, and weakness signals are saved with the answer record under the selected course in `answer_records/`.
+Added local practice persistence and OpenAI grading. Clicking `Submit Answer` sends the generated problem, expected answer, rubric, typed answers, and optional canvas image to the Answer Grader Agent. The resulting percentage score, brief feedback, strengths, improvements, weakness signals, and example solution are saved with the answer record under the selected course in `answer_records/`. Blank submissions are treated as the student not knowing the question and should be graded near zero with first-step learning feedback.
 
 Reopened problems show previous attempts below the problem text as collapsible bars. Each attempt panel shows the submitted answers and grader feedback, so past work can be reviewed before submitting another attempt.
 

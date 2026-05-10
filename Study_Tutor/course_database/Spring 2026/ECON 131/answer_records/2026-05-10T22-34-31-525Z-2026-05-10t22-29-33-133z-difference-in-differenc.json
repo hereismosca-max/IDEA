@@ -1,0 +1,57 @@
+{
+  "id": "2026-05-10T22-34-31-525Z-2026-05-10t22-29-33-133z-difference-in-differenc",
+  "submittedAt": "2026-05-10T22:34:31.525Z",
+  "semester": "Spring 2026",
+  "course": "ECON 131",
+  "status": "graded",
+  "problem": {
+    "course": "ECON 131",
+    "semester": "Spring 2026",
+    "topic": "Difference-in-Differences and Empirical Identification",
+    "problemType": "Empirical Application / Study Interpretation",
+    "difficulty": "medium",
+    "problem": "A researcher wants to estimate the causal effect of a minimum wage increase on employment in the restaurant industry. In January 2024, State A raised its minimum wage from $12 to $16 per hour, while neighboring State B kept its minimum wage at $12. The researcher collects quarterly data on restaurant employment (thousands of workers) for both states from 2023 Q1 through 2024 Q4.\n\nData Summary:\nState A (treatment): Average employment 2023 = 450; Average employment 2024 = 440\nState B (control): Average employment 2023 = 380; Average employment 2024 = 378\n\nThe researcher runs the following difference-in-differences regression:\nEmployment = α + β(StateA) + γ(Post2024) + δ(StateA × Post2024) + ε\n\nwhere StateA = 1 for State A and 0 for State B, and Post2024 = 1 for 2024 quarters and 0 for 2023 quarters.\n\nThe estimated coefficient δ = -8.0 (statistically significant at the 5% level).\n\n(a) Interpret the coefficient δ = -8.0 in the context of this study. What does it tell us about the causal effect of the minimum wage increase?\n\n(b) What is the key identifying assumption required for this difference-in-differences design to produce a valid causal estimate? Explain what threat to validity you would be most concerned about and how you could check for it using the data.\n\n(c) A critic argues: \"State A has a larger restaurant industry than State B, so the comparison is invalid.\" Evaluate this criticism using economic reasoning about the DiD method.",
+    "answerParts": [
+      "Part (a)",
+      "Part (b)",
+      "Part (c)"
+    ],
+    "needsDrawing": false,
+    "expectedAnswer": "(a) The coefficient δ = -8.0 means that restaurant employment in State A fell by 8,000 workers relative to State B after the minimum wage increase, controlling for pre-existing differences between states and common time trends. This is the DiD estimate of the causal effect of raising the minimum wage from $12 to $16. It suggests the policy reduced restaurant employment by 8,000 jobs.\n\n(b) The key identifying assumption is parallel trends: in the absence of the minimum wage increase, employment in State A and State B would have followed the same trend over time. The main threat is pre-existing differential trends—if State A's restaurant industry was already declining faster than State B's before 2024, the estimate would confound this pre-existing trend with the policy effect. To check this assumption, examine employment trends in 2022 and early 2023 (pre-treatment period). If the trends were parallel before the policy change, the assumption is more credible. An event study plot showing quarter-by-quarter coefficients would reveal whether any divergence began before or after the policy.\n\n(c) This criticism misunderstands the DiD method. The fact that State A has higher employment levels (450 vs. 380) does not invalidate the comparison—that is precisely why we include the StateA dummy (β) to control for fixed differences in levels between states. DiD identifies the causal effect from the change in the difference over time, not from comparing levels. As long as the parallel trends assumption holds, differences in industry size do not bias the estimate. The criticism confuses levels with changes.",
+    "gradingRubric": [
+      "Part (a) - 10 points: Correctly interprets δ as the DiD causal estimate (change in difference), states it represents 8,000 fewer jobs, and explains it is the effect relative to the counterfactual trend (5 pts for interpretation, 3 pts for counterfactual reasoning, 2 pts for units/magnitude)",
+      "Part (b) - 10 points: Identifies parallel trends as the key assumption (3 pts), explains a concrete threat such as pre-existing differential trends or industry-specific shocks (4 pts), proposes a valid check such as examining pre-treatment trends, event study plot, or placebo tests (3 pts)",
+      "Part (c) - 10 points: Recognizes that DiD controls for level differences via fixed effects (4 pts), explains that the method relies on changes in differences not levels (4 pts), correctly dismisses the criticism with economic reasoning (2 pts). Partial credit for mentioning parallel trends assumption but full credit requires explaining why level differences do not matter."
+    ],
+    "id": "2026-05-10T22-29-33-133Z-difference-in-differences-and-empirical-identifi",
+    "generatedAt": "2026-05-10T22:29:33.133Z"
+  },
+  "answers": {
+    "Part (a)": "the Difference-in-differences coefficient is -8 means that the policy does make a difference, affect the average employment. This can be an evidence to say there is causal effect existing. The policy reduces the minimum wage increase by 8 units.",
+    "Part (b)": "A parallel trend when the policy is absent. ",
+    "Part (c)": "When using DiD we don't actually care about the specific amount, we care about the trend, the differences are appear while comparing the trend changes after the policy is implemented."
+  },
+  "drawingDataUrl": null,
+  "grading": {
+    "scorePercent": 32,
+    "briefFeedback": "You identify the general DiD idea and mention trends, but the interpretations are incomplete and sometimes incorrect. The answer needs a clearer causal interpretation, the key assumption, and a direct response to the criticism about level differences.",
+    "strengths": [
+      "Recognizes DiD focuses on changes in trends over time",
+      "Mentions parallel trends in part (b)",
+      "Shows some awareness that levels alone are not the main issue in DiD"
+    ],
+    "improvements": [
+      "State that δ = -8 means about 8,000 fewer restaurant jobs in State A relative to State B after the policy",
+      "Explain parallel trends more clearly and mention a concrete threat like pre-existing differential trends",
+      "Use the data to say State A having a larger industry does not invalidate DiD because fixed level differences are controlled for"
+    ],
+    "weaknessSignals": [
+      "DiD interpretation",
+      "parallel trends assumption",
+      "levels vs trends confusion"
+    ]
+  },
+  "score": 32,
+  "feedback": "You identify the general DiD idea and mention trends, but the interpretations are incomplete and sometimes incorrect. The answer needs a clearer causal interpretation, the key assumption, and a direct response to the criticism about level differences.",
+  "gradingError": null
+}

@@ -1,0 +1,24 @@
+{
+  "course": "CS 61B",
+  "semester": "Spring 2026",
+  "topic": "Graph Shortest Path (Dijkstra's Algorithm)",
+  "problemType": "Algorithm Application with Step-by-Step Trace",
+  "difficulty": "medium",
+  "problem": "Consider the following weighted, directed graph:\n\nVertices: A, B, C, D, E\nEdges (format: source -> destination, weight):\nA -> B, 4\nA -> C, 2\nB -> C, 1\nB -> D, 5\nC -> D, 8\nC -> E, 10\nD -> E, 2\nE -> B, 3\n\nRun Dijkstra's algorithm to find the shortest path from A to all other vertices.\n\n(a) Show the contents of the priority queue (fringe) after each vertex is visited/dequeued. For each step, list the vertex being visited and the current priority queue state as (vertex, distance) pairs in the order they would be prioritized (smallest distance first).\n\n(b) Fill in the final shortest distances from A to each vertex:\n   - dist(A) = ___\n   - dist(B) = ___\n   - dist(C) = ___\n   - dist(D) = ___\n   - dist(E) = ___\n\n(c) What is the shortest path from A to E? Write the sequence of vertices.",
+  "answerParts": [
+    "Part (a): Priority queue trace",
+    "Part (b): Final distances",
+    "Part (c): Shortest path to E"
+  ],
+  "needsDrawing": false,
+  "expectedAnswer": "Part (a):\nInitial: PQ = [(A, 0)]\n\nVisit A (dist = 0):\n  Add/update: B with dist 4, C with dist 2\n  PQ after: [(C, 2), (B, 4)]\n\nVisit C (dist = 2):\n  Update B: 2 + 1 = 3 < 4, so update B to 3\n  Add D with dist 2 + 8 = 10\n  Add E with dist 2 + 10 = 12\n  PQ after: [(B, 3), (D, 10), (E, 12)]\n\nVisit B (dist = 3):\n  Update D: 3 + 5 = 8 < 10, so update D to 8\n  PQ after: [(D, 8), (E, 12)]\n\nVisit D (dist = 8):\n  Update E: 8 + 2 = 10 < 12, so update E to 10\n  PQ after: [(E, 10)]\n\nVisit E (dist = 10):\n  E -> B would give 10 + 3 = 13, but B already finalized at 3\n  PQ after: []\n\nPart (b):\n- dist(A) = 0\n- dist(B) = 3\n- dist(C) = 2\n- dist(D) = 8\n- dist(E) = 10\n\nPart (c):\nShortest path from A to E: A -> C -> B -> D -> E\n(Total distance: 0 + 2 + 1 + 5 + 2 = 10)",
+  "gradingRubric": [
+    "Part (a) - 10 points: Correct priority queue states after each vertex visit (2 points per step). Must show vertices with distances and proper ordering. Partial credit for minor ordering errors if distances are correct.",
+    "Part (a) - Relaxation updates: Must show when edges cause distance updates (e.g., B updated from 4 to 3 via C). Deduct 1 point per missing update explanation.",
+    "Part (b) - 5 points: Correct final distances (1 point each). dist(A)=0, dist(B)=3, dist(C)=2, dist(D)=8, dist(E)=10. All-or-nothing per vertex.",
+    "Part (c) - 5 points: Correct shortest path sequence A -> C -> B -> D -> E. Deduct 2 points if path is valid but not shortest. Deduct 5 points if path is invalid (non-existent edges).",
+    "Overall: Must demonstrate understanding of greedy selection (always visit minimum distance vertex) and edge relaxation (update distances when shorter path found). Deduct 2 points if algorithm logic is fundamentally wrong (e.g., visiting vertices out of priority order)."
+  ],
+  "id": "2026-05-10T22-52-47-735Z-graph-shortest-path-dijkstra-s-algorithm",
+  "generatedAt": "2026-05-10T22:52:47.735Z"
+}

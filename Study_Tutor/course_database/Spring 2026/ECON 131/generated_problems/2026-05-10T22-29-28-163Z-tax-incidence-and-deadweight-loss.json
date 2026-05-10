@@ -1,0 +1,25 @@
+{
+  "course": "ECON 131",
+  "semester": "Spring 2026",
+  "topic": "Tax Incidence and Deadweight Loss",
+  "problemType": "True/False/Uncertain with Explanation",
+  "difficulty": "medium",
+  "problem": "Consider a market for ride-sharing services where the demand elasticity is -0.3 and the supply elasticity is 2.5. The government imposes a new $2 per-ride tax, which is statutorily collected from the ride-sharing companies (suppliers). A policy analyst claims: \"Because the tax is legally paid by the companies, they will bear most of the economic burden of this tax, and consumer prices will rise by less than 50 cents per ride.\"\n\nIs this claim true, false, or uncertain? Explain your reasoning using economic principles of tax incidence. Your explanation should address: (1) which side of the market will bear more of the tax burden and why, and (2) approximately how much of the $2 tax will be passed through to consumers in the form of higher prices. Write no more than 10 lines.",
+  "answerParts": [
+    "Answer"
+  ],
+  "needsDrawing": false,
+  "expectedAnswer": "FALSE. The claim is incorrect because economic incidence is determined by relative elasticities, not statutory incidence. The side of the market that is more inelastic bears more of the tax burden. Here, demand is much more inelastic (ε_d = -0.3) than supply (ε_s = 2.5), so consumers will bear most of the burden, not suppliers.\n\nThe fraction of the tax borne by consumers = ε_s / (ε_s + |ε_d|) = 2.5 / (2.5 + 0.3) = 2.5/2.8 ≈ 0.89 or 89%.\n\nTherefore, consumer prices will rise by approximately 0.89 × $2 = $1.78 per ride, which is much more than the 50 cents claimed. The companies will bear only about 11% of the burden ($0.22 per ride) despite being the statutory taxpayers. The relatively elastic supply (companies can easily reduce quantity supplied or exit) allows suppliers to escape most of the burden by passing it to relatively inelastic consumers (who have fewer alternatives and continue riding despite price increases).",
+  "gradingRubric": [
+    "Correctly identifies the claim as FALSE (1 point for label, but grade primarily on explanation)",
+    "Explains that economic incidence depends on relative elasticities, not statutory incidence (3 points)",
+    "Correctly identifies that the more inelastic side (demand, with ε = -0.3) bears more burden (3 points)",
+    "Calculates or approximates the pass-through fraction using the formula ε_s / (ε_s + |ε_d|) or shows that consumers bear ~89% of the tax (4 points)",
+    "Shows that price increase is approximately $1.78, which contradicts the claim of less than $0.50 (3 points)",
+    "Provides economic intuition: elastic supply allows suppliers to escape burden; inelastic demand means consumers cannot easily avoid the tax (3 points)",
+    "Clear, concise explanation within length limit with proper economic reasoning (2 points)",
+    "Deduct points for: confusing statutory with economic incidence, incorrect elasticity application, missing quantitative calculation, or purely qualitative answer without connecting to the specific elasticities given"
+  ],
+  "id": "2026-05-10T22-29-28-163Z-tax-incidence-and-deadweight-loss",
+  "generatedAt": "2026-05-10T22:29:28.163Z"
+}

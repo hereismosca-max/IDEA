@@ -1,0 +1,66 @@
+{
+  "id": "2026-05-10T22-50-33-938Z-2026-05-10t22-47-14-487z-iterators-and-generator",
+  "submittedAt": "2026-05-10T22:50:33.938Z",
+  "semester": "Spring 2026",
+  "course": "CS 61A",
+  "status": "graded",
+  "problem": {
+    "course": "CS 61A",
+    "semester": "Spring 2026",
+    "topic": "Iterators and Generators",
+    "problemType": "What Would Python Display (WWPD)",
+    "difficulty": "medium",
+    "problem": "What would Python display for each of the following expressions? If an expression causes an error, write ERROR. If an expression returns a generator or iterator object (not consuming it), write GENERATOR or ITERATOR as appropriate. If nothing is displayed, write NOTHING.\n\n```python\ndef generate_twice(n):\n    yield n\n    yield n\n\ndef chain_gen(gen1, gen2):\n    yield from gen1\n    yield from gen2\n\ng1 = generate_twice(5)\ng2 = generate_twice(10)\ncombined = chain_gen(g1, g2)\n\nprint(next(combined))  # Line 1\nprint(next(g1))        # Line 2\nprint(next(combined))  # Line 3\nprint(list(combined))  # Line 4\nprint(next(combined))  # Line 5\n```",
+    "answerParts": [
+      "Line 1",
+      "Line 2",
+      "Line 3",
+      "Line 4",
+      "Line 5"
+    ],
+    "needsDrawing": false,
+    "expectedAnswer": "Line 1: 5\nLine 2: ERROR\nLine 3: 10\nLine 4: [10]\nLine 5: ERROR\n\nExplanation:\n- Line 1: `next(combined)` calls `next(g1)` via `yield from`, which yields 5\n- Line 2: Attempting to call `next(g1)` directly, but `g1` is already being iterated by `combined` through `yield from`. When a generator is being delegated to via `yield from`, calling `next()` directly on it causes an error because the delegation maintains exclusive control\n- Line 3: `next(combined)` continues from where it left off, yielding the second value from g1, which is 5... wait, actually since g1 errored in Line 2, we need to reconsider. Actually, `yield from` doesn't prevent direct calls, but direct calls DO advance the underlying generator. So Line 2 gets 5 (the second yield from g1), Line 3 gets 10 (first from g2), Line 4 gets [10] (second from g2), Line 5 gets ERROR (StopIteration).\n\nCorrected:\nLine 1: 5 (first value from g1 via yield from)\nLine 2: 5 (second value from g1, called directly)\nLine 3: 10 (first value from g2, via yield from in combined)\nLine 4: [10] (second value from g2, consuming rest of combined)\nLine 5: ERROR (StopIteration - combined is exhausted)",
+    "gradingRubric": [
+      "Line 1: Correctly identifies 5 (first yield from g1 through yield from) - 1 point",
+      "Line 2: Correctly identifies 5 (direct call to g1 yields second value, showing understanding that direct calls to a generator being delegated via yield from still work and advance the generator) - 1 point",
+      "Line 3: Correctly identifies 10 (combined moves to g2 after g1 is exhausted, yields first value from g2) - 1 point",
+      "Line 4: Correctly identifies [10] (list consumes remaining generator, getting only second value from g2) - 1 point",
+      "Line 5: Correctly identifies ERROR or StopIteration (generator is exhausted after Line 4) - 1 point",
+      "Demonstrates understanding that yield from delegates to underlying generator but direct calls to that generator still advance it - overall conceptual point"
+    ],
+    "id": "2026-05-10T22-47-14-487Z-iterators-and-generators",
+    "generatedAt": "2026-05-10T22:47:14.487Z"
+  },
+  "answers": {
+    "Line 1": "5",
+    "Line 2": "5",
+    "Line 3": "10",
+    "Line 4": "NOTHING",
+    "Line 5": "IterationError"
+  },
+  "drawingDataUrl": null,
+  "grading": {
+    "scorePercent": 60,
+    "briefFeedback": "You got the first three lines correct and showed good understanding of how `yield from` advances the underlying generator. The last two lines are off: `list(combined)` should display the remaining item, and the exhausted generator should produce an error/StopIteration-like result.",
+    "strengths": [
+      "Line 1 correct",
+      "Line 2 correct",
+      "Line 3 correct",
+      "Understands direct access to the delegated generator still advances it"
+    ],
+    "improvements": [
+      "Line 4 should be `[10]`, not `NOTHING`",
+      "Line 5 should be `ERROR` (or StopIteration), not `IterationError`",
+      "Be careful about what `list(...)` displays versus when nothing is printed"
+    ],
+    "weaknessSignals": [
+      "yield-from delegation",
+      "generator exhaustion",
+      "WWPD output formatting"
+    ],
+    "exampleSolution": "Line 1: 5\nLine 2: 5\nLine 3: 10\nLine 4: [10]\nLine 5: ERROR"
+  },
+  "score": 60,
+  "feedback": "You got the first three lines correct and showed good understanding of how `yield from` advances the underlying generator. The last two lines are off: `list(combined)` should display the remaining item, and the exhausted generator should produce an error/StopIteration-like result.",
+  "gradingError": null
+}

@@ -10,6 +10,7 @@ export type GradeResult = {
   strengths: string[];
   improvements: string[];
   weaknessSignals: string[];
+  exampleSolution: string;
 };
 
 export async function gradePracticeAnswer(input: {
@@ -27,7 +28,11 @@ export async function gradePracticeAnswer(input: {
   const content: Responses.ResponseInputMessageContentList = [
     {
       type: "input_text",
-      text: buildGradingPrompt(input.problem, input.answers)
+      text: buildGradingPrompt({
+        problem: input.problem,
+        answers: input.answers,
+        hasDrawing: Boolean(input.drawingDataUrl?.startsWith("data:image/"))
+      })
     }
   ];
 
@@ -47,16 +52,19 @@ export async function gradePracticeAnswer(input: {
         content
       }
     ],
-    max_output_tokens: 900
+    max_output_tokens: 1400
   });
 
   return parseGradeResult(response.output_text);
 }
 
-function buildGradingPrompt(
-  problem: ProblemRecord,
-  answers: Record<string, string>
-) {
+function buildGradingPrompt(input: {
+  problem: ProblemRecord;
+  answers: Record<string, string>;
+  hasDrawing: boolean;
+}) {
+  const { problem, answers } = input;
+
   return `You are the Answer Grader Agent for a personal study tutor app.
 
 Grade the student's answer against the generated answer key and rubric.
@@ -69,7 +77,8 @@ Required JSON shape:
   "briefFeedback": "One or two concise sentences explaining the grade.",
   "strengths": ["short point"],
   "improvements": ["short point"],
-  "weaknessSignals": ["topic or misconception label"]
+  "weaknessSignals": ["topic or misconception label"],
+  "exampleSolution": "A clear model answer the student can study."
 }
 
 Rules:
@@ -78,8 +87,10 @@ Rules:
 - Do not be overly generous for vague answers.
 - Give useful feedback, but keep it brief.
 - weaknessSignals should be useful later for weakness analysis.
+- exampleSolution should be a complete but concise model answer for the problem.
 - If a drawing image is attached, consider it as part of the student's answer.
-- If the student's answer is blank, score it near 0 and explain what is missing.
+- If every text answer is blank and no drawing is attached, treat it as the student having no idea. Score it near 0, do not invent strengths, and make improvements focus on the first concepts to learn.
+- If some parts are blank, grade completed parts normally but explicitly mention the missing parts.
 
 Problem metadata:
 Course: ${problem.course || "unknown"}
@@ -87,6 +98,7 @@ Semester: ${problem.semester || "unknown"}
 Topic: ${problem.topic || "unknown"}
 Problem type: ${problem.problemType || "unknown"}
 Difficulty: ${problem.difficulty || "unknown"}
+Drawing attached: ${input.hasDrawing ? "yes" : "no"}
 
 Problem:
 ${problem.problem || ""}
@@ -117,7 +129,8 @@ function parseGradeResult(text: string): GradeResult {
     typeof parsed.briefFeedback !== "string" ||
     !Array.isArray(parsed.strengths) ||
     !Array.isArray(parsed.improvements) ||
-    !Array.isArray(parsed.weaknessSignals)
+    !Array.isArray(parsed.weaknessSignals) ||
+    typeof parsed.exampleSolution !== "string"
   ) {
     throw new Error("Grader response is missing required fields.");
   }
@@ -127,7 +140,8 @@ function parseGradeResult(text: string): GradeResult {
     briefFeedback: parsed.briefFeedback,
     strengths: parsed.strengths.map(String).slice(0, 5),
     improvements: parsed.improvements.map(String).slice(0, 5),
-    weaknessSignals: parsed.weaknessSignals.map(String).slice(0, 8)
+    weaknessSignals: parsed.weaknessSignals.map(String).slice(0, 8),
+    exampleSolution: parsed.exampleSolution
   };
 }
 

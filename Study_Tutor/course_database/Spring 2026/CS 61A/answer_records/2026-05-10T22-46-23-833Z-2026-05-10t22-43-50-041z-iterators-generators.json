@@ -1,0 +1,63 @@
+{
+  "id": "2026-05-10T22-46-23-833Z-2026-05-10t22-43-50-041z-iterators-generators",
+  "submittedAt": "2026-05-10T22:46:23.833Z",
+  "semester": "Spring 2026",
+  "course": "CS 61A",
+  "status": "graded",
+  "problem": {
+    "course": "CS 61A",
+    "semester": "Spring 2026",
+    "topic": "Iterators & Generators",
+    "problemType": "What Would Python Display? (WWPD)",
+    "difficulty": "medium",
+    "problem": "For each of the following expressions, write the output displayed by the interactive Python interpreter when the expression is evaluated. The output may have multiple lines. If an error occurs, write \"ERROR\". If the interpreter would generate an iterator or generator object, write \"Iterator\" or \"Generator\" respectively. Assume the code is entered into a standard Python interpreter, one line at a time, in the order shown.\n\n>>> def gen_repeater(n):\n...     def repeat(x):\n...         for _ in range(n):\n...             yield x\n...     return repeat\n>>> f = gen_repeater(3)\n>>> g = f(5)\n>>> next(g)\n>>> next(g)\n>>> list(g)\n>>> h = f(7)\n>>> sum(h)\n>>> sum(h)",
+    "answerParts": [
+      "next(g) [first call]",
+      "next(g) [second call]",
+      "list(g)",
+      "sum(h) [first call]",
+      "sum(h) [second call]"
+    ],
+    "needsDrawing": false,
+    "expectedAnswer": "next(g) [first call]: 5\nnext(g) [second call]: 5\nlist(g): [5]\nsum(h) [first call]: 21\nsum(h) [second call]: 0\n\nExplanation:\n- gen_repeater(3) returns the function repeat, which when called creates a generator that yields its argument 3 times.\n- f(5) creates generator g that will yield 5 three times.\n- First next(g) yields 5 (1 of 3 yields consumed).\n- Second next(g) yields 5 (2 of 3 yields consumed).\n- list(g) consumes the remaining generator, yielding 5 one more time, so returns [5].\n- h = f(7) creates a new generator that will yield 7 three times.\n- sum(h) consumes the generator: 7 + 7 + 7 = 21. After this, h is exhausted.\n- sum(h) on an exhausted generator returns 0 (sum of empty sequence).",
+    "gradingRubric": [
+      "First next(g) returns 5 (1 point)",
+      "Second next(g) returns 5 (1 point)",
+      "list(g) returns [5], recognizing only one element remains after two next() calls (2 points)",
+      "First sum(h) returns 21, correctly adding 7 three times (2 points)",
+      "Second sum(h) returns 0, recognizing generator exhaustion - this is the key trap testing iterator consumption (3 points)"
+    ],
+    "id": "2026-05-10T22-43-50-041Z-iterators-generators",
+    "generatedAt": "2026-05-10T22:43:50.041Z"
+  },
+  "answers": {
+    "next(g) [first call]": "5",
+    "next(g) [second call]": "5",
+    "list(g)": "ERROR",
+    "sum(h) [first call]": "7",
+    "sum(h) [second call]": "14"
+  },
+  "drawingDataUrl": null,
+  "grading": {
+    "scorePercent": 31,
+    "briefFeedback": "You correctly handled the two next(g) calls, but missed how generator consumption affects later results. The main issues are that list(g) should return the remaining value, and sum(h) should consume the generator fully the first time and then return 0 the second time.",
+    "strengths": [
+      "Correctly identified both next(g) outputs as 5"
+    ],
+    "improvements": [
+      "Remember that iterators/generators are exhausted as they are consumed",
+      "list(g) should show the remaining yielded values, not ERROR",
+      "sum(h) on a fresh generator should add all three 7s, then a second sum(h) should be 0"
+    ],
+    "weaknessSignals": [
+      "generator exhaustion",
+      "iterator consumption",
+      "sum on generators",
+      "remaining elements after partial iteration"
+    ],
+    "exampleSolution": "next(g) -> 5\nnext(g) -> 5\nlist(g) -> [5]\nsum(h) -> 21\nsum(h) -> 0"
+  },
+  "score": 31,
+  "feedback": "You correctly handled the two next(g) calls, but missed how generator consumption affects later results. The main issues are that list(g) should return the remaining value, and sum(h) should consume the generator fully the first time and then return 0 the second time.",
+  "gradingError": null
+}

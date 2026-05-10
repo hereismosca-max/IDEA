@@ -1,0 +1,22 @@
+{
+  "course": "CS 61A",
+  "semester": "Spring 2026",
+  "topic": "Iterators & Generators",
+  "problemType": "What Would Python Display (WWPD)",
+  "difficulty": "medium",
+  "problem": "Consider the following Python code:\n\n```python\ndef gen_filter(pred, s):\n    for x in s:\n        if pred(x):\n            yield x\n\ndef gen_map(f, s):\n    for x in s:\n        yield f(x)\n\ndef process(n):\n    print(f'Processing {n}')\n    return n * 2\n\ng1 = gen_filter(lambda x: x > 2, [1, 2, 3, 4])\ng2 = gen_map(process, g1)\nresult = list(g2)\nprint(result)\n\nprint('---')\n\ng3 = gen_filter(lambda x: x % 2 == 0, range(5))\nprint(next(g3))\nprint(next(g3))\nprint(sum(g3))\nprint(sum(g3))\n```\n\nWhat will Python display? Write each line of output in order.",
+  "answerParts": [
+    "Answer"
+  ],
+  "needsDrawing": false,
+  "expectedAnswer": "Processing 3\nProcessing 4\n[6, 8]\n---\n0\n2\n4\n0\n\nExplanation:\n- g1 filters [1,2,3,4] to yield only elements > 2, so it will yield 3, then 4\n- g2 maps process over g1. When list(g2) is called, it forces evaluation:\n  - next(g1) returns 3, process(3) prints 'Processing 3' and returns 6\n  - next(g1) returns 4, process(4) prints 'Processing 4' and returns 8\n  - result = [6, 8]\n- print(result) displays [6, 8]\n- print('---') displays ---\n- g3 filters range(5) = [0,1,2,3,4] for even numbers\n- First next(g3) returns 0\n- Second next(g3) returns 2\n- First sum(g3) consumes remaining elements (4), returns 4\n- Second sum(g3) on exhausted iterator returns 0 (sum of empty sequence)",
+  "gradingRubric": [
+    "Correctly identifies that 'Processing 3' and 'Processing 4' are printed when list(g2) forces generator evaluation (2 points)",
+    "Correctly shows result list as [6, 8] (1 point)",
+    "Correctly shows first two next(g3) calls return 0 and 2 (2 points)",
+    "Correctly identifies that first sum(g3) returns 4 (consumes remaining element) (2 points)",
+    "Correctly identifies that second sum(g3) returns 0 because iterator is exhausted (3 points - key pitfall)"
+  ],
+  "id": "2026-05-10T22-43-49-587Z-iterators-generators",
+  "generatedAt": "2026-05-10T22:43:49.587Z"
+}

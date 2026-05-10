@@ -1,0 +1,25 @@
+{
+  "course": "ECON 100B",
+  "semester": "Spring 2026",
+  "topic": "Solow Model Comparative Statics",
+  "problemType": "Multi-part applied problem with graphical analysis",
+  "difficulty": "medium",
+  "problem": "A major earthquake destroys 40% of the physical capital stock in a small island economy, but the population and labor force remain unchanged. The economy was initially in steady state and follows the standard Solow model with production function Y = ĀK^(1/3)L^(2/3), where Ā = 1, the saving rate s = 0.30, the depreciation rate d = 0.05, and the population growth rate n = 0.02.\n\nPart (a): Draw a clearly labeled Solow diagram showing the initial steady state before the earthquake. Label your axes, draw the production function y = Āk^(1/3), the saving curve sy, and the depreciation line (n+d)k. Mark the initial steady-state capital per worker as k*.\n\nPart (b): Immediately after the earthquake, capital per worker falls to 60% of its steady-state level. On your diagram from part (a), mark this new position as k₀. Does the steady-state value k* itself change after the earthquake? Explain why or why not in 2-3 sentences.\n\nPart (c): Compare the level of investment per worker and the amount of depreciation per worker at the post-earthquake position k₀. Which is larger? Use your diagram to explain what this means for the economy's capital stock over time.\n\nPart (d): Describe what happens to output per worker in (i) the immediate short run right after the earthquake, (ii) during the transition period, and (iii) in the long run once the economy returns to steady state. Be specific about whether output per worker is rising, falling, or constant in each phase.",
+  "answerParts": [
+    "Part (a)",
+    "Part (b)",
+    "Part (c)",
+    "Part (d)"
+  ],
+  "needsDrawing": true,
+  "expectedAnswer": "Part (a): Diagram should show:\n- Horizontal axis labeled 'k' (capital per worker)\n- Vertical axis labeled 'y' (output per worker)\n- Concave production function y = k^(1/3)\n- Saving curve sy = 0.30k^(1/3) below production function\n- Straight depreciation line (n+d)k = 0.07k from origin\n- Intersection point marked as k* where sy = (n+d)k\n- Calculated: k* = (s/(n+d))^(3/2) = (0.30/0.07)^1.5 ≈ 8.78\n\nPart (b): k₀ = 0.60k* should be marked to the left of k* on the k-axis. The steady state k* does NOT change because the earthquake only affects the current capital stock K (a state variable), but does not change any of the parameters of the model (s, d, n, or Ā). The curves sy and (n+d)k remain in the same positions, so their intersection point k* is unchanged.\n\nPart (c): At k₀ (to the left of k*), the saving curve sy lies ABOVE the depreciation line (n+d)k. This means investment per worker (sy) exceeds depreciation per worker ((n+d)k), so net investment is positive. Therefore, the capital stock per worker will grow over time, moving the economy back toward k*.\n\nPart (d): \n(i) Immediate short run: Output per worker falls sharply because y = Āk^(1/3) and k has fallen to 60% of its steady-state value. Since k₀ < k*, we have y₀ < y*.\n(ii) Transition period: Output per worker RISES as the economy accumulates capital and moves from k₀ back toward k*. The growth rate is initially high because k₀ is far below k* (so sy >> (n+d)k), and the growth rate gradually slows as k approaches k*.\n(iii) Long run: Output per worker returns to y* = (k*)^(1/3), the same level as before the earthquake. In steady state, output per worker is constant again (zero growth in per capita terms).",
+  "gradingRubric": [
+    "Part (a) - 6 points: Correct diagram with properly labeled axes (1 pt), production function drawn concave (1 pt), saving curve sy below production function (1 pt), straight depreciation line from origin (1 pt), steady state k* clearly marked at intersection (1 pt), overall neatness and clarity (1 pt)",
+    "Part (b) - 5 points: k₀ correctly marked to left of k* (1 pt), correctly states k* does not change (1 pt), explains that only the state variable K changed, not parameters (2 pts), clear economic reasoning (1 pt)",
+    "Part (c) - 4 points: Correctly identifies that sy > (n+d)k at k₀ (2 pts), explains this means net investment is positive (1 pt), concludes capital per worker will increase over time (1 pt)",
+    "Part (d) - 6 points: Short run - output per worker falls because k fell (2 pts), transition - output per worker rises as k grows back toward k* (2 pts), long run - output per worker returns to original steady state level y* (2 pts)",
+    "Overall clarity and economic intuition (2 points): Answer demonstrates understanding that earthquake creates a level effect with transition dynamics, not a permanent growth effect"
+  ],
+  "id": "2026-05-10T22-27-26-970Z-solow-model-comparative-statics",
+  "generatedAt": "2026-05-10T22:27:26.970Z"
+}

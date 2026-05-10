@@ -1,0 +1,28 @@
+{
+  "course": "CS 61B",
+  "semester": "Spring 2026",
+  "topic": "Graphs - Shortest Path (Dijkstra's Algorithm)",
+  "problemType": "Algorithm Application with Step-by-Step Trace",
+  "difficulty": "medium",
+  "problem": "Consider the following weighted, directed graph:\n\nVertices: A, B, C, D, E\nEdges (format: source -> destination, weight):\nA -> B, 4\nA -> C, 2\nB -> C, 1\nB -> D, 5\nC -> D, 8\nC -> E, 10\nD -> E, 2\nE -> B, 3\n\nYou will run Dijkstra's algorithm to find the shortest path from A to all other vertices.\n\n(a) Show the state of the algorithm after each vertex is finalized (removed from the priority queue). For each step, list:\n   - The vertex being finalized\n   - The current best distances to all vertices (use ∞ for unreached vertices)\n   - The priority queue contents after this step (format: vertex:distance)\n\n(b) What is the shortest path from A to E, and what is its total cost?\n\n(c) After running Dijkstra's from A, you discover that edge (C -> E) actually has weight 3 instead of 10. Without re-running the entire algorithm, determine: Does this change affect the shortest path from A to E? Justify your answer by comparing the path costs.",
+  "answerParts": [
+    "Part (a)",
+    "Part (b)",
+    "Part (c)"
+  ],
+  "needsDrawing": false,
+  "expectedAnswer": "Part (a):\n\nInitial: dist[A]=0, all others=∞, PQ: {A:0}\n\nStep 1: Finalize A\n- Vertex finalized: A\n- Distances: A=0, B=4, C=2, D=∞, E=∞\n- PQ after: {C:2, B:4}\n\nStep 2: Finalize C\n- Vertex finalized: C\n- Distances: A=0, B=4, C=2, D=10, E=12\n- PQ after: {B:4, D:10, E:12}\n\nStep 3: Finalize B\n- Vertex finalized: B\n- Distances: A=0, B=4, C=2, D=9, E=12\n- PQ after: {D:9, E:12}\n\nStep 4: Finalize D\n- Vertex finalized: D\n- Distances: A=0, B=4, C=2, D=9, E=11\n- PQ after: {E:11}\n\nStep 5: Finalize E\n- Vertex finalized: E\n- Distances: A=0, B=4, C=2, D=9, E=11\n- PQ after: {}\n\nPart (b):\nShortest path from A to E: A -> C -> D -> E\nTotal cost: 2 + 8 + 2 = 12... wait, recalculating: A -> C (2) -> D (8) = 10, D -> E (2) = 12. But we updated D through B to 9, so: A -> B (4) -> D (5) = 9, D -> E (2) = 11.\nCorrect answer: A -> B -> D -> E with total cost 11.\n\nPart (c):\nWith edge (C -> E) changed to weight 3:\n- Path through C directly: A -> C -> E = 2 + 3 = 5\n- Original shortest path: A -> B -> D -> E = 11\nYes, this change affects the shortest path. The new shortest path from A to E is A -> C -> E with cost 5, which is better than the original cost of 11.",
+  "gradingRubric": [
+    "Part (a): Correct initial state with A at distance 0 and all others at infinity (1 pt)",
+    "Part (a): Correctly finalizes C before B due to smaller distance (2 pts)",
+    "Part (a): Properly relaxes edges when finalizing each vertex, updating distances correctly (3 pts)",
+    "Part (a): Shows D's distance updated from 10 to 9 when B is finalized (2 pts)",
+    "Part (a): Shows E's distance updated from 12 to 11 when D is finalized (2 pts)",
+    "Part (b): Identifies correct shortest path A -> B -> D -> E (2 pts)",
+    "Part (b): Calculates correct total cost of 11 (1 pt)",
+    "Part (c): Correctly computes new path cost through C as 5 (2 pts)",
+    "Part (c): Concludes that the change does affect the shortest path with proper justification (2 pts)"
+  ],
+  "id": "2026-05-10T22-52-48-922Z-graphs-shortest-path-dijkstra-s-algorithm",
+  "generatedAt": "2026-05-10T22:52:48.922Z"
+}
