@@ -1,0 +1,29 @@
+{
+  "course": "CS 61B",
+  "semester": "Spring 2026",
+  "topic": "Graphs - Dijkstra's Algorithm",
+  "problemType": "Algorithm Application with Trace",
+  "difficulty": "medium",
+  "problem": "Consider the following weighted, directed graph:\n\nVertices: A, B, C, D, E\nEdges (format: source -> destination, weight):\nA -> B, 4\nA -> C, 2\nB -> C, 1\nB -> D, 5\nC -> D, 8\nC -> E, 10\nD -> E, 2\nE -> B, 3\n\nRun Dijkstra's algorithm to find the shortest path from A to all other vertices.\n\n(a) Show the contents of the priority queue (fringe) and the distance array after each vertex is removed from the priority queue. Use the format:\n\nRemoved: [vertex]\nDistances: A=__, B=__, C=__, D=__, E=__ (use ∞ for unreached vertices)\nPQ contains: [list vertices with their current distances]\n\n(b) List the shortest path from A to E and its total cost.\n\n(c) After running Dijkstra's from A, you discover a new edge A -> E with weight 20 needs to be added to the graph. Without re-running the entire algorithm, can you determine if this edge would change the shortest path from A to E? Briefly explain why or why not.",
+  "answerParts": [
+    "Part (a)",
+    "Part (b)",
+    "Part (c)"
+  ],
+  "needsDrawing": false,
+  "expectedAnswer": "Part (a):\n\nInitial state:\nDistances: A=0, B=∞, C=∞, D=∞, E=∞\nPQ contains: A(0)\n\nRemoved: A\nDistances: A=0, B=4, C=2, D=∞, E=∞\nPQ contains: C(2), B(4)\n\nRemoved: C\nDistances: A=0, B=3, C=2, D=10, E=12\nPQ contains: B(3), B(4), D(10), E(12)\n[Note: B(4) remains but B(3) is the updated distance]\n\nRemoved: B (with distance 3)\nDistances: A=0, B=3, C=2, D=8, E=12\nPQ contains: D(8), D(10), E(12)\n\nRemoved: D (with distance 8)\nDistances: A=0, B=3, C=2, D=8, E=10\nPQ contains: E(10), E(12)\n\nRemoved: E (with distance 10)\nDistances: A=0, B=3, C=2, D=8, E=10\nPQ contains: E(12)\n\nPart (b):\nShortest path from A to E: A -> C -> B -> D -> E\nTotal cost: 2 + 1 + 5 + 2 = 10\n\nPart (c):\nNo, this edge would not change the shortest path from A to E. The new edge has weight 20, which is greater than the already-found shortest distance of 10 from A to E. Since Dijkstra's algorithm finds the shortest path and we already have a path of cost 10, adding an edge of cost 20 cannot improve the shortest path.",
+  "gradingRubric": [
+    "Part (a): Initial state correct with A=0, all others ∞ (1 pt)",
+    "Part (a): After removing A, correctly updates B=4 and C=2 (2 pts)",
+    "Part (a): After removing C, correctly updates B=3 (relaxation), D=10, E=12 (3 pts)",
+    "Part (a): After removing B, correctly updates D=8 (relaxation via B) (2 pts)",
+    "Part (a): After removing D, correctly updates E=10 (final relaxation) (2 pts)",
+    "Part (a): Shows understanding that PQ may contain outdated entries (1 pt for acknowledgment)",
+    "Part (b): Correct shortest path A -> C -> B -> D -> E (2 pts)",
+    "Part (b): Correct total cost of 10 (1 pt)",
+    "Part (c): States that new edge would not change shortest path (1 pt)",
+    "Part (c): Correctly explains that 20 > 10, so new edge cannot improve the path (2 pts)"
+  ],
+  "id": "2026-05-10T20-58-33-610Z-graphs-dijkstra-s-algorithm",
+  "generatedAt": "2026-05-10T20:58:33.610Z"
+}

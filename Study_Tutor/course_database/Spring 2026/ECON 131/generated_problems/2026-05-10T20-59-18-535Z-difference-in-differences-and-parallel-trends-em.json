@@ -1,0 +1,24 @@
+{
+  "course": "ECON 131",
+  "semester": "Spring 2026",
+  "topic": "Difference-in-Differences and Parallel Trends (Empirical Tools)",
+  "problemType": "Empirical Application / Study Interpretation",
+  "difficulty": "medium",
+  "problem": "A researcher wants to study the effect of a new state sales tax on retail employment. The state of Oregon introduced a 5% sales tax in January 2020, while neighboring Washington had no sales tax throughout the study period. The researcher collects quarterly data on retail employment (thousands of workers) from 2018Q1 through 2021Q4 for both states.\n\nThe data show:\n- Oregon: Average retail employment was 180 (thousands) in 2018-2019 (pre-period) and 165 in 2020-2021 (post-period).\n- Washington: Average retail employment was 220 in 2018-2019 and 210 in 2020-2021.\n\nThe researcher estimates the following difference-in-differences regression:\nRetail Employment = α + β(Oregon) + γ(Post-2020) + δ(Oregon × Post-2020) + error\n\nThe estimated coefficient δ = -5.0 (statistically significant at the 5% level).\n\n(a) What is the causal question this study addresses? What is the treatment and control group?\n\n(b) Using the averages provided, manually calculate the difference-in-differences estimate and verify it matches the reported δ coefficient. Show your work.\n\n(c) What key assumption must hold for this difference-in-differences design to produce a valid causal estimate? Explain what evidence the researcher should examine to assess whether this assumption is plausible.\n\n(d) Identify one potential threat to internal validity in this study. Be specific about why this threat matters for causal interpretation.",
+  "answerParts": [
+    "Part (a)",
+    "Part (b)",
+    "Part (c)",
+    "Part (d)"
+  ],
+  "needsDrawing": false,
+  "expectedAnswer": "(a) Causal question: What is the effect of implementing a state sales tax on retail employment? Treatment group: Oregon (received sales tax). Control group: Washington (no sales tax).\n\n(b) Difference-in-differences calculation:\n- Change in Oregon (treatment): 165 - 180 = -15\n- Change in Washington (control): 210 - 220 = -10\n- DiD estimate: (-15) - (-10) = -5.0 thousand workers\nThis matches the δ coefficient of -5.0, indicating the sales tax caused a loss of 5,000 retail jobs in Oregon.\n\n(c) The parallel trends assumption must hold: In the absence of treatment, Oregon and Washington would have experienced the same trend in retail employment. Evidence to examine: Plot pre-treatment trends (2018Q1-2019Q4) for both states. If trends are parallel before 2020, the assumption is more plausible. An event study plot showing flat coefficients in pre-periods would support this. Also check for differential pre-existing shocks.\n\n(d) Potential threats:\n- COVID-19 pandemic: Both states experienced the pandemic starting March 2020, which coincides with the treatment period. If Oregon and Washington were differentially affected by COVID (e.g., different lockdown policies, industry composition, border shopping patterns), the estimated effect confounds the sales tax impact with differential pandemic responses. This violates parallel trends in the treatment period.\n- Cross-border shopping: Washington consumers near the Oregon border might shift shopping to Oregon to avoid... wait, Oregon introduced the tax, so they'd shift away. This could amplify the measured employment loss beyond the direct tax effect.\n- Other concurrent policies: If Oregon implemented other business regulations or minimum wage changes in 2020, these confound the sales tax effect.",
+  "gradingRubric": [
+    "Part (a) - 6 points: Correctly identifies causal question as effect of sales tax on retail employment (3 pts). Correctly identifies Oregon as treatment and Washington as control (3 pts).",
+    "Part (b) - 8 points: Correct calculation of Oregon change = -15 (2 pts), Washington change = -10 (2 pts), DiD = -5 (2 pts), shows formula/work clearly (2 pts). Partial credit if arithmetic error but method correct.",
+    "Part (c) - 10 points: States parallel trends assumption (3 pts). Explains it means same counterfactual trend without treatment (3 pts). Describes examining pre-treatment trends visually or via event study (4 pts). Full credit requires mention of checking pre-period, not just stating the assumption name.",
+    "Part (d) - 6 points: Identifies a specific, plausible threat (3 pts). Explains why it threatens causal interpretation by violating identification assumptions or creating confounding (3 pts). Examples: COVID-19 differential impact, other concurrent state policies, cross-border effects, differential economic shocks. No credit for vague answers like 'maybe other things happened' without specificity."
+  ],
+  "id": "2026-05-10T20-59-18-535Z-difference-in-differences-and-parallel-trends-em",
+  "generatedAt": "2026-05-10T20:59:18.535Z"
+}

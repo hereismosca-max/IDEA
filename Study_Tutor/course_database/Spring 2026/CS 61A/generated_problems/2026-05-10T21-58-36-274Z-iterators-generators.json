@@ -1,0 +1,27 @@
+{
+  "course": "CS 61A",
+  "semester": "Spring 2026",
+  "topic": "Iterators & Generators",
+  "problemType": "What Would Python Display (WWPD)",
+  "difficulty": "medium",
+  "problem": "For each of the following expressions, write the output displayed by the interactive Python interpreter when the expression is evaluated. The output may have multiple lines. If an error occurs, write ERROR. If the interpreter would display nothing, write NOTHING. If the interpreter would display an iterator or generator object, write ITERATOR or GENERATOR respectively.\n\nAssume the following code has been executed:\n\n```python\ndef generate_pairs(n):\n    i = 0\n    while i < n:\n        yield (i, i * 2)\n        i += 1\n\ndef process(gen):\n    for x, y in gen:\n        if x > 0:\n            yield y\n        print(x)\n\ndata = generate_pairs(3)\nresult = process(data)\n```\n\nNow evaluate each expression:\n\n(a) `data`\n\n(b) `next(data)`\n\n(c) `next(result)`\n\n(d) `next(result)`\n\n(e) `list(result)`",
+  "answerParts": [
+    "Part (a)",
+    "Part (b)",
+    "Part (c)",
+    "Part (d)",
+    "Part (e)"
+  ],
+  "needsDrawing": false,
+  "expectedAnswer": "(a) GENERATOR\n\n(b) (0, 0)\n\n(c) 0\nNOTHING\n\n(d) 1\n2\n\n(e) [4]",
+  "gradingRubric": [
+    "Part (a): Correctly identifies that 'data' is a GENERATOR object (1 point)",
+    "Part (b): Correctly returns (0, 0) as the first yielded tuple from generate_pairs (1 point)",
+    "Part (c): Correctly identifies that print(0) displays 0, and the function yields nothing on this iteration because x=0 fails the condition, so NOTHING is displayed as the result of next() (2 points; partial credit for showing 0 but missing NOTHING)",
+    "Part (d): Correctly shows that print(1) displays 1, then yield 2 returns 2 (2 points; 1 point for each line)",
+    "Part (e): Correctly returns [4] because the remaining element in data is (2, 4), which satisfies x > 0, so 4 is yielded; also must recognize that 2 is printed but list() only collects yielded values (2 points; deduct 1 if [2, 4] or missing the print side-effect)",
+    "Overall: Must demonstrate understanding of generator lazy evaluation, yield vs print distinction, and iterator consumption (deduct 1-2 points for conceptual confusion about when generators execute)"
+  ],
+  "id": "2026-05-10T21-58-36-274Z-iterators-generators",
+  "generatedAt": "2026-05-10T21:58:36.274Z"
+}

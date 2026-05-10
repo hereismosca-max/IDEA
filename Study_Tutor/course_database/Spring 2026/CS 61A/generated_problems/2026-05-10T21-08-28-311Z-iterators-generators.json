@@ -1,0 +1,30 @@
+{
+  "course": "CS 61A",
+  "semester": "Spring 2026",
+  "topic": "Iterators & Generators",
+  "problemType": "What Would Python Display (WWPD)",
+  "difficulty": "medium",
+  "problem": "What would Python display for each of the following expressions? If an expression produces an error, write ERROR. If an expression produces a generator or iterator object (not the values it yields), write Generator or Iterator as appropriate.\n\n```python\ndef skip_even(s):\n    for item in s:\n        if item % 2 != 0:\n            yield item\n\ndef double_yield(n):\n    yield n\n    yield n * 2\n\ng = skip_even([1, 2, 3, 4, 5])\nh = double_yield(10)\nk = map(lambda x: x + 1, g)\n```\n\nExpression (a): `next(g)`\n\nExpression (b): `next(h)`\n\nExpression (c): `next(k)`\n\nExpression (d): `next(g)`\n\nExpression (e): `list(h)`\n\nExpression (f): `list(k)`\n\nExpression (g): `next(g)`",
+  "answerParts": [
+    "Expression (a)",
+    "Expression (b)",
+    "Expression (c)",
+    "Expression (d)",
+    "Expression (e)",
+    "Expression (f)",
+    "Expression (g)"
+  ],
+  "needsDrawing": false,
+  "expectedAnswer": "Expression (a): 1\nExpression (b): 10\nExpression (c): 4\nExpression (d): 3\nExpression (e): [20]\nExpression (f): [6]\nExpression (g): 5",
+  "gradingRubric": [
+    "Expression (a): Correctly identifies first odd number yielded is 1 (1 point)",
+    "Expression (b): Correctly identifies first yield from double_yield is 10 (1 point)",
+    "Expression (c): Correctly traces that next(k) consumes next(g)=3, then map applies lambda to get 4 (2 points)",
+    "Expression (d): Correctly identifies next odd number after 3 is 5, but student may incorrectly answer 5 if they didn't track that expression (c) already consumed 3 - correct answer is 3 was already consumed, so this returns 5. Award full credit for 5. (1 point)",
+    "Expression (e): Correctly identifies that h has already yielded 10, so list(h) gets remaining value [20] (2 points)",
+    "Expression (f): Correctly identifies that g has yielded 1, 3, and k consumed one more (3), so remaining odd is 5, mapped to 6, giving [6]. This requires tracking iterator state across multiple operations. (2 points)",
+    "Expression (g): Correctly identifies that after all previous operations, g has yielded 1, 3, 5, so next call returns 5. However, if student tracked that expression (f) consumed 5, they should answer ERROR or recognize no more odds remain. Correct answer: 5 is still available. Award full credit for recognizing iterator exhaustion dependency. (1 point)"
+  ],
+  "id": "2026-05-10T21-08-28-311Z-iterators-generators",
+  "generatedAt": "2026-05-10T21:08:28.311Z"
+}

@@ -1,0 +1,34 @@
+{
+  "course": "CS 61A",
+  "semester": "Spring 2026",
+  "topic": "Iterators & Generators",
+  "problemType": "What Would Python Display (WWPD)",
+  "difficulty": "medium",
+  "problem": "What would Python display for each of the following expressions? If an expression produces an error, write ERROR. If an expression produces a generator or iterator object, write GENERATOR or ITERATOR respectively. If the expression would run forever, write INFINITE.\n\n>>> def gen_mystery(n):\n...     print('Start:', n)\n...     while n > 0:\n...         yield n\n...         n -= 2\n...         print('Continue:', n)\n>>> g = gen_mystery(5)\n>>> next(g)\n>>> next(g)\n>>> def double_yield(lst):\n...     for item in lst:\n...         yield item\n...         yield item\n>>> gen1 = double_yield([1, 2])\n>>> next(gen1)\n>>> list(gen1)\n>>> sum(gen_mystery(4))\n>>> sum(gen_mystery(4))",
+  "answerParts": [
+    "Part (a): g = gen_mystery(5)",
+    "Part (b): next(g) [first call]",
+    "Part (c): next(g) [second call]",
+    "Part (d): gen1 = double_yield([1, 2])",
+    "Part (e): next(gen1)",
+    "Part (f): list(gen1)",
+    "Part (g): sum(gen_mystery(4)) [first call]",
+    "Part (h): sum(gen_mystery(4)) [second call]"
+  ],
+  "needsDrawing": false,
+  "expectedAnswer": "Part (a): GENERATOR\nPart (b): Start: 5\n5\nPart (c): Continue: 3\n3\nPart (d): GENERATOR\nPart (e): 1\nPart (f): [1, 2, 2]\nPart (g): Start: 4\nContinue: 2\nContinue: 0\n6\nPart (h): Start: 4\nContinue: 2\nContinue: 0\n6",
+  "gradingRubric": [
+    "Part (a): Correctly identifies that gen_mystery returns a GENERATOR object (1 point)",
+    "Part (b): Recognizes that first next() call prints 'Start: 5' and returns 5 (2 points: 1 for print output, 1 for return value)",
+    "Part (c): Recognizes that second next() call prints 'Continue: 3' and returns 3 (2 points: 1 for print output, 1 for return value)",
+    "Part (d): Correctly identifies that double_yield returns a GENERATOR object (1 point)",
+    "Part (e): Correctly identifies that first next() on gen1 returns 1 (1 point)",
+    "Part (f): Understands that list() exhausts the remaining generator and yields 1 again, then 2, then 2, producing [1, 2, 2] (2 points)",
+    "Part (g): Recognizes that sum() exhausts the generator, printing all output and returning 6 (2 points: 1 for all print statements, 1 for sum)",
+    "Part (h): Understands that a fresh generator is created and produces the same output as part (g) - generators are not cached (2 points)",
+    "Distinguishes between generator creation (no execution) and generator consumption via next() or consuming functions (2 points for overall understanding)",
+    "Recognizes that print statements inside generators only execute when values are yielded/requested (1 point)"
+  ],
+  "id": "2026-05-10T21-03-36-208Z-iterators-generators",
+  "generatedAt": "2026-05-10T21:03:36.208Z"
+}

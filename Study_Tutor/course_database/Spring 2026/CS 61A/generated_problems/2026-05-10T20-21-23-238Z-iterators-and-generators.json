@@ -1,0 +1,23 @@
+{
+  "course": "CS 61A",
+  "semester": "Spring 2026",
+  "topic": "Iterators and Generators",
+  "problemType": "What Would Python Display (WWPD)",
+  "difficulty": "medium",
+  "problem": "For each of the following expressions, write the output displayed by the interactive Python interpreter when the expression is evaluated. The output may have multiple lines. If an error occurs, write ERROR. If the displayed value is a function object, write Function. If the displayed value is a generator object, write Generator. If the displayed value is an iterator object, write Iterator. If nothing is displayed, write Nothing.\n\n>>> def generate_pairs(n):\n...     i = 0\n...     while i < n:\n...         yield (i, i * 2)\n...         i += 1\n\n>>> gen = generate_pairs(3)\n>>> next(gen)\n\n>>> def process(g):\n...     for x, y in g:\n...         print(x + y)\n...     return sum([x for x, y in g])\n\n>>> result = process(gen)\n\n>>> print(result)\n\n>>> gen2 = generate_pairs(2)\n>>> list(gen2) + list(gen2)",
+  "answerParts": [
+    "Expression 1: next(gen)",
+    "Expression 2: result = process(gen)",
+    "Expression 3: print(result)",
+    "Expression 4: list(gen2) + list(gen2)"
+  ],
+  "needsDrawing": false,
+  "expectedAnswer": "Expression 1: (0, 0)\n\nExpression 2: Prints two lines:\n2\n3\n(The function processes the remaining two pairs (1, 2) and (2, 4), printing 3 and 6. Then it attempts to sum over g again, but the generator is exhausted, so the sum is 0. Nothing is displayed by the assignment itself.)\n\nExpression 3: 0\n(The result variable holds 0 because the generator was exhausted during the second iteration in process())\n\nExpression 4: [(0, 0), (1, 2)]\n(The first list(gen2) consumes the generator entirely, producing [(0, 0), (1, 2)]. The second list(gen2) produces [] because the generator is exhausted. The concatenation is [(0, 0), (1, 2)] + [] = [(0, 0), (1, 2)])",
+  "gradingRubric": [
+    "Expression 1 (2 pts): Correctly identifies that next(gen) returns the first yielded value (0, 0)",
+    "Expression 2 (3 pts): Recognizes that process(gen) prints 3 and 6 on separate lines as it iterates through the remaining two pairs; understands that the second iteration over g in the sum comprehension produces no values because the generator is exhausted",
+    "Expression 3 (2 pts): Correctly identifies that print(result) displays 0, understanding that the sum of an empty sequence is 0",
+    "Expression 4 (3 pts): Correctly identifies that the first list(gen2) exhausts the generator producing [(0, 0), (1, 2)], the second list(gen2) produces an empty list [], and concatenation yields [(0, 0), (1, 2)]",
+    "Deduct 1 pt for each incorrect expression; partial credit for Expression 2 if print output is correct but sum logic is wrong"
+  ]
+}

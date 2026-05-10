@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ECON 100B — Macroeconomics — Study Guide</title>
+<style>
+
+:root {
+  --accent: #1f3a5f;
+  --accent-soft: #5b7f2e;
+  --soft-bg: #f6f4ef;
+  --code-bg: #f3f3f3;
+  --border: #d8d2c6;
+  --text: #222;
+  --muted: #555;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  padding: 0;
+  font-family: Georgia, "Charter", "Iowan Old Style", serif;
+  font-size: 16px;
+  line-height: 1.55;
+  color: var(--text);
+  background: #fbfaf6;
+}
+.wrap {
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 36px 28px 80px 28px;
+}
+.cover {
+  text-align: center;
+  padding: 40px 0 28px 0;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 28px;
+}
+.cover h1 {
+  font-family: "Helvetica Neue", -apple-system, sans-serif;
+  font-size: 36px;
+  margin: 0 0 8px 0;
+  color: var(--accent);
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+.cover .subtitle {
+  font-size: 19px;
+  color: var(--muted);
+  font-style: italic;
+  margin: 0;
+}
+.cover .meta {
+  margin-top: 18px;
+  font-size: 14px;
+  color: var(--muted);
+}
+h1, h2, h3, h4 {
+  font-family: "Helvetica Neue", -apple-system, sans-serif;
+  color: var(--accent);
+  margin-top: 1.6em;
+  margin-bottom: 0.4em;
+  line-height: 1.25;
+}
+h1 { font-size: 28px; border-bottom: 2px solid var(--accent); padding-bottom: 8px; }
+h2 {
+  font-size: 22px;
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+  padding-right: 24px;
+}
+h2::after {
+  content: "▾";
+  position: absolute;
+  right: 4px;
+  top: 4px;
+  font-size: 14px;
+  color: var(--muted);
+  transition: transform 0.15s ease;
+}
+h2.collapsed::after { transform: rotate(-90deg); }
+h3 {
+  font-size: 17px;
+  color: var(--accent-soft);
+  margin-top: 1.4em;
+  border-left: 3px solid var(--accent-soft);
+  padding-left: 10px;
+}
+h4 { font-size: 15px; color: var(--accent); }
+p { margin: 0.7em 0; }
+em { color: #444; }
+strong { color: var(--text); }
+ul, ol { margin: 0.5em 0; padding-left: 1.6em; }
+li { margin: 0.25em 0; }
+hr { border: 0; border-top: 1px solid var(--border); margin: 28px 0; }
+a { color: var(--accent); text-decoration: none; border-bottom: 1px dotted var(--accent); }
+a:hover { border-bottom-style: solid; }
+code, pre { font-family: "SF Mono", Menlo, Consolas, monospace; }
+code {
+  background: var(--code-bg);
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-size: 0.92em;
+}
+pre {
+  background: var(--code-bg);
+  padding: 14px 16px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  overflow-x: auto;
+  font-size: 13.5px;
+  line-height: 1.45;
+}
+pre code { background: transparent; padding: 0; font-size: inherit; }
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 16px 0;
+  font-size: 14.5px;
+}
+th, td {
+  border: 1px solid var(--border);
+  padding: 8px 12px;
+  text-align: left;
+  vertical-align: top;
+}
+th { background: var(--accent); color: white; font-weight: 600; font-family: "Helvetica Neue", sans-serif; }
+tr:nth-child(even) td { background: var(--soft-bg); }
+.diagram, figure {
+  margin: 22px auto;
+  text-align: center;
+}
+.diagram-svg {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+  background: white;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+.toc {
+  background: var(--soft-bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 16px 22px;
+  margin: 24px 0;
+}
+.toc h2 {
+  font-size: 18px;
+  margin: 0 0 8px 0;
+  cursor: default;
+  padding: 0;
+}
+.toc h2::after { display: none; }
+.toc ol { margin: 8px 0; padding-left: 24px; }
+.toc a { font-size: 14px; }
+mjx-container { font-size: 1.05em !important; }
+mjx-container[display="true"] { margin: 0.8em 0 !important; }
+.callout {
+  background: var(--soft-bg);
+  border-left: 4px solid var(--accent-soft);
+  padding: 10px 14px;
+  margin: 12px 0;
+  font-size: 14.5px;
+}
+@media print {
+  body { background: white; font-size: 11pt; }
+  .wrap { max-width: 100%; padding: 0; }
+  h2 { cursor: default; page-break-after: avoid; }
+  h2::after { display: none; }
+  pre, table, .diagram { page-break-inside: avoid; }
+}
+
+</style>
+<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [['\\(','\\)']],
+    displayMath: [['\\[','\\]']],
+    processEscapes: true
+  },
+  svg: { fontCache: 'global' },
+  options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code'] }
+};
+</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<div class="wrap">
+<h1 id="econ-100b-macroeconomics">ECON 100B — Macroeconomics</h1>
+<h2 id="exam-level-study-guide">Exam-Level Study Guide</h2>
+<p><strong>Course:</strong> Economics 100B — Macroeconomics
+<strong>Instructor:</strong> Ryan D. Edwards
+<strong>Textbook:</strong> Charles I. Jones, <em>Macroeconomics</em> (6th ed., Norton)
+<strong>Final exam:</strong> Monday, May 11, 2026 — 3:00–4:30 PM PT (90 min) — Pimentel 1
+<strong>Format:</strong> In-person, written. Short-answer + problems. Closed-book; cheat sheet allowed (verify policy on bCourses).</p>
+<p><strong>How to use this guide.</strong> Each topic block follows the same shape:</p>
+<ul>
+<li><strong>Definition</strong> — formal one-line statement.</li>
+<li><strong>Plain English</strong> — what it actually means and why it matters.</li>
+<li><strong>Formulas</strong> — copy these exactly; they are the cheat-sheet candidates.</li>
+<li><strong>Variables</strong> — what every symbol means.</li>
+<li><strong>Diagram</strong> — ASCII where geometry is the lesson; prose where ASCII can't capture the curvature.</li>
+<li><strong>Exam patterns / pitfalls</strong> — what Jones-style finals do with this concept.</li>
+</ul>
+<hr />
+<h2 id="table-of-contents">Table of Contents</h2>
+<ol>
+<li>Macroeconomic Measurement</li>
+<li>The Long Run and Cross-Country Income Differences</li>
+<li>The Production Model (Cobb–Douglas)</li>
+<li>The Solow Growth Model</li>
+<li>Endogenous Growth (Romer Model)</li>
+<li>The Labor Market</li>
+<li>Inflation</li>
+<li>The Short Run and the Output Gap</li>
+<li>Macro-clysms — Recessions and Crises (Case Studies)</li>
+<li>The IS Curve</li>
+<li>Monetary Policy and the Phillips Curve</li>
+<li>Stabilization Policy (IS-MP-PC Together)</li>
+<li>Financial Crises</li>
+<li>Government Debt Dynamics</li>
+<li>International Trade</li>
+<li>Exchange Rates and International Finance</li>
+</ol>
+<hr />
+<h1 id="1-macroeconomic-measurement">1. Macroeconomic Measurement</h1>
+<p><em>[Lec 02, Jones Ch 2]</em></p>
+<h3 id="gdp-gross-domestic-product">GDP — Gross Domestic Product</h3>
+<p><strong>Definition.</strong> The market value of all final goods and services produced within a country in a given period.
+<em>Plain English.</em> Add up the dollar value of everything produced inside the country's borders this year. "Final" means we don't double-count inputs (the steel that went into a car is not counted separately from the car).</p>
+<p><strong>Formulas (three equivalent approaches):</strong></p>
+<ul>
+<li>Expenditure: \(Y = C + I + G + NX\)</li>
+<li>Income: \(Y = wages + profits + rents + interest\)</li>
+<li>Production (value-added): \(Y = \Sigma (sales - intermediate inputs)\) across all firms</li>
+</ul>
+<p><strong>Variables.</strong></p>
+<ul>
+<li><code>Y</code> = nominal GDP</li>
+<li><code>C</code> = consumption (households)</li>
+<li><code>I</code> = investment (firms' capital purchases + inventories + residential)</li>
+<li><code>G</code> = government purchases (not transfers)</li>
+<li><code>NX</code> = net exports = exports − imports</li>
+</ul>
+<p><strong>Exam patterns / pitfalls.</strong></p>
+<ul>
+<li>Transfer payments (Social Security, unemployment) are NOT in GDP — they're not production.</li>
+<li>Used goods are NOT in GDP — already counted when first produced.</li>
+<li>Intermediate inputs are NOT in GDP — only final goods count.</li>
+</ul>
+<h3 id="real-vs-nominal-gdp">Real vs Nominal GDP</h3>
+<p><strong>Definition.</strong> Nominal GDP uses current-period prices. Real GDP uses base-year prices (or chain-weighted prices) to strip out inflation.
+<em>Plain English.</em> If you produce the same number of cars but the price doubles, nominal GDP doubles but real GDP is unchanged. Real GDP measures actual quantities; nominal GDP confuses quantity with price.</p>
+<p><strong>Formulas.</strong></p>
+<ul>
+<li>\(Real GDP_t = \Sigma (Q_t \times P_{base})\)</li>
+<li><code>GDP Deflator = (Nominal GDP / Real GDP) × 100</code></li>
+<li><code>Inflation rate (deflator) = (Deflator_t − Deflator_{t−1}) / Deflator_{t−1}</code></li>
+</ul>
+<h3 id="cpi-consumer-price-index">CPI — Consumer Price Index</h3>
+<p><strong>Definition.</strong> A price index measuring the cost of a fixed basket of consumer goods over time.
+<em>Plain English.</em> Pick a typical household's basket once, then track how expensive that exact basket gets each year.</p>
+<p><strong>Formulas.</strong></p>
+<ul>
+<li><code>CPI_t = (cost of basket at year t / cost of basket at base year) × 100</code></li>
+<li><code>Inflation rate (CPI) = (CPI_t − CPI_{t−1}) / CPI_{t−1}</code></li>
+</ul>
+<p><strong>Pitfalls.</strong> CPI ≠ deflator. CPI is a Laspeyres index (fixed basket) and tends to overstate inflation due to substitution bias. The deflator is a Paasche-like index using current quantities.</p>
+<h3 id="unemployment-rate">Unemployment Rate</h3>
+<p><strong>Definition.</strong> Fraction of the labor force that is unemployed.
+<em>Plain English.</em> Of the people who want a job, how many can't find one.</p>
+<p><strong>Formulas.</strong></p>
+<ul>
+<li>\(Labor force = Employed + Unemployed\)</li>
+<li>\(u = Unemployed / Labor force\)</li>
+<li>\(Labor force participation rate = Labor force / Working-age population\)</li>
+</ul>
+<p><strong>Pitfalls.</strong> Discouraged workers (gave up looking) drop out of the labor force entirely → measured <code>u</code> falls even though labor market got worse. Always check the participation rate alongside <code>u</code>.</p>
+<hr />
+<h1 id="2-the-long-run-and-cross-country-income-differences">2. The Long Run and Cross-Country Income Differences</h1>
+<p><em>[Lec 03, Jones Ch 3]</em></p>
+<h3 id="cross-country-income-facts-stylized">Cross-country income facts (stylized)</h3>
+<p><strong>Definition.</strong> GDP per capita varies enormously across countries — by factor of 50+ between richest and poorest.
+<em>Plain English.</em> The reason a typical American is much richer than a typical citizen of a poor country is not that Americans work harder. It's that they have more capital, better technology, and better institutions.</p>
+<h3 id="rule-of-70">Rule of 70</h3>
+<p><strong>Definition.</strong> A growth rate of <code>g%</code> per year doubles a quantity in approximately <code>70/g</code> years.
+<em>Plain English.</em> Quick mental tool. 2% growth → doubles in ~35 years. 7% growth → doubles in ~10 years. Compounding is brutal over decades.</p>
+<p><strong>Formula.</strong></p>
+<ul>
+<li>\(Doubling time \approx ln(2)/g \approx 0.693/g \approx 70/(g \times 100)\) years</li>
+</ul>
+<p><strong>Exam pattern.</strong> "Country A grows at 2%, country B at 4%. After 70 years, B is 4× richer." (B doubles twice in 70 years; A doubles once.)</p>
+<h3 id="growth-rate-of-a-ratio-product-log-approximation">Growth rate of a ratio / product (log approximation)</h3>
+<p><strong>Formulas.</strong></p>
+<ul>
+<li>\(g(X \cdot Y) \approx g(X) + g(Y)\)</li>
+<li>\(g(X/Y) \approx g(X) - g(Y)\)</li>
+<li>\(g(X^a) \approx a \cdot g(X)\)</li>
+</ul>
+<p><strong>Plain English.</strong> Growth rates of products/ratios add or subtract, and exponents multiply through. This is just <code>d(ln X)/dt</code>.</p>
+<hr />
+<h1 id="3-the-production-model-cobbdouglas">3. The Production Model — Cobb–Douglas</h1>
+<p><em>[Lec 04–05, Jones Ch 4]</em></p>
+<h3 id="cobbdouglas-production-function">Cobb–Douglas Production Function</h3>
+<p><strong>Definition.</strong> A production function with constant returns to scale and constant factor shares.
+<em>Plain English.</em> The single most-used production function in macro. Output depends on capital, labor, and a productivity term. Doubling all inputs doubles output (CRS).</p>
+<p><strong>Formula.</strong></p>
+<ul>
+<li>\(Y = A \cdot K^\alpha \cdot L^{1-\alpha }\) with \(0 < \alpha < 1\)</li>
+</ul>
+<p><strong>Variables.</strong></p>
+<ul>
+<li><code>Y</code> = output</li>
+<li><code>A</code> = total factor productivity (TFP) — the "everything else" term: technology, institutions, ideas</li>
+<li><code>K</code> = capital stock</li>
+<li><code>L</code> = labor (workers)</li>
+<li>\(\alpha\) = capital share (typically ≈ 1/3 in U.S. data)</li>
+<li>\(1 - \alpha\) = labor share</li>
+</ul>
+<h3 id="marginal-products">Marginal Products</h3>
+<p><strong>Definition.</strong> Partial derivative of output with respect to a factor.
+<em>Plain English.</em> How much extra output you get from one more unit of capital (or labor), holding everything else fixed. With Cobb–Douglas, marginal products are simple.</p>
+<p><strong>Formulas.</strong></p>
+<ul>
+<li>\(MPK = \partial Y/\partial K = \alpha \cdot A \cdot K^{\alpha -1} \cdot L^{1-\alpha } = \alpha \cdot (Y/K)\)</li>
+<li>\(MPL = \partial Y/\partial L = (1-\alpha ) \cdot A \cdot K^\alpha \cdot L^{-\alpha } = (1-\alpha ) \cdot (Y/L)\)</li>
+</ul>
+<p><strong>Lesson.</strong> \(MPK = \alpha \cdot Y/K\) and \(MPL = (1-\alpha ) \cdot Y/L\). So in equilibrium, capital earns \(\alpha\) share of output and labor earns \(1-\alpha\) share. Empirically these shares are roughly constant.</p>
+<h3 id="output-per-worker">Output Per Worker</h3>
+<p><strong>Definition.</strong> GDP per worker — the cleanest measure of productivity.
+<em>Plain English.</em> If you want to know why one country is richer than another, look at how much output each worker produces.</p>
+<p><strong>Formula.</strong></p>
+<ul>
+<li>\(y = Y/L = A \cdot k^\alpha\) where \(k = K/L\)</li>
+</ul>
+<p><strong>Variables.</strong> <code>y</code> = output per worker, <code>k</code> = capital per worker.</p>
+<h3 id="why-some-countries-are-rich-decomposition">Why Some Countries Are Rich (decomposition)</h3>
+<p><strong>Lesson (Jones Ch 4).</strong> Differences in output per worker are explained by differences in:
+1. Capital per worker <code>k</code> (about 1/3 of the gap)
+2. TFP <code>A</code> (about 2/3 of the gap)</p>
+<p>In other words: rich countries are rich mostly because of higher productivity (technology, institutions, human capital), not because they have more machines per person.</p>
+<p><strong>Diagram (qualitative).</strong> Output per worker \(y = A \cdot k^\alpha\) is concave in <code>k</code>. Holding <code>A</code> fixed, doubling <code>k</code> increases <code>y</code> by less than 2×. To make a country rich, you need both <code>k</code> and <code>A</code> higher.</p>
+<div class="diagram"><svg viewBox="0 0 600 360" xmlns="http://www.w3.org/2000/svg" class="diagram-svg" role="img" aria-label="Cobb-Douglas output per worker as concave function of capital per worker, two TFP levels">
+  <defs>
+    <marker id="arrowend1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#333"/>
+    </marker>
+  </defs>
+  <!-- axes -->
+  <line x1="60" y1="310" x2="570" y2="310" stroke="#333" stroke-width="1.5" marker-end="url(#arrowend1)"/>
+  <line x1="60" y1="310" x2="60" y2="30" stroke="#333" stroke-width="1.5" marker-end="url(#arrowend1)"/>
+  <text x="315" y="345" text-anchor="middle" font-size="14" font-style="italic">k = capital per worker</text>
+  <text x="20" y="170" text-anchor="middle" font-size="14" font-style="italic" transform="rotate(-90 20 170)">y = output per worker</text>
+  <!-- high A curve: concave, ends high -->
+  <path d="M 60 310 Q 230 80, 565 60" stroke="#1f4e79" stroke-width="2.5" fill="none"/>
+  <text x="430" y="55" font-size="13" fill="#1f4e79" font-weight="600">y = A_high · k^α</text>
+  <!-- low A curve: concave, ends mid -->
+  <path d="M 60 310 Q 230 220, 565 175" stroke="#999" stroke-width="2" fill="none" stroke-dasharray="6 4"/>
+  <text x="430" y="170" font-size="13" fill="#777">y = A_low · k^α</text>
+  <!-- annotation -->
+  <text x="315" y="20" text-anchor="middle" font-size="13" fill="#5b7f2e">Both curves are concave (α &lt; 1). Higher TFP shifts curve up.</text>
+</svg></div>
+
+<hr />
+<h1 id="4-the-solow-growth-model">4. The Solow Growth Model</h1>
+<p><em>[Lec 06–08, Jones Ch 5] — TIER 1 PRIORITY</em></p>
+<h3 id="capital-accumulation-equation">Capital Accumulation Equation</h3>
+<p><strong>Definition.</strong> How the capital stock evolves over time given investment and depreciation.
+<em>Plain English.</em> New capital next period = capital today, minus what wears out, plus new investment. New investment = a constant fraction <code>s</code> of output.</p>
+<p><strong>Formula (discrete time, no population/tech growth).</strong></p>
+<ul>
+<li>\(K_{t+1} = (1-d) \cdot K_t + I_t\) where \(I_t = s \cdot Y_t\)</li>
+<li>→ \(K_{t+1} = (1-d) \cdot K_t + s \cdot Y_t\)</li>
+</ul>
+<p><strong>In per-worker form:</strong></p>
+<ul>
+<li>\(k_{t+1} = (1-d) \cdot k_t + s \cdot y_t = (1-d) \cdot k_t + s \cdot A \cdot k_t^\alpha\)</li>
+</ul>
+<p><strong>Variables.</strong></p>
+<ul>
+<li><code>s</code> = savings (= investment) rate, <code>0 &lt; s &lt; 1</code></li>
+<li><code>d</code> = depreciation rate, <code>0 &lt; d &lt; 1</code></li>
+<li><code>I_t</code> = gross investment</li>
+</ul>
+<h3 id="steady-state">Steady State</h3>
+<p><strong>Definition.</strong> A capital level <code>k*</code> where investment exactly replaces depreciation: <code>k_{t+1} = k_t</code>.
+<em>Plain English.</em> The economy converges to a long-run level of capital per worker. At that level, every period's investment is just enough to replace worn-out capital, so <code>k</code> stays constant.</p>
+<p><strong>Formula.</strong></p>
+<ul>
+<li>Steady state condition: \(s \cdot f(k*) = d \cdot k*\)</li>
+<li>With Cobb–Douglas (\(f(k) = A \cdot k^\alpha\)): \(s \cdot A \cdot k*^\alpha = d \cdot k*\) → \(k* = (s \cdot A/d)^{1/(1-\alpha })\)</li>
+<li>Steady-state output per worker: \(y* = A \cdot k*^\alpha = A^{1/(1-\alpha }) \cdot (s/d)^{\alpha /(1-\alpha })\)</li>
+</ul>
+<p><strong>Variables.</strong> <code>k*</code>, <code>y*</code> = steady-state values.</p>
+<p><strong>Diagram — Solow phase diagram.</strong></p>
+<div class="diagram"><svg viewBox="0 0 660 380" xmlns="http://www.w3.org/2000/svg" class="diagram-svg" role="img" aria-label="Solow phase diagram showing investment curve and depreciation line crossing at steady state">
+  <defs>
+    <marker id="arrowend2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#333"/>
+    </marker>
+  </defs>
+  <!-- axes -->
+  <line x1="80" y1="320" x2="630" y2="320" stroke="#333" stroke-width="1.5" marker-end="url(#arrowend2)"/>
+  <line x1="80" y1="320" x2="80" y2="40" stroke="#333" stroke-width="1.5" marker-end="url(#arrowend2)"/>
+  <text x="345" y="360" text-anchor="middle" font-size="14" font-style="italic">k (capital per worker)</text>
+  <text x="30" y="180" text-anchor="middle" font-size="13" font-style="italic" transform="rotate(-90 30 180)">investment / depreciation</text>
+  <!-- depreciation line: linear from origin, slope -0.5 -->
+  <line x1="80" y1="320" x2="560" y2="80" stroke="#c44" stroke-width="2"/>
+  <text x="568" y="84" font-size="13" fill="#c44" font-weight="600">d · k</text>
+  <!-- investment curve s·f(k): quadratic Bezier P0=(80,320), control=(260,130), P2=(560,130) -->
+  <path d="M 80 320 Q 260 130, 560 130" stroke="#1f4e79" stroke-width="2.5" fill="none"/>
+  <text x="568" y="138" font-size="13" fill="#1f4e79" font-weight="600">s · f(k)</text>
+  <!-- steady-state at exact algebraic intersection (445, 138) -->
+  <line x1="445" y1="320" x2="445" y2="138" stroke="#888" stroke-width="1" stroke-dasharray="4 3"/>
+  <circle cx="445" cy="138" r="5" fill="#5b7f2e"/>
+  <text x="445" y="340" text-anchor="middle" font-size="14" font-weight="700" fill="#5b7f2e">k*</text>
+  <!-- annotation "k < k*" placed in lower wedge (between line and x-axis), left of intersection -->
+  <text x="190" y="278" font-size="12" fill="#1f4e79">k &lt; k*: investment &gt; depreciation</text>
+  <text x="190" y="294" font-size="12" fill="#1f4e79">→ capital grows</text>
+  <!-- annotation "k > k*" placed in top empty area, well above both curves -->
+  <text x="290" y="58" font-size="12" fill="#c44">k &gt; k*: depreciation &gt; investment</text>
+  <text x="290" y="74" font-size="12" fill="#c44">← capital shrinks</text>
+</svg></div>
+
+<p>At <code>k &lt; k*</code>: \(s \cdot f(k) > d \cdot k\), so <code>K</code> grows. At <code>k &gt; k*</code>: \(s \cdot f(k) < d \cdot k\), so <code>K</code> shrinks. The two curves cross exactly at <code>k*</code> (steady state).</p>
+<h3 id="comparative-statics">Comparative Statics</h3>
+<p><strong>Lesson.</strong> What changes when parameters change:</p>
+<ul>
+<li>↑ <code>s</code> (higher savings) → ↑ <code>k*</code>, ↑ <code>y*</code> (level effect, not growth-rate effect)</li>
+<li>↑ <code>d</code> (faster depreciation) → ↓ <code>k*</code>, ↓ <code>y*</code></li>
+<li>↑ <code>A</code> (better technology) → ↑ <code>k*</code>, ↑ <code>y*</code></li>
+<li>↑ <code>n</code> (population growth, see below) → ↓ <code>k*</code>, ↓ <code>y*</code></li>
+</ul>
+<p><strong>Crucial pitfall.</strong> Higher savings raises the <em>level</em> of long-run output but not the long-run <em>growth rate</em>. In the basic Solow model, long-run growth is zero (without technology growth). The growth rate is positive only on the transition path.</p>
+<h3 id="golden-rule">Golden Rule</h3>
+<p><strong>Definition.</strong> The savings rate that maximizes steady-state consumption per worker.
+<em>Plain English.</em> You can't consume what you save. There's a savings rate that maximizes your steady-state cake size.</p>
+<p><strong>Formula.</strong></p>
+<ul>
+<li>Steady-state consumption: \(c* = (1-s) \cdot y* = y* - d \cdot k*\)</li>
+<li>Golden-rule condition: <code>f'(k_GR) = d</code>, i.e., \(MPK = d\)</li>
+<li>With Cobb–Douglas: \(\alpha \cdot A \cdot k_{GR}^{\alpha -1} = d\) → \(k_{GR} = (\alpha \cdot A/d)^{1/(1-\alpha })\)</li>
+<li>Implied golden-rule savings rate: \(s_{GR} = \alpha\)</li>
+</ul>
+<p><strong>Lesson.</strong> Save your capital share. With \(\alpha \approx 1/3\), the golden rule says save ~33% of GDP. Most rich countries save much less (~20%).</p>
+<h3 id="solow-with-population-growth">Solow with Population Growth</h3>
+<p><strong>Formula (continuous time).</strong></p>
+<ul>
+<li>\(k̇ = s \cdot f(k) - (n + d) \cdot k\)</li>
+<li>Steady state: \(s \cdot f(k*) = (n + d) \cdot k*\)</li>
+<li>With Cobb–Douglas: \(k* = (s \cdot A / (n+d))^{1/(1-\alpha })\)</li>
+</ul>
+<p><strong>Variables.</strong> <code>n</code> = population growth rate. Effective depreciation is <code>n + d</code> because faster population growth dilutes capital per worker.</p>
+<h3 id="solow-with-technological-progress">Solow with Technological Progress</h3>
+<p><strong>Setup.</strong> Let <code>A_t</code> grow at rate <code>g</code>. Use effective labor <code>AL</code>. Define \(\tilde{k} = K/(AL)\), \(\tilde{y} = Y/(AL)\).
+<strong>Formula.</strong> Steady state \(s \cdot f(\tilde{k}*) = (n + d + g) \cdot \tilde{k}*\). In steady state, <code>K</code>, <code>Y</code>, <code>K/L</code>, <code>Y/L</code> all grow at rate <code>g</code>.
+<strong>Lesson.</strong> In the long run, all per-capita growth comes from technological progress. Capital accumulation (Solow) without idea growth (Romer) generates zero long-run per-capita growth.</p>
+<h3 id="convergence-conditional">Convergence (Conditional)</h3>
+<p><strong>Definition.</strong> Countries far below their own steady state grow faster than countries near their steady state.
+<em>Plain English.</em> If two countries have the same <code>s, n, d, A</code>, the one starting poorer catches up to the richer one. This is "conditional convergence" — same parameters required.
+<strong>Empirically.</strong> Conditional convergence holds; unconditional (across all countries) does not. Poor countries don't catch up if their <code>A</code>, <code>s</code>, or institutions are different.</p>
+<h3 id="solow-model-exam-patterns">Solow Model Exam Patterns</h3>
+<ol>
+<li>"Find the steady state." → Set \(s \cdot f(k*) = d \cdot k*\) (or <code>(n+d)k*</code>), solve for <code>k*</code>. Then <code>y* = f(k*)</code>.</li>
+<li>"If <code>s</code> doubles, what happens to <code>y*</code>?" → <code>y*</code> rises by factor \(2^{\alpha /(1-\alpha })\). With \(\alpha = 1/3\), that's about \(2^{1/2} \approx 1.41\).</li>
+<li>"Is this country at the golden rule?" → Compute <code>MPK</code> at current <code>k</code>. Compare to <code>d</code>. If <code>MPK &gt; d</code>, save more. If <code>MPK &lt; d</code>, save less.</li>
+<li>"Show the transition dynamics on a graph." → Draw the phase diagram, mark current <code>k</code>, show convergence to <code>k*</code>.</li>
+</ol>
+<hr />
+<h1 id="5-endogenous-growth-the-romer-model">5. Endogenous Growth — The Romer Model</h1>
+<p><em>[Lec 09–11, Jones Ch 6]</em></p>
+<h3 id="ideas-as-non-rival">Ideas as Non-Rival</h3>
+<p><strong>Definition.</strong> A non-rival good can be used by many people simultaneously without diminishing its availability.
+<em>Plain English.</em> If I use a hammer, you can't. But if I use the formula \(E = mc²\), you can use it too. Ideas are non-rival; this is what makes long-run growth possible.</p>
+<p><strong>Lesson.</strong> Non-rival ideas → increasing returns to scale at the aggregate level → growth doesn't have to peter out.</p>
+<h3 id="idea-production-function-romer">Idea Production Function (Romer)</h3>
+<p><strong>Definition.</strong> A small subset of workers produce new ideas, which raise everyone's productivity.
+<em>Plain English.</em> The economy splits its workforce: some make goods, some make ideas (research). Ideas flow into the productivity term <code>A</code>.</p>
+<p><strong>Formulas.</strong></p>
+<ul>
+<li>\(Y_t = A_t \cdot L_{Y,t}\) (output from "goods workers" — Jones simplifies to linear in <code>L_Y</code>)</li>
+<li>\(\Delta A_t = \bar{z} \cdot A_t \cdot L_{A,t}\) (idea production — proportional to existing knowledge × researchers)</li>
+<li>→ growth rate of A: \(g_A = \Delta A/A = \bar{z} \cdot L_A\)</li>
+<li>Equivalently: \(g_A = \bar{z} \cdot \bar{\ell} \cdot L\), where \(\bar{\ell} = L_A / L\) is the share of workers in research.</li>
+</ul>
+<p><strong>Variables.</strong></p>
+<ul>
+<li><code>L_Y</code> = workers making goods</li>
+<li><code>L_A</code> = workers producing ideas (researchers)</li>
+<li>\(L = L_Y + L_A\) = total population</li>
+<li>\(\bar{z}\) = research productivity (how good researchers are at producing ideas)</li>
+<li>\(\bar{\ell}\) = share of workforce in research</li>
+</ul>
+<h3 id="balanced-growth-path">Balanced Growth Path</h3>
+<p><strong>Definition.</strong> Long-run state where <code>Y, K, A, L_Y, L_A</code> all grow at constant rates.
+<em>Plain English.</em> On the BGP, output per person grows at <code>g_A</code>. Living standards rise at exactly the rate of idea production.</p>
+<p><strong>Lesson (key result).</strong> Long-run per-capita growth in the Romer model:</p>
+<ul>
+<li>\(g_y = g_A = \bar{z} \cdot \bar{\ell} \cdot L\)</li>
+</ul>
+<p>→ Larger population <code>L</code> (more brains), more researchers \(\bar{\ell}\), or higher research productivity \(\bar{z}\) raises long-run growth.</p>
+<h3 id="combined-solow-romer">Combined Solow + Romer</h3>
+<p><strong>Setup.</strong> Solow handles capital accumulation; Romer handles idea production. Combine via Cobb–Douglas + endogenous <code>A_t</code>.
+<strong>Result.</strong> Long-run growth of <code>Y/L</code> = <code>g_A</code>. Capital deepening still raises <code>y</code> on the transition path; ideas raise the BGP itself.</p>
+<h3 id="romer-model-exam-patterns">Romer Model Exam Patterns</h3>
+<ol>
+<li>"What is the long-run growth rate?" → \(g_y = g_A = \bar{z} \cdot \bar{\ell} \cdot L\).</li>
+<li>"If population doubles, what happens to long-run growth?" → <code>g_y</code> doubles (more brains).</li>
+<li>"Is faster idea production always better?" → Trade-off: more researchers means fewer goods workers, lowering current <code>Y</code>. The BGP comes faster but at the cost of current consumption.</li>
+</ol>
+<hr />
+<h1 id="6-the-labor-market">6. The Labor Market</h1>
+<p><em>[Lec 12, Jones Ch 7]</em></p>
+<h3 id="bathtub-model-of-unemployment">Bathtub Model of Unemployment</h3>
+<p><strong>Definition.</strong> Treat the unemployed pool as a bathtub: workers flow in (job loss) and flow out (job finding).
+<em>Plain English.</em> Unemployment depends on two rates: how fast people lose jobs (<code>s_e</code>) and how fast unemployed workers find jobs (<code>f</code>). The steady-state unemployment rate balances inflows = outflows.</p>
+<p><strong>Formula.</strong></p>
+<ul>
+<li>Flow balance: \(s_e \cdot E = f \cdot U\)</li>
+<li>→ Steady-state unemployment rate: <code>u* = s_e / (s_e + f)</code></li>
+</ul>
+<p><strong>Variables.</strong></p>
+<ul>
+<li><code>E</code> = number of employed</li>
+<li><code>U</code> = number of unemployed</li>
+<li><code>s_e</code> = job-separation rate (probability an employed worker loses job per period)</li>
+<li><code>f</code> = job-finding rate (probability an unemployed worker finds job per period)</li>
+</ul>
+<p><strong>Lesson.</strong> Higher separation rate → more unemployment. Higher finding rate → less unemployment. Lower <code>f</code> (e.g., during recessions) is the usual driver of high <code>u</code>.</p>
+<h3 id="types-of-unemployment">Types of Unemployment</h3>
+<ul>
+<li><strong>Frictional.</strong> Time spent searching/matching. Always positive; not a "problem."</li>
+<li><strong>Structural.</strong> Skills mismatch, geographic mismatch, minimum wage above market-clearing. Persistent.</li>
+<li><strong>Cyclical.</strong> Driven by aggregate demand fluctuations. Falls during expansions, rises in recessions.</li>
+</ul>
+<h3 id="natural-rate-of-unemployment-u">Natural Rate of Unemployment (<code>u*</code>)</h3>
+<p><strong>Definition.</strong> The unemployment rate consistent with stable inflation; sum of frictional + structural.
+<em>Plain English.</em> Even a healthy economy has some unemployment — not because of a bad recession, but because of normal job churn and mismatches.</p>
+<h3 id="wage-rigidity">Wage Rigidity</h3>
+<p><strong>Lesson.</strong> Real wages adjust slowly downward → unemployment can persist above <code>u*</code> after a negative shock. Sources: minimum wage, union contracts, efficiency wages, fairness norms.</p>
+<hr />
+<h1 id="7-inflation">7. Inflation</h1>
+<p><em>[Lec 13, Jones Ch 8]</em></p>
+<h3 id="quantity-theory-of-money">Quantity Theory of Money</h3>
+<p><strong>Definition.</strong> The classical equation linking money supply to nominal output.
+<em>Plain English.</em> If the central bank doubles the money supply and velocity (how many times each dollar changes hands) is constant, prices double in the long run.</p>
+<p><strong>Formula.</strong></p>
+<ul>
+<li>\(M \cdot V = P \cdot Y\)</li>
+<li>In growth rates: \(g_M + g_V = \pi + g_Y\)</li>
+<li>If <code>V</code> is roughly constant: \(\pi \approx g_M - g_Y\)</li>
+</ul>
+<p><strong>Variables.</strong></p>
+<ul>
+<li><code>M</code> = money supply</li>
+<li><code>V</code> = velocity of money</li>
+<li><code>P</code> = price level</li>
+<li><code>Y</code> = real output</li>
+<li>\(\pi\) = inflation rate</li>
+</ul>
+<p><strong>Lesson (Friedman).</strong> Inflation is, in the long run, a monetary phenomenon. Sustained inflation requires sustained money growth above output growth.</p>
+<h3 id="fisher-equation">Fisher Equation</h3>
+<p><strong>Definition.</strong> Nominal interest rate = real interest rate + expected inflation.
+<em>Plain English.</em> When inflation expectations rise, nominal rates rise to compensate lenders for lost purchasing power.</p>
+<p><strong>Formula.</strong></p>
+<ul>
+<li>\(i = r + \pi ^e\)</li>
+<li>Equivalently (exact): \((1 + i) = (1 + r)(1 + \pi ^e)\) ≈ \(r + \pi ^e\) for small numbers</li>
+<li>Real rate ex-post: \(r = i - \pi\)</li>
+</ul>
+<p><strong>Variables.</strong></p>
+<ul>
+<li><code>i</code> = nominal interest rate</li>
+<li><code>r</code> = real interest rate</li>
+<li>\(\pi ^e\) = expected inflation</li>
+<li>\(\pi\) = realized inflation</li>
+</ul>
+<p><strong>Pitfalls.</strong> Don't confuse ex-ante (\(r = i - \pi ^e\)) with ex-post (\(r = i - \pi\)). Borrowers care about ex-ante; data tells you ex-post.</p>
+<h3 id="hyperinflation">Hyperinflation</h3>
+<p><strong>Definition.</strong> Very high, accelerating inflation (often defined as &gt;50%/month).
+<em>Plain English.</em> Driven by sustained, large-scale money printing — usually because government can't borrow and is monetizing the deficit.
+<strong>Mechanism.</strong> Government prints money to finance deficit → inflation rises → real money demand falls (people dump cash) → seignorage revenue falls → government prints more → spiral.</p>
+<hr />
+<h1 id="8-the-short-run-and-the-output-gap">8. The Short Run and the Output Gap</h1>
+<p><em>[Lec 14, Jones Ch 9]</em></p>
+<h3 id="output-gap">Output Gap</h3>
+<p><strong>Definition.</strong> Deviation of actual output from potential output, expressed as a percentage.
+<em>Plain English.</em> Potential output (<code>Y*</code>) is what the economy would produce at full employment with current technology and capital. The output gap measures how far short of potential we currently are.</p>
+<p><strong>Formula.</strong></p>
+<ul>
+<li>\(\tilde{Y} = (Y - Y*) / Y*\)  (output gap as percentage)</li>
+<li><code>Y*</code> = trend / potential output (the long-run Solow path)</li>
+<li>Sometimes written \(\tilde{Y} = ln(Y) - ln(Y*)\)</li>
+</ul>
+<p><strong>Lesson.</strong> Recessions are negative \(\tilde{Y}\). Booms are positive \(\tilde{Y}\). The Phillips curve relates \(\tilde{Y}\) to inflation. Stabilization policy targets \(\tilde{Y}\) (toward zero).</p>
+<h3 id="okuns-law">Okun's Law</h3>
+<p><strong>Definition.</strong> Empirical relationship between output gap and unemployment gap.
+<em>Plain English.</em> When output is below potential by 1%, unemployment is above its natural rate by about 0.5 percentage points.</p>
+<p><strong>Formula.</strong></p>
+<ul>
+<li>\(u - u* \approx -0.5 \cdot \tilde{Y}\)</li>
+<li>→ \(u = u* - 0.5 \cdot \tilde{Y}\)</li>
+</ul>
+<p><strong>Variables.</strong> <code>u*</code> = natural rate of unemployment. The coefficient varies (Jones uses 0.5; some textbooks use 1/2 or 1/3).</p>
+<hr />
+<h1 id="9-macro-clysms-recessions-and-crises-case-studies">9. Macro-clysms — Recessions and Crises (Case Studies)</h1>
+<p><em>[Lec 15, Jones Ch 10]</em></p>
+<h3 id="common-pattern-of-recessions">Common pattern of recessions</h3>
+<ul>
+<li>Negative shock (financial, oil, demand)</li>
+<li>Output falls below <code>Y*</code></li>
+<li>Unemployment rises (Okun)</li>
+<li>Inflation falls (Phillips)</li>
+<li>Policy response (monetary easing, fiscal stimulus)</li>
+<li>Recovery (slow if balance-sheet recession)</li>
+</ul>
+<h3 id="2008-global-financial-crisis-snapshot">2008 Global Financial Crisis (snapshot)</h3>
+<ul>
+<li>Trigger: housing bubble collapse → mortgage-backed securities lose value → bank insolvency.</li>
+<li>Mechanism: leverage + interconnection → contagion. Lehman bankruptcy (Sep 2008) = panic.</li>
+<li>Policy: Fed cuts to ~0%, QE launched, fiscal stimulus (ARRA 2009). Slow recovery (~2009–2014).</li>
+</ul>
+<h3 id="covid-19-recession-2020">COVID-19 Recession (2020)</h3>
+<ul>
+<li>Trigger: pandemic + lockdowns → simultaneous demand and supply shock.</li>
+<li>Mechanism: services sector collapse, unemployment to ~14% in 2 months.</li>
+<li>Policy: massive fiscal (CARES Act + ARP) + Fed (rates to zero, QE, facility programs). V-shaped recovery in output, slower in employment.</li>
+</ul>
+<h3 id="great-depression-19291933">Great Depression (1929–1933)</h3>
+<ul>
+<li>Trigger: stock crash + banking failures + monetary contraction.</li>
+<li>Friedman-Schwartz argument: Fed allowed money supply to collapse → policy error.</li>
+<li>Recovery slow and incomplete until WWII.</li>
+</ul>
+<h3 id="stagflation-1970s">Stagflation (1970s)</h3>
+<ul>
+<li>Combination of high inflation + high unemployment.</li>
+<li>Driven by oil shocks (1973, 1979) and accommodative monetary policy.</li>
+<li>Volcker Fed (1979–1982) raised rates to ~20%, induced recession, broke inflation.</li>
+</ul>
+<p><strong>Exam pattern.</strong> Likely 1 short conceptual question: "Use the IS-MP-PC framework to explain the policy response to [crisis]."</p>
+<hr />
+<h1 id="10-the-is-curve">10. The IS Curve</h1>
+<p><em>[Lec 16–17, Jones Ch 11] — TIER 1 PRIORITY</em></p>
+<h3 id="the-is-curve-definition">The IS Curve — Definition</h3>
+<p><strong>Definition.</strong> The set of combinations of real interest rate <code>R</code> and output gap \(\tilde{Y}\) consistent with goods-market equilibrium (planned spending = output).
+<em>Plain English.</em> When the real interest rate falls, investment rises (cheaper borrowing) and consumption can rise (less reward for saving), so output rises. The IS curve plots this negative relationship.</p>
+<p><strong>Formula (Jones 6e form).</strong></p>
+<ul>
+<li>\(\tilde{Y} = \bar{a} - \bar{b} \cdot (R - \bar{r})\)</li>
+</ul>
+<p><strong>Variables.</strong></p>
+<ul>
+<li>\(\tilde{Y}\) = output gap (percent of potential)</li>
+<li><code>R</code> = real interest rate (set by Fed/MP curve)</li>
+<li>\(\bar{r}\) = marginal product of capital (long-run real rate)</li>
+<li>\(\bar{a}\) = aggregate demand shock (positive \(\bar{a}\) = boom)</li>
+<li>\(\bar{b}\) = sensitivity of output to interest rate</li>
+</ul>
+<p><strong>Lesson.</strong> When \(R = \bar{r}\) and \(\bar{a} = 0\), output is at potential (\(\tilde{Y} = 0\)). Higher <code>R</code> than \(\bar{r}\) reduces output. Positive demand shocks (\(\bar{a} > 0\)) raise output even at unchanged <code>R</code>.</p>
+<p><strong>Diagram.</strong></p>
+<div class="diagram"><svg viewBox="0 0 620 380" xmlns="http://www.w3.org/2000/svg" class="diagram-svg" role="img" aria-label="IS curve in output gap and real interest rate space, downward sloping">
+  <defs>
+    <marker id="arrowend3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#333"/>
+    </marker>
+  </defs>
+  <!-- axes -->
+  <line x1="70" y1="190" x2="585" y2="190" stroke="#333" stroke-width="1.5" marker-end="url(#arrowend3)"/>
+  <line x1="310" y1="320" x2="310" y2="55" stroke="#333" stroke-width="1.5" marker-end="url(#arrowend3)"/>
+  <text x="572" y="212" font-size="13" text-anchor="end">Ỹ (output gap)</text>
+  <text x="324" y="55" font-size="13">R (real rate)</text>
+  <!-- Y_tilde = 0 mark, R = r_bar mark -->
+  <text x="310" y="210" text-anchor="middle" font-size="11" fill="#666">0</text>
+  <line x1="300" y1="190" x2="320" y2="190" stroke="#333" stroke-width="1.5"/>
+  <text x="330" y="186" font-size="12" fill="#666">r̄</text>
+  <!-- IS curve: downward sloping line -->
+  <line x1="105" y1="90" x2="520" y2="296" stroke="#1f4e79" stroke-width="2.5"/>
+  <text x="468" y="282" font-size="13" fill="#1f4e79" font-weight="600">IS</text>
+  <!-- a positive demand shock shifts IS right -->
+  <line x1="170" y1="90" x2="575" y2="292" stroke="#5b7f2e" stroke-width="1.9" stroke-dasharray="6 5"/>
+  <text x="538" y="250" font-size="12" fill="#5b7f2e" font-weight="600">IS'</text>
+  <text x="538" y="266" font-size="10" fill="#5b7f2e">(after ā ↑)</text>
+  <!-- annotation -->
+  <text x="70" y="350" font-size="12" fill="#666">Higher R → lower Ỹ. Demand shock (ā ↑) shifts IS rightward.</text>
+</svg></div>
+
+<p>The IS curve crosses \(\tilde{Y} = 0\) at \(R = \bar{r} + \bar{a}/\bar{b}\). Shifts: positive \(\bar{a}\) shifts the curve right (more output at any <code>R</code>).</p>
+<h3 id="deriving-the-is-curve">Deriving the IS Curve</h3>
+<p><strong>Setup.</strong> Goods market: \(Y = C + I + G + NX\). Each component depends on <code>R</code>:</p>
+<ul>
+<li><code>C</code> falls modestly when <code>R</code> rises (intertemporal substitution).</li>
+<li><code>I</code> falls strongly when <code>R</code> rises (firms postpone capital projects).</li>
+<li><code>G</code> is exogenous (policy).</li>
+<li><code>NX</code> falls when <code>R</code> rises (capital flows raise exchange rate, hurts exports).</li>
+</ul>
+<p><strong>Net effect.</strong> Higher <code>R</code> → lower <code>Y</code>. The IS curve formalizes this.</p>
+<h3 id="shifts-vs-movements">Shifts vs Movements</h3>
+<ul>
+<li><strong>Movement along</strong> = change in <code>R</code> (caused by Fed / monetary policy).</li>
+<li><strong>Shift of curve</strong> = change in \(\bar{a}\) (demand shocks: consumer confidence, fiscal policy, foreign demand).</li>
+</ul>
+<h3 id="is-curve-exam-patterns">IS Curve Exam Patterns</h3>
+<ol>
+<li>"Write the IS equation; identify variables." → memorize Jones form.</li>
+<li>"Government raises spending. Show effect on IS." → Curve shifts right by Δā.</li>
+<li>"Find equilibrium output given \(R = 4%\), \(\bar{r} = 2%\), \(\bar{a} = 0\), \(\bar{b} = 0.5\)." → \(\tilde{Y} = 0 - 0.5 \cdot (0.04-0.02) = -0.01 = -1%\).</li>
+</ol>
+<hr />
+<h1 id="11-monetary-policy-and-the-phillips-curve">11. Monetary Policy and the Phillips Curve</h1>
+<p><em>[Lec 18–19, Jones Ch 12] — TIER 1 PRIORITY</em></p>
+<h3 id="the-mp-curve">The MP Curve</h3>
+<p><strong>Definition.</strong> A description of how the Fed sets the real interest rate in response to inflation (and sometimes output).
+<em>Plain English.</em> The Fed picks the real interest rate. When inflation is above target, Fed raises <code>R</code>. The MP "curve" is just that policy rule.</p>
+<p><strong>Formula (simple form, Jones).</strong></p>
+<ul>
+<li>\(R = \bar{r} + \bar{m} \cdot (\pi - \pi ̄)\)</li>
+</ul>
+<p><strong>Variables.</strong></p>
+<ul>
+<li><code>R</code> = real interest rate (Fed's choice)</li>
+<li>\(\pi\) = current inflation</li>
+<li>\(\pi ̄\) = inflation target (e.g., 2%)</li>
+<li>\(\bar{m}\) = how aggressively Fed responds (\(\bar{m} > 0\))</li>
+<li>\(\bar{r}\) = neutral real rate (long-run MPK)</li>
+</ul>
+<p><strong>Lesson.</strong> When \(\pi = \pi ̄\), \(R = \bar{r}\) (neutral). When \(\pi > \pi ̄\), \(R > \bar{r}\) (contractionary). The MP curve is horizontal in (\(\tilde{Y}, R\)) space if Fed only reacts to inflation.</p>
+<h3 id="taylor-rule-richer-form">Taylor Rule (richer form)</h3>
+<p><strong>Definition.</strong> The Fed responds to both inflation and the output gap.
+<em>Plain English.</em> Real-world Fed behavior. Sets the policy rate based on how far inflation is from target AND how far output is from potential.</p>
+<p><strong>Formula.</strong></p>
+<ul>
+<li>\(i = r* + \pi + 0.5 \cdot (\pi - \pi *) + 0.5 \cdot \tilde{Y}\)</li>
+<li>→ \(R = i - \pi = r* + 0.5 \cdot (\pi - \pi *) + 0.5 \cdot \tilde{Y}\)</li>
+</ul>
+<p><strong>Variables.</strong> <code>i</code> = nominal Fed funds rate target. <code>r*</code> = neutral real rate. The 0.5 weights are conventional Taylor (1993); newer estimates often differ.</p>
+<h3 id="the-phillips-curve-basic">The Phillips Curve (basic)</h3>
+<p><strong>Definition.</strong> Inflation rises when output is above potential and falls when below.
+<em>Plain English.</em> Tight labor markets (low <code>u</code>, high \(\tilde{Y}\)) push wages and prices up. Slack labor markets push them down.</p>
+<p><strong>Formula (Jones 6e expectations-augmented).</strong></p>
+<ul>
+<li>\(\pi = \pi ^e + \bar{v} \cdot \tilde{Y} + \bar{o}\)</li>
+</ul>
+<p><strong>Variables.</strong></p>
+<ul>
+<li>\(\pi ^e\) = expected inflation (often taken as \(\pi _{-1}\) under adaptive expectations)</li>
+<li>\(\bar{v}\) = slope of the Phillips curve</li>
+<li>\(\tilde{Y}\) = output gap</li>
+<li>\(\bar{o}\) = supply shock (oil, etc.)</li>
+</ul>
+<p><strong>Adaptive expectations form (Jones default).</strong></p>
+<ul>
+<li>\(\pi ^e = \pi _{-1}\) → \(\Delta \pi = \pi - \pi _{-1} = \bar{v} \cdot \tilde{Y} + \bar{o}\)</li>
+<li>→ "When \(\tilde{Y} > 0\), inflation rises (accelerates). When \(\tilde{Y} < 0\), inflation falls."</li>
+</ul>
+<p><strong>Diagram (short-run, expectations fixed).</strong></p>
+<div class="diagram"><svg viewBox="0 0 620 360" xmlns="http://www.w3.org/2000/svg" class="diagram-svg" role="img" aria-label="Short-run Phillips curve, inflation as upward function of output gap">
+  <defs>
+    <marker id="arrowend4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#333"/>
+    </marker>
+  </defs>
+  <!-- axes -->
+  <line x1="70" y1="190" x2="585" y2="190" stroke="#333" stroke-width="1.5" marker-end="url(#arrowend4)"/>
+  <line x1="310" y1="318" x2="310" y2="50" stroke="#333" stroke-width="1.5" marker-end="url(#arrowend4)"/>
+  <text x="572" y="212" font-size="13" text-anchor="end">Ỹ (output gap)</text>
+  <text x="324" y="52" font-size="13">π (inflation)</text>
+  <text x="325" y="184" font-size="12" fill="#666">π^e</text>
+  <!-- Short-run Phillips curve: upward sloping -->
+  <line x1="105" y1="290" x2="540" y2="72" stroke="#1f4e79" stroke-width="2.5"/>
+  <text x="485" y="77" font-size="13" fill="#1f4e79" font-weight="600">SR Phillips</text>
+  <text x="485" y="93" font-size="11" fill="#1f4e79">slope = v̄</text>
+  <!-- Long-run vertical -->
+  <line x1="310" y1="308" x2="310" y2="72" stroke="#c44" stroke-width="2.5" stroke-dasharray="6 4"/>
+  <text x="220" y="72" font-size="13" fill="#c44" font-weight="600">LR Phillips</text>
+  <text x="220" y="90" font-size="11" fill="#c44">(vertical at Ỹ = 0)</text>
+  <text x="70" y="340" font-size="12" fill="#666">π = π^e + v̄·Ỹ + ō. When Ỹ &gt; 0, inflation accelerates.</text>
+</svg></div>
+
+<h3 id="long-run-phillips-curve-vertical-at-y-0">Long-Run Phillips Curve (vertical at \(\tilde{Y} = 0\))</h3>
+<p><strong>Definition.</strong> In the long run, expectations adjust fully and there's no inflation–output trade-off.
+<em>Plain English.</em> You can't permanently raise output by tolerating more inflation. Eventually expectations catch up; you're left with high inflation and output back at potential.
+<strong>Implication.</strong> Long-run Phillips curve is vertical at the natural rate of unemployment / \(\tilde{Y} = 0\).</p>
+<h3 id="sacrifice-ratio">Sacrifice Ratio</h3>
+<p><strong>Definition.</strong> Cumulative percent of GDP lost to permanently reduce inflation by 1 percentage point.
+<em>Plain English.</em> Bringing inflation down isn't free. To cut inflation by 1 pp, you might need a 2–4% cumulative output gap below potential.</p>
+<p><strong>Formula.</strong> \(Sacrifice ratio = cumulative \tilde{Y} / \Delta \pi\) (typically 2 to 5).</p>
+<p><strong>Volcker example.</strong> Volcker disinflation (1979–1982) cut inflation from ~13% to ~4% but caused a deep recession (\(\tilde{Y}\) ≈ −7% peak, multi-year).</p>
+<hr />
+<h1 id="12-stabilization-policy-is-mp-pc-together">12. Stabilization Policy — IS-MP-PC Together</h1>
+<p><em>[Lec 20–21, Jones Ch 13] — TIER 1 PRIORITY</em></p>
+<h3 id="the-three-equation-framework">The Three-Equation Framework</h3>
+<p><strong>The system.</strong>
+1. IS: \(\tilde{Y} = \bar{a} - \bar{b} \cdot (R - \bar{r})\)
+2. MP: \(R = \bar{r} + \bar{m} \cdot (\pi - \pi ̄)\)
+3. PC: \(\pi = \pi _{-1} + \bar{v} \cdot \tilde{Y} + \bar{o}\)</p>
+<p><strong>Plain English.</strong> IS says output depends on the interest rate. MP says the Fed sets the rate based on inflation. PC says inflation depends on the output gap. Plug them together to analyze any shock.</p>
+<h3 id="demand-shock-positive-a-jumps-up">Demand Shock (positive \(\bar{a}\) jumps up)</h3>
+<p><strong>Sequence.</strong>
+1. IS shifts right → \(\tilde{Y}\) rises at unchanged <code>R</code>.
+2. PC: rising \(\tilde{Y}\) raises \(\pi\).
+3. MP: rising \(\pi\) raises <code>R</code>.
+4. IS: higher <code>R</code> brings \(\tilde{Y}\) back down.
+5. New equilibrium: \(\tilde{Y}\) returns toward 0, but \(\pi\) is now higher.</p>
+<p><strong>Lesson.</strong> Demand shocks move \(\tilde{Y}\) and \(\pi\) in the SAME direction in the short run. Fed offsets via the MP rule.</p>
+<h3 id="supply-shock-positive-o-oil-prices-spike">Supply Shock (positive \(\bar{o}\) — oil prices spike)</h3>
+<p><strong>Sequence.</strong>
+1. PC shifts up → \(\pi\) jumps at unchanged \(\tilde{Y}\).
+2. MP: rising \(\pi\) raises <code>R</code>.
+3. IS: higher <code>R</code> lowers \(\tilde{Y}\).
+4. Stagflation: high \(\pi\) + low \(\tilde{Y}\) simultaneously.</p>
+<p><strong>Lesson.</strong> Supply shocks move \(\tilde{Y}\) and \(\pi\) in OPPOSITE directions. Fed faces a dilemma (fight inflation OR support output, not both).</p>
+<h3 id="optimal-policy-response">Optimal Policy Response</h3>
+<ul>
+<li><strong>Demand shock:</strong> Lean against the wind. Fed's MP rule does this automatically.</li>
+<li><strong>Supply shock:</strong> Trade-off. Fed can't fix both \(\pi\) and \(\tilde{Y}\) with one tool. Choice depends on: How sticky are inflation expectations? How costly is recession? Volcker chose to crush inflation (high <code>R</code>, deep recession). Some central banks today "look through" temporary supply shocks.</li>
+</ul>
+<h3 id="stabilization-exam-patterns">Stabilization Exam Patterns</h3>
+<ol>
+<li>"Walk through a demand shock in IS-MP-PC." → Steps 1–5 above with diagrams.</li>
+<li>"Why does supply shock cause stagflation?" → Steps 1–4 above.</li>
+<li>"Calculate sacrifice ratio in this scenario." → Cumulative \(\tilde{Y}\) / \(\Delta \pi\).</li>
+</ol>
+<hr />
+<h1 id="13-financial-crises">13. Financial Crises</h1>
+<p><em>[Lec 22, Jones Ch 14]</em></p>
+<h3 id="leverage">Leverage</h3>
+<p><strong>Definition.</strong> Ratio of assets to equity (or debt to equity).
+<em>Plain English.</em> High leverage means small asset losses wipe out equity. Lehman in 2008 was leveraged ~30×; a 3% loss on assets → bankruptcy.</p>
+<p><strong>Formula.</strong></p>
+<ul>
+<li>\(Leverage = Assets / Equity\)</li>
+<li>\(ROE = ROA \times Leverage\) (when borrowing is cheap, leverage juices returns; when assets fall, leverage destroys equity)</li>
+</ul>
+<h3 id="lender-of-last-resort">Lender of Last Resort</h3>
+<p><strong>Definition.</strong> Central bank stands ready to lend to solvent-but-illiquid banks against good collateral.
+<em>Plain English.</em> Bagehot's rule: lend freely, at a penalty rate, against good collateral. Prevents bank runs from causing system-wide collapse.</p>
+<h3 id="2008-mechanics">2008 Mechanics</h3>
+<ul>
+<li>Subprime mortgages → packaged into MBS/CDOs → bought with leverage.</li>
+<li>House prices fall → MBS downgrades → mark-to-market losses → bank capital ratios deteriorate.</li>
+<li>Repo markets freeze → "shadow bank run."</li>
+<li>Lehman fails (no bailout) → counterparty risk explodes.</li>
+<li>Fed + Treasury intervene: TARP, Fed liquidity facilities, AIG bailout.</li>
+</ul>
+<hr />
+<h1 id="14-government-debt-dynamics">14. Government Debt Dynamics</h1>
+<p><em>[Lec 23, Jones Ch 18] — TIER 1 PRIORITY</em></p>
+<h3 id="government-budget-constraint">Government Budget Constraint</h3>
+<p><strong>Definition.</strong> This period's debt = last period's debt × (1 + interest rate) plus this period's deficit.
+<em>Plain English.</em> If the government runs a deficit (<code>G &gt; T</code>), it must borrow. Existing debt rolls over with interest.</p>
+<p><strong>Formula (level form).</strong></p>
+<ul>
+<li>\(B_{t+1} = (1 + r) \cdot B_t + G_t - T_t\)</li>
+<li>Equivalently: \(B_{t+1} - B_t = r \cdot B_t + (G_t - T_t)\) = interest on debt + primary deficit</li>
+</ul>
+<p><strong>Variables.</strong></p>
+<ul>
+<li><code>B_t</code> = government debt at end of period <code>t</code></li>
+<li><code>r</code> = real interest rate on debt</li>
+<li><code>G_t</code> = government spending (excluding interest)</li>
+<li><code>T_t</code> = tax revenue</li>
+<li><code>(G_t − T_t)</code> = primary deficit (positive) or primary surplus (negative)</li>
+</ul>
+<h3 id="debt-to-gdp-dynamics">Debt-to-GDP Dynamics</h3>
+<p><strong>Definition.</strong> Express debt relative to GDP — what matters for sustainability.
+<em>Plain English.</em> What matters is not the dollar amount of debt but how big it is relative to the economy's capacity to service it.</p>
+<p><strong>Formula.</strong></p>
+<ul>
+<li>\(b_{t+1} = (1 + r)/(1 + g) \cdot b_t + (G_t - T_t) / Y_t\)</li>
+<li>Approximation (small <code>r</code>, <code>g</code>): \(\Delta b_t \approx (r - g) \cdot b_t + primary deficit ratio\)</li>
+</ul>
+<p><strong>Variables.</strong></p>
+<ul>
+<li>\(b_t = B_t / Y_t\) = debt-to-GDP ratio</li>
+<li><code>g</code> = real GDP growth rate</li>
+</ul>
+<p><strong>Lesson.</strong></p>
+<ul>
+<li>If <code>r &lt; g</code>: debt-to-GDP shrinks even with primary deficits (current U.S. arguably here).</li>
+<li>If <code>r &gt; g</code>: debt-to-GDP grows; sustainability requires primary surpluses.</li>
+</ul>
+<h3 id="sustainability">Sustainability</h3>
+<p><strong>Definition.</strong> A fiscal path is sustainable if <code>b_t</code> doesn't explode.
+<em>Plain English.</em> Government can't run primary deficits forever if <code>r &gt; g</code>. Eventually you need surpluses, default, or financial repression.</p>
+<p><strong>Lesson.</strong> The sign of <code>r − g</code> is the single most important number in fiscal sustainability analysis.</p>
+<h3 id="debt-dynamics-exam-patterns">Debt Dynamics Exam Patterns</h3>
+<ol>
+<li>"Compute next year's <code>b_{t+1}</code> given \(b_t = 1.0\), \(r = 3%\), \(g = 2%\), primary deficit ratio = 1%." → \(b_{t+1} = (1.03/1.02) \cdot 1.0 + 0.01 \approx 1.020\).</li>
+<li>"Is this debt sustainable?" → Compare <code>r</code> to <code>g</code>; check primary balance.</li>
+</ol>
+<hr />
+<h1 id="15-international-trade">15. International Trade</h1>
+<p><em>[Lec 24, Jones Ch 19]</em></p>
+<h3 id="comparative-advantage">Comparative Advantage</h3>
+<p><strong>Definition.</strong> A country has a comparative advantage in a good if its opportunity cost of producing that good is lower than another country's.
+<em>Plain English.</em> Even if one country is better at making everything, both countries gain from specializing in what they're <em>relatively</em> better at.</p>
+<p><strong>Formula (2-good 2-country setup).</strong> Country A has comparative advantage in good X if <code>(MPL_A_X / MPL_A_Y) &gt; (MPL_B_X / MPL_B_Y)</code>.</p>
+<h3 id="current-account">Current Account</h3>
+<p><strong>Definition.</strong> Net exports + net foreign income + transfers.
+<em>Plain English.</em> What the country exports minus what it imports (loosely). A current account deficit means the country is borrowing from abroad.</p>
+<p><strong>Formula.</strong></p>
+<ul>
+<li>\(CA \approx NX = X - M\)  (in macro, often used interchangeably for simplicity)</li>
+<li>National accounts identity: \(S - I = NX\) (excess saving over investment = net lending abroad)</li>
+</ul>
+<p><strong>Variables.</strong> <code>S</code> = national saving, <code>I</code> = investment, <code>NX</code> = net exports.</p>
+<p><strong>Lesson.</strong> A persistent CA deficit isn't inherently bad; it depends on whether borrowing finances productive investment or consumption.</p>
+<h3 id="capital-flows">Capital Flows</h3>
+<p><strong>Definition.</strong> When a country has a CA deficit, it must run a capital account surplus (foreigners buy domestic assets).
+<strong>Identity (simplified).</strong> Current Account + Capital Account ≈ 0.</p>
+<hr />
+<h1 id="16-exchange-rates-and-international-finance">16. Exchange Rates and International Finance</h1>
+<p><em>[Lec 25, Jones Ch 20]</em></p>
+<h3 id="nominal-exchange-rate">Nominal Exchange Rate</h3>
+<p><strong>Definition.</strong> Price of one currency in terms of another.
+<em>Plain English.</em> \(E = 1.10\) means $1 = €0.91 (or however the convention is set up). Conventions matter; check direction.</p>
+<h3 id="real-exchange-rate">Real Exchange Rate</h3>
+<p><strong>Definition.</strong> Relative price of two countries' goods, adjusted for nominal exchange rate and price levels.
+<em>Plain English.</em> How many units of foreign goods can you get for one unit of domestic goods?</p>
+<p><strong>Formula.</strong></p>
+<ul>
+<li>\(RER = E \cdot P_{foreign} / P_{domestic}\)  (depends on which way <code>E</code> is quoted; check Jones notation)</li>
+<li>Alternative: \(RER = E \cdot P / P*\) (with <code>*</code> = foreign)</li>
+</ul>
+<p><strong>Lesson.</strong> A "depreciation" of the real exchange rate makes domestic goods cheaper relative to foreign → boosts exports, reduces imports.</p>
+<h3 id="purchasing-power-parity-ppp">Purchasing Power Parity (PPP)</h3>
+<p><strong>Definition.</strong> In the long run, exchange rates adjust so that identical baskets cost the same in different countries.
+<em>Plain English.</em> Big Mac index. PPP holds loosely in long run, fails in short run due to non-traded goods, transport costs, sticky prices.</p>
+<p><strong>Formula.</strong> \(E \cdot P* = P\) → \(E = P / P*\) (absolute PPP)</p>
+<h3 id="interest-rate-parity-uncovered">Interest Rate Parity (Uncovered)</h3>
+<p><strong>Definition.</strong> Expected returns on assets across countries equalize.
+<em>Plain English.</em> If the U.S. interest rate is higher than Europe's, the dollar must be expected to depreciate by exactly the difference — otherwise arbitrage.</p>
+<p><strong>Formula.</strong></p>
+<ul>
+<li>\(i = i* + (E^e - E)/E\)</li>
+<li>Equivalently: \(Domestic interest rate \approx Foreign rate + Expected depreciation\)</li>
+</ul>
+<h3 id="mundellfleming-intuition">Mundell–Fleming (intuition)</h3>
+<p><strong>Lesson.</strong> With perfect capital mobility:</p>
+<ul>
+<li>Fixed exchange rate + free capital → can't run independent monetary policy.</li>
+<li>Floating exchange rate + free capital → can run independent monetary policy, but exchange rate becomes the adjustment variable.</li>
+</ul>
+<p>This is the "impossible trinity" or "trilemma": you can pick at most 2 of (fixed exchange rate, free capital flows, independent monetary policy).</p>
+<h3 id="exchange-rate-exam-patterns">Exchange Rate Exam Patterns</h3>
+<ol>
+<li>"U.S. raises rates relative to Europe. What happens to the dollar?" → Appreciates (capital inflow). Long run: depreciates back per UIP.</li>
+<li>"Real vs nominal exchange rate — which matters for trade?" → Real (incorporates relative price levels).</li>
+</ol>
+<hr />
+<h2 id="closing-notes">Closing notes</h2>
+<p>This guide covers all 25 lectures + final review at the concept level. Use it alongside:</p>
+<ul>
+<li>Your <code>01_ECON_100B_Topics.md</code> for priorities and time allocation.</li>
+<li>The Spring 2014 and Spring 2011 past finals (they will preview question style).</li>
+<li>The <code>final-review.pdf</code> slide as a definitive scope-of-the-final marker.</li>
+</ul>
+<p><strong>Verify before exam day:</strong></p>
+<ul>
+<li>Whether a cheat sheet is allowed for the final (it was for the midterm).</li>
+<li>Whether the Spring 2011 and Spring 2014 past finals are representative — Edwards's question style is the controlling sample.</li>
+</ul>
+<p><strong>Definitions to know cold (list to memorize before May 11):</strong>
+GDP (3 definitions), Real vs nominal GDP, CPI vs deflator, Unemployment rate definition, Solow steady-state condition, Golden rule condition (\(MPK = d\)), Capital accumulation equation, Cobb–Douglas form, Romer balanced growth rate, Bathtub <code>u*</code> formula, Quantity equation \(MV = PY\), Fisher equation \(i = r + \pi ^e\), Output gap \(\tilde{Y}\), Okun's law \(u - u* = -0.5 \cdot \tilde{Y}\), IS curve form, MP rule, Phillips curve form, Government budget constraint <code>B_{t+1} = (1+r)B_t + G − T</code>, debt/GDP dynamics with <code>r − g</code>, PPP, UIP.</p>
+</div>
+<script>
+// Collapsible H2 sections
+document.querySelectorAll('h2').forEach(function(h){
+  if (h.parentElement && h.parentElement.classList.contains('toc')) return;
+  h.addEventListener('click', function(){
+    h.classList.toggle('collapsed');
+    var el = h.nextElementSibling;
+    while (el && el.tagName !== 'H2') {
+      el.style.display = (el.style.display === 'none') ? '' : 'none';
+      el = el.nextElementSibling;
+    }
+  });
+});
+</script>
+</body>
+</html>

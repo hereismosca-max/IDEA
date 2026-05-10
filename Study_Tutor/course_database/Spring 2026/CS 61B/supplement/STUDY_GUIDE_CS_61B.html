@@ -1,0 +1,1762 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CS 61B — Data Structures — Study Guide</title>
+<style>
+
+:root {
+  --accent: #1f3a5f;
+  --accent-soft: #5b7f2e;
+  --soft-bg: #f6f4ef;
+  --code-bg: #f3f3f3;
+  --border: #d8d2c6;
+  --text: #222;
+  --muted: #555;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  padding: 0;
+  font-family: Georgia, "Charter", "Iowan Old Style", serif;
+  font-size: 16px;
+  line-height: 1.55;
+  color: var(--text);
+  background: #fbfaf6;
+}
+.wrap {
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 36px 28px 80px 28px;
+}
+.cover {
+  text-align: center;
+  padding: 40px 0 28px 0;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 28px;
+}
+.cover h1 {
+  font-family: "Helvetica Neue", -apple-system, sans-serif;
+  font-size: 36px;
+  margin: 0 0 8px 0;
+  color: var(--accent);
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+.cover .subtitle {
+  font-size: 19px;
+  color: var(--muted);
+  font-style: italic;
+  margin: 0;
+}
+.cover .meta {
+  margin-top: 18px;
+  font-size: 14px;
+  color: var(--muted);
+}
+h1, h2, h3, h4 {
+  font-family: "Helvetica Neue", -apple-system, sans-serif;
+  color: var(--accent);
+  margin-top: 1.6em;
+  margin-bottom: 0.4em;
+  line-height: 1.25;
+}
+h1 { font-size: 28px; border-bottom: 2px solid var(--accent); padding-bottom: 8px; }
+h2 {
+  font-size: 22px;
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+  padding-right: 24px;
+}
+h2::after {
+  content: "▾";
+  position: absolute;
+  right: 4px;
+  top: 4px;
+  font-size: 14px;
+  color: var(--muted);
+  transition: transform 0.15s ease;
+}
+h2.collapsed::after { transform: rotate(-90deg); }
+h3 {
+  font-size: 17px;
+  color: var(--accent-soft);
+  margin-top: 1.4em;
+  border-left: 3px solid var(--accent-soft);
+  padding-left: 10px;
+}
+h4 { font-size: 15px; color: var(--accent); }
+p { margin: 0.7em 0; }
+em { color: #444; }
+strong { color: var(--text); }
+ul, ol { margin: 0.5em 0; padding-left: 1.6em; }
+li { margin: 0.25em 0; }
+hr { border: 0; border-top: 1px solid var(--border); margin: 28px 0; }
+a { color: var(--accent); text-decoration: none; border-bottom: 1px dotted var(--accent); }
+a:hover { border-bottom-style: solid; }
+code, pre { font-family: "SF Mono", Menlo, Consolas, monospace; }
+code {
+  background: var(--code-bg);
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-size: 0.92em;
+}
+pre {
+  background: var(--code-bg);
+  padding: 14px 16px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  overflow-x: auto;
+  font-size: 13.5px;
+  line-height: 1.45;
+}
+pre code { background: transparent; padding: 0; font-size: inherit; }
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 16px 0;
+  font-size: 14.5px;
+}
+th, td {
+  border: 1px solid var(--border);
+  padding: 8px 12px;
+  text-align: left;
+  vertical-align: top;
+}
+th { background: var(--accent); color: white; font-weight: 600; font-family: "Helvetica Neue", sans-serif; }
+tr:nth-child(even) td { background: var(--soft-bg); }
+.diagram, figure {
+  margin: 22px auto;
+  text-align: center;
+}
+.diagram-svg {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+  background: white;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+.toc {
+  background: var(--soft-bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 16px 22px;
+  margin: 24px 0;
+}
+.toc h2 {
+  font-size: 18px;
+  margin: 0 0 8px 0;
+  cursor: default;
+  padding: 0;
+}
+.toc h2::after { display: none; }
+.toc ol { margin: 8px 0; padding-left: 24px; }
+.toc a { font-size: 14px; }
+mjx-container { font-size: 1.05em !important; }
+mjx-container[display="true"] { margin: 0.8em 0 !important; }
+.callout {
+  background: var(--soft-bg);
+  border-left: 4px solid var(--accent-soft);
+  padding: 10px 14px;
+  margin: 12px 0;
+  font-size: 14.5px;
+}
+@media print {
+  body { background: white; font-size: 11pt; }
+  .wrap { max-width: 100%; padding: 0; }
+  h2 { cursor: default; page-break-after: avoid; }
+  h2::after { display: none; }
+  pre, table, .diagram { page-break-inside: avoid; }
+}
+
+</style>
+<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [['\\(','\\)']],
+    displayMath: [['\\[','\\]']],
+    processEscapes: true
+  },
+  svg: { fontCache: 'global' },
+  options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code'] }
+};
+</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<div class="wrap">
+<h1 id="cs-61b-data-structures">CS 61B — Data Structures</h1>
+<h2 id="exam-level-study-guide">Exam-Level Study Guide</h2>
+<p><strong>Course:</strong> Computer Science 61B — Data Structures
+<strong>Language:</strong> Java
+<strong>Course site:</strong> https://sp26.datastructur.es/
+<strong>Final exam:</strong> Tue May 12, 2026 — exact time/location: verify at https://sp26.datastructur.es/
+<strong>Format:</strong> In-person, written. Typically 180 min. Multiple handwritten cheat sheets allowed (printed-from-tablet are confiscated).</p>
+<p><strong>How to use this guide.</strong> Each topic block follows the same shape:</p>
+<ul>
+<li><strong>Definition</strong> — formal one-line statement.</li>
+<li><strong>Plain English</strong> — what it actually means.</li>
+<li><strong>Invariant / API / pseudocode</strong> — the canonical reference (cheat-sheet candidates).</li>
+<li><strong>Runtime</strong> — Big-Θ for each operation. Memorize these tables cold.</li>
+<li><strong>Trace example or diagram</strong> — concrete worked example.</li>
+<li><strong>Exam patterns / pitfalls</strong> — what 61B finals do with this concept.</li>
+</ul>
+<p><strong>Calibration note.</strong> You already have <code>MT2_study_guide.md</code> and <code>MT2_cheatsheet.md</code> — those cover roughly half of this guide (asymptotics through heaps). This guide is the structured catalog over the entire course; for MT2-territory topics you should rely on your existing sheets first and use this only for cross-referencing.</p>
+<hr />
+<h2 id="table-of-contents">Table of Contents</h2>
+<ol>
+<li>Java Fundamentals — References, Primitives, Static vs Instance</li>
+<li>Testing</li>
+<li>Lists — IntList → SLList → DLList → AList → ArrayList</li>
+<li>Inheritance — extends, super, equals, hashCode, iterators</li>
+<li>Asymptotics — Big-O / Ω / Θ</li>
+<li>Recurrences and Master Theorem</li>
+<li>Amortized Analysis</li>
+<li>Disjoint Sets (Union-Find)</li>
+<li>Binary Search Trees (BSTs)</li>
+<li>B-Trees (2-3-4 Trees)</li>
+<li>Tree Rotations and Red-Black Trees</li>
+<li>Heaps and Priority Queues</li>
+<li>Hashing</li>
+<li>Tries</li>
+<li>Graphs — Representations and Traversals (DFS, BFS)</li>
+<li>Shortest Paths — Dijkstra, A*</li>
+<li>Minimum Spanning Trees — Prim, Kruskal</li>
+<li>Directed Acyclic Graphs and Topological Sort</li>
+<li>Sorting — Basic Sorts, Quicksort, Mergesort</li>
+<li>Sorting — Theoretical Bounds, Radix Sort</li>
+<li>Compression (Huffman) — light coverage</li>
+</ol>
+<hr />
+<h1 id="1-java-fundamentals-references-primitives-static-vs-instance">1. Java Fundamentals — References, Primitives, Static vs Instance</h1>
+<p><em>[Lec 1–3]</em></p>
+<h3 id="primitive-vs-reference-types">Primitive vs Reference Types</h3>
+<p><strong>Definition.</strong> Primitives (<code>int</code>, <code>double</code>, <code>boolean</code>, <code>char</code>, <code>long</code>, <code>byte</code>, <code>short</code>, <code>float</code>) hold values directly. References hold a pointer to an object on the heap.
+<em>Plain English.</em> \(int x = 5\) puts the bits <code>5</code> in <code>x</code>. <code>int[] a = new int[3]</code> puts a <em>pointer</em> to a heap-allocated array in <code>a</code>. Assigning a reference does NOT copy the object.</p>
+<p><strong>The Golden Rule of Equals (Java).</strong></p>
+<ul>
+<li>Primitives: <code>==</code> compares values.</li>
+<li>References: <code>==</code> compares pointers (same object?). Use <code>.equals()</code> for value equality.</li>
+</ul>
+<pre><code class="language-java">int x = 5, y = 5;
+x == y               // true (value comparison)
+
+int[] a = {1, 2}, b = {1, 2};
+a == b               // false (different objects)
+java.util.Arrays.equals(a, b)  // true
+
+String s1 = &quot;hi&quot;, s2 = &quot;hi&quot;;
+s1 == s2             // typically true due to string interning — DON'T RELY ON THIS
+s1.equals(s2)        // true (always)
+</code></pre>
+<h3 id="static-vs-instance">Static vs Instance</h3>
+<ul>
+<li><strong>Instance variable / method.</strong> Belongs to a specific object. Accessed via <code>obj.field</code>.</li>
+<li><strong>Static variable / method.</strong> Belongs to the class itself. Accessed via <code>ClassName.field</code>. There is exactly ONE copy across all instances.</li>
+<li><strong>Inside a static method</strong>, you cannot reference <code>this</code> (no instance exists).</li>
+</ul>
+<pre><code class="language-java">public class Dog {
+    public static int numDogs = 0;     // shared across all Dogs
+    public String name;                 // each Dog has its own
+
+    public Dog(String n) {
+        name = n;
+        numDogs += 1;
+    }
+
+    public static int getCount() {     // static method
+        return numDogs;
+    }
+}
+</code></pre>
+<h3 id="null-and-nullpointerexception"><code>null</code> and <code>NullPointerException</code></h3>
+<p><strong>Definition.</strong> <code>null</code> is a special reference value meaning "points to nothing."
+<em>Plain English.</em> Calling <code>.method()</code> on <code>null</code> throws <code>NullPointerException</code> (NPE) at runtime. The #1 bug source in Java.</p>
+<h3 id="exam-patterns-pitfalls">Exam patterns / pitfalls</h3>
+<ul>
+<li>"Will this code compile? If so, what does it print?" — common trace question; watch for <code>static</code> vs instance access errors.</li>
+<li><code>String s = null; s.length();</code> — NPE.</li>
+<li>Arrays in Java are objects; <code>arr.length</code> is a field (no parens), <code>str.length()</code> is a method (parens).</li>
+</ul>
+<hr />
+<h1 id="2-testing">2. Testing</h1>
+<p><em>[Lec 4]</em></p>
+<h3 id="unit-tests-with-junit">Unit Tests with JUnit</h3>
+<p><strong>Plain English.</strong> A test is a method that exercises some behavior and asserts the expected outcome. JUnit runs all <code>@Test</code>-annotated methods and reports pass/fail.</p>
+<pre><code class="language-java">import static org.junit.Assert.*;
+import org.junit.Test;
+
+public class ListTest {
+    @Test
+    public void testAddOne() {
+        AList&lt;Integer&gt; a = new AList&lt;&gt;();
+        a.addLast(5);
+        assertEquals(5, (int) a.get(0));
+    }
+}
+</code></pre>
+<h3 id="common-assertions">Common assertions</h3>
+<ul>
+<li><code>assertEquals(expected, actual)</code></li>
+<li><code>assertTrue(condition)</code> / <code>assertFalse(condition)</code></li>
+<li><code>assertArrayEquals(expected, actual)</code> (for arrays)</li>
+<li><code>assertNull(obj)</code> / <code>assertNotNull(obj)</code></li>
+</ul>
+<h3 id="exam-patterns-pitfalls_1">Exam patterns / pitfalls</h3>
+<ul>
+<li>Rare on the final — usually conceptual ("why test before implementing?") at most.</li>
+</ul>
+<hr />
+<h1 id="3-lists-intlist-sllist-dllist-alist-arraylist">3. Lists — IntList → SLList → DLList → AList → ArrayList</h1>
+<p><em>[Lec 5–8]</em></p>
+<h3 id="intlist-the-naked-recursive-list">IntList (the "naked" recursive list)</h3>
+<p><strong>Invariant.</strong> A list is either <code>null</code> (empty) or a node with a <code>first</code> int and a <code>rest</code> IntList.</p>
+<pre><code class="language-java">public class IntList {
+    public int first;
+    public IntList rest;       // null if last node
+
+    public IntList(int f, IntList r) {
+        first = f;
+        rest = r;
+    }
+}
+</code></pre>
+<p><strong>Recursive operation example:</strong></p>
+<pre><code class="language-java">public static int size(IntList L) {
+    if (L == null) return 0;
+    return 1 + size(L.rest);
+}
+</code></pre>
+<h3 id="sllist-singly-linked-list-with-sentinel">SLList (Singly-Linked List with sentinel)</h3>
+<p><strong>Invariant.</strong> SLList wraps an IntList. Has a <code>sentinel</code> node always present (never null), making the empty case look like the general case.</p>
+<pre><code class="language-java">public class SLList {
+    private IntNode sentinel;       // always non-null
+    private int size;
+
+    private static class IntNode {
+        int item;
+        IntNode next;
+        IntNode(int i, IntNode n) { item = i; next = n; }
+    }
+
+    public SLList() {
+        sentinel = new IntNode(0, null);   // garbage value in sentinel
+        size = 0;
+    }
+
+    public void addFirst(int x) {
+        sentinel.next = new IntNode(x, sentinel.next);
+        size += 1;
+    }
+
+    public int size() { return size; }
+}
+</code></pre>
+<p><strong>Why sentinel?</strong> Eliminates the special "is the list empty?" branch in every operation. Cleaner code, fewer bugs.</p>
+<h3 id="dllist-doubly-linked-list-circular-sentinel">DLList (Doubly-Linked List, circular sentinel)</h3>
+<p><strong>Invariant.</strong> Each node has both <code>prev</code> and <code>next</code>. The sentinel's <code>next</code> is the first real node; sentinel's <code>prev</code> is the last real node. Circular structure makes <code>addLast</code> O(1).</p>
+<pre><code class="language-java">private class IntNode {
+    IntNode prev;
+    int item;
+    IntNode next;
+}
+</code></pre>
+<ul>
+<li><code>addLast(x)</code>: create node, splice between <code>sentinel.prev</code> and <code>sentinel</code>. O(1).</li>
+<li><code>removeLast()</code>: unlink <code>sentinel.prev</code>. O(1).</li>
+<li><code>get(i)</code>: walk i steps from sentinel. O(n).</li>
+</ul>
+<h3 id="alist-array-backed-list-with-naive-resize">AList (Array-backed list with naive resize)</h3>
+<p><strong>Invariant.</strong> Internally stores items in <code>int[] items</code>. Field <code>size</code> tracks how many slots are used.</p>
+<pre><code class="language-java">public class AList {
+    private int[] items;
+    private int size;
+
+    public AList() {
+        items = new int[100];
+        size = 0;
+    }
+
+    public void addLast(int x) {
+        if (size == items.length) resize(size * 2);   // GEOMETRIC resize
+        items[size] = x;
+        size += 1;
+    }
+
+    private void resize(int capacity) {
+        int[] a = new int[capacity];
+        System.arraycopy(items, 0, a, 0, size);
+        items = a;
+    }
+}
+</code></pre>
+<p><strong>Geometric resize is critical.</strong> Doubling the array on full-up gives <strong>amortized O(1)</strong> addLast. Adding one slot at a time would give O(n) per addLast.</p>
+<h3 id="operation-runtime-table-memorize">Operation runtime table (memorize)</h3>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>SLList</th>
+<th>DLList</th>
+<th>AList</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>addFirst</td>
+<td>Θ(1)</td>
+<td>Θ(1)</td>
+<td>Θ(n)</td>
+</tr>
+<tr>
+<td>addLast</td>
+<td>Θ(n) (or Θ(1) with last pointer)</td>
+<td>Θ(1)</td>
+<td>Θ(1) amortized, Θ(n) worst</td>
+</tr>
+<tr>
+<td>removeFirst</td>
+<td>Θ(1)</td>
+<td>Θ(1)</td>
+<td>Θ(n)</td>
+</tr>
+<tr>
+<td>removeLast</td>
+<td>Θ(n)</td>
+<td>Θ(1)</td>
+<td>Θ(1)</td>
+</tr>
+<tr>
+<td>get(i)</td>
+<td>Θ(n)</td>
+<td>Θ(n)</td>
+<td>Θ(1)</td>
+</tr>
+<tr>
+<td>size()</td>
+<td>Θ(1)</td>
+<td>Θ(1)</td>
+<td>Θ(1)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="exam-patterns-pitfalls_2">Exam patterns / pitfalls</h3>
+<ul>
+<li>"Trace SLList after these calls" — draw nodes, sentinel, pointers. Sentinel always present.</li>
+<li>"Why does AList double instead of grow by 100?" — to achieve amortized O(1).</li>
+<li>Forgetting to update <code>size</code> on add/remove operations.</li>
+</ul>
+<hr />
+<h1 id="4-inheritance-extends-super-equals-hashcode-iterators">4. Inheritance — extends, super, equals, hashCode, iterators</h1>
+<p><em>[Lec 9–11]</em></p>
+<h3 id="inheritance-basics">Inheritance basics</h3>
+<p><strong>Definition.</strong> <code>class Sub extends Super</code> makes Sub inherit all of Super's non-private members. Sub can also override methods (with <code>@Override</code>) and add new ones.</p>
+<pre><code class="language-java">public class Animal {
+    protected String name;
+    public void greet() { System.out.println(&quot;hi&quot;); }
+}
+
+public class Dog extends Animal {
+    @Override
+    public void greet() {
+        System.out.println(&quot;woof, I'm &quot; + name);
+    }
+}
+</code></pre>
+<h3 id="super"><code>super</code></h3>
+<ul>
+<li><code>super.method(args)</code> → calls the parent's version (skips override).</li>
+<li><code>super(args)</code> → calls parent constructor; must be the FIRST statement of subclass constructor.</li>
+</ul>
+<h3 id="dynamic-vs-static-type">Dynamic vs Static type</h3>
+<p><strong>Definition.</strong> Static type = compile-time type (declared). Dynamic type = runtime type (actual object).
+<em>Plain English.</em> <code>Animal a = new Dog();</code> — static type <code>Animal</code>, dynamic type <code>Dog</code>.</p>
+<p><strong>Method dispatch rule (memorize).</strong> For overridden methods (instance methods), Java uses <strong>dynamic dispatch</strong> — calls the method based on dynamic type. For overloaded methods (different signatures), it uses <strong>static dispatch</strong> — picks the version based on static type.</p>
+<pre><code class="language-java">Animal a = new Dog();
+a.greet();             // calls Dog.greet() — DYNAMIC dispatch
+</code></pre>
+<h3 id="equals-and-hashcode-contract"><code>equals</code> and <code>hashCode</code> contract</h3>
+<p><strong>Two-rule contract (must hold together):</strong>
+1. If <code>a.equals(b)</code> then <code>a.hashCode() == b.hashCode()</code>.
+2. If <code>a.hashCode() == b.hashCode()</code>, no guarantee about <code>a.equals(b)</code>.</p>
+<p><strong>Canonical equals template.</strong></p>
+<pre><code class="language-java">@Override
+public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    Dog other = (Dog) o;
+    return Objects.equals(this.name, other.name);
+}
+
+@Override
+public int hashCode() {
+    return Objects.hash(name);
+}
+</code></pre>
+<h3 id="iterable-iterator">Iterable &amp; Iterator</h3>
+<p><strong>Plain English.</strong> Implementing <code>Iterable&lt;T&gt;</code> lets you use <code>for (T x : myObj)</code>. Need:
+1. Class implements <code>Iterable&lt;T&gt;</code> and provides <code>iterator()</code>.
+2. Returned <code>Iterator&lt;T&gt;</code> has <code>hasNext()</code> and <code>next()</code>.</p>
+<pre><code class="language-java">public class SLList&lt;T&gt; implements Iterable&lt;T&gt; {
+    @Override
+    public Iterator&lt;T&gt; iterator() {
+        return new SLListIterator();
+    }
+
+    private class SLListIterator implements Iterator&lt;T&gt; {
+        private IntNode p = sentinel.next;
+
+        @Override
+        public boolean hasNext() { return p != null; }
+
+        @Override
+        public T next() {
+            T item = p.item;
+            p = p.next;
+            return item;
+        }
+    }
+}
+</code></pre>
+<h3 id="generics">Generics</h3>
+<ul>
+<li><code>class Box&lt;T&gt;</code> declares a type parameter.</li>
+<li><code>Box&lt;Integer&gt;</code> substitutes Integer for T.</li>
+<li>Bounded: <code>&lt;T extends Comparable&lt;T&gt;&gt;</code> says T must be comparable.</li>
+<li>Type erasure: at runtime, generics are erased to their bounds (or <code>Object</code>). You can't do <code>new T[10]</code>.</li>
+</ul>
+<h3 id="exam-patterns-pitfalls_3">Exam patterns / pitfalls</h3>
+<ul>
+<li>"What does this print?" — trace dynamic dispatch carefully when subclasses override.</li>
+<li>Forgetting to override <code>hashCode()</code> after overriding <code>equals()</code> → broken HashMap behavior.</li>
+<li>Static methods are NOT dispatched dynamically — <code>Super.f()</code> and <code>Sub.f()</code> are independent.</li>
+</ul>
+<hr />
+<h1 id="5-asymptotics-big-o">5. Asymptotics — Big-O / Ω / Θ</h1>
+<p><em>[Lec 13]</em></p>
+<h3 id="definitions">Definitions</h3>
+<ul>
+<li><strong>O(f(n))</strong>: upper bound (ceiling). The function grows AT MOST as fast as <code>f</code>.</li>
+<li><strong>Ω(f(n))</strong>: lower bound (floor). The function grows AT LEAST as fast as <code>f</code>.</li>
+<li><strong>Θ(f(n))</strong>: tight bound. The function grows EXACTLY as fast as <code>f</code> (up to constants).</li>
+</ul>
+<p><strong>Plain English.</strong> Multiple O bounds can be valid (any growth rate &gt;= the truth). Only one Θ is valid (matching the truth). Always prefer Θ when possible.</p>
+<h3 id="common-growth-rates-memorize-ranking">Common growth rates (memorize ranking)</h3>
+<pre>\(1 < log n < \sqrtn < n < n log n < n² < n³ < 2^n < n!\)</pre>
+<h3 id="standard-loop-patterns">Standard loop patterns</h3>
+<table>
+<thead>
+<tr>
+<th>Loop</th>
+<th>Iterations</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>for (int i=0; i&lt;n; i++)</code></td>
+<td>n</td>
+</tr>
+<tr>
+<td><code>for (int i=1; i&lt;n; i*=2)</code></td>
+<td>log n</td>
+</tr>
+<tr>
+<td><code>for (int i=n; i&gt;0; i/=2)</code></td>
+<td>log n</td>
+</tr>
+<tr>
+<td>Nested: <code>for i&lt;n { for j&lt;n }</code></td>
+<td>n²</td>
+</tr>
+<tr>
+<td>Nested: <code>for i&lt;n { for j&lt;i }</code></td>
+<td>n²/2 = Θ(n²)</td>
+</tr>
+<tr>
+<td><code>for i*=2 { for j&lt;i }</code></td>
+<td>1+2+4+...+n = Θ(n) (geometric)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="method-for-any-code-runtime-question">Method for any code-runtime question</h3>
+<ol>
+<li>Find the innermost line (or recursive call).</li>
+<li>Count how many times it executes (write as a sum).</li>
+<li>Simplify: drop constants, drop lower-order terms.</li>
+<li>The dominant term is your Θ.</li>
+</ol>
+<h3 id="common-simplifications">Common simplifications</h3>
+<ul>
+<li><code>Θ(2n + 5) = Θ(n)</code> (drop constants and lower terms)</li>
+<li>\(Θ(n² + n) = Θ(n²)\)</li>
+<li><code>Θ(log n) = Θ(log_b n)</code> for any constant base <code>b</code></li>
+<li><code>Θ(log n!) = Θ(n log n)</code> (Stirling's approximation)</li>
+</ul>
+<h3 id="exam-patterns-pitfalls_4">Exam patterns / pitfalls</h3>
+<ul>
+<li>O is NOT worst case — you can talk about Big-O of any case (best, worst, average).</li>
+<li>"Worst-case O(n²)" and "best-case O(1)" are different statements about the same function.</li>
+<li>Don't say "Θ(n²) on average" if the function is sometimes faster — Θ requires a tight bound.</li>
+</ul>
+<hr />
+<h1 id="6-recurrences-and-master-theorem">6. Recurrences and Master Theorem</h1>
+<p><em>[Lec 15–16]</em></p>
+<h3 id="recurrence-relation">Recurrence relation</h3>
+<p><strong>Plain English.</strong> Recursive algorithm runtime described as a recurrence: <code>T(n)</code> in terms of smaller inputs.</p>
+<h3 id="common-recurrences-memorize-their-solutions">Common recurrences (memorize their solutions)</h3>
+<table>
+<thead>
+<tr>
+<th>Recurrence</th>
+<th>Solution</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>T(n) = T(n-1) + O(1)</code></td>
+<td>Θ(n)</td>
+</tr>
+<tr>
+<td><code>T(n) = T(n-1) + O(n)</code></td>
+<td>Θ(n²)</td>
+</tr>
+<tr>
+<td><code>T(n) = T(n/2) + O(1)</code></td>
+<td>Θ(log n)</td>
+</tr>
+<tr>
+<td><code>T(n) = T(n/2) + O(n)</code></td>
+<td>Θ(n)</td>
+</tr>
+<tr>
+<td><code>T(n) = 2T(n/2) + O(1)</code></td>
+<td>Θ(n)</td>
+</tr>
+<tr>
+<td><code>T(n) = 2T(n/2) + O(n)</code></td>
+<td>Θ(n log n) — mergesort</td>
+</tr>
+<tr>
+<td>\(T(n) = 2T(n/2) + O(n²)\)</td>
+<td>Θ(n²)</td>
+</tr>
+<tr>
+<td><code>T(n) = 2T(n-1) + O(1)</code></td>
+<td>Θ(2^n)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="master-theorem">Master Theorem</h3>
+<p><strong>Statement.</strong> For \(T(n) = a \cdot T(n/b) + f(n)\) with \(a \geq 1\), <code>b &gt; 1</code>:
+1. If \(f(n) = O(n^{log_b a - \varepsilon })\) for some \(\varepsilon > 0\) → \(T(n) = Θ(n^{log_b a})\) (work dominated by leaves)
+2. If \(f(n) = Θ(n^{log_b a})\) → \(T(n) = Θ(n^{log_b a} \cdot log n)\) (balanced)
+3. If \(f(n) = Ω(n^{log_b a + \varepsilon })\) AND regularity condition holds → <code>T(n) = Θ(f(n))</code> (work dominated by root)</p>
+<p><strong>Plain English.</strong> Compare <code>f(n)</code> to <code>n^(log_b a)</code>. The bigger one (asymptotically) wins; if they're equal, multiply by log.</p>
+<h3 id="recursion-tree-method-when-master-theorem-doesnt-apply">Recursion tree method (when Master Theorem doesn't apply)</h3>
+<ol>
+<li>Draw the tree of recursive calls.</li>
+<li>Compute work per level.</li>
+<li>Sum across levels.</li>
+</ol>
+<ul>
+<li>Mergesort: each level does Θ(n) work, log n levels → Θ(n log n).</li>
+<li>Quicksort worst case: T(n) = T(n-1) + Θ(n) → Θ(n²).</li>
+<li>Quicksort average: T(n) = 2T(n/2) + Θ(n) → Θ(n log n).</li>
+</ul>
+<h3 id="exam-patterns-pitfalls_5">Exam patterns / pitfalls</h3>
+<ul>
+<li>Master Theorem: write down <code>a</code>, <code>b</code>, <code>f(n)</code> clearly. Compute <code>n^(log_b a)</code>. Compare.</li>
+<li>"T(n) = T(n-1) + Θ(n)" → Master Theorem doesn't apply (n-1 isn't n/b). Use recursion tree: 1 + 2 + ... + n = Θ(n²).</li>
+</ul>
+<hr />
+<h1 id="7-amortized-analysis">7. Amortized Analysis</h1>
+<p><em>[Lec 15]</em></p>
+<h3 id="definition">Definition</h3>
+<p><strong>Plain English.</strong> Average cost per operation over a <em>worst-case sequence</em> of operations. Used when individual operations vary in cost but average out.</p>
+<h3 id="aggregate-method-most-common">Aggregate method (most common)</h3>
+<ol>
+<li>Find the total cost of any sequence of N operations.</li>
+<li>Divide by N to get the amortized cost per operation.</li>
+</ol>
+<h3 id="example-alist-addlast-geometric-resize">Example: AList addLast (geometric resize)</h3>
+<ul>
+<li>Start with capacity 1. Resize doubles whenever full.</li>
+<li>After N inserts, the resize work is <code>1 + 2 + 4 + ... + N</code> ≈ <code>2N</code>.</li>
+<li>Plus N constant-time inserts.</li>
+<li>Total: Θ(N) work for N operations → <strong>Θ(1) amortized per addLast</strong>.</li>
+</ul>
+<h3 id="why-doubling-matters">Why doubling matters</h3>
+<ul>
+<li>If you grew by +1 each resize: 1 + 2 + 3 + ... + N = Θ(N²) total. → Θ(N) amortized. Bad.</li>
+<li>If you grew by ×2 each resize: 1 + 2 + 4 + ... + N = Θ(N) total. → Θ(1) amortized. Good.</li>
+</ul>
+<h3 id="bankers-potential-method-alternative-framing">Banker's / Potential method (alternative framing)</h3>
+<p><strong>Plain English.</strong> Pre-pay for expensive operations using "credits" earned during cheap ones. Each operation "costs" amortized cost; saved-up credits cover spikes.</p>
+<h3 id="exam-patterns-pitfalls_6">Exam patterns / pitfalls</h3>
+<ul>
+<li>"Amortized vs worst case" — single addLast can still be Θ(N) (the resize). Amortized is per-operation over a long sequence.</li>
+<li>The amortized analysis depends on the resize strategy; specify yours.</li>
+</ul>
+<hr />
+<h1 id="8-disjoint-sets-union-find">8. Disjoint Sets (Union-Find)</h1>
+<p><em>[Lec 14]</em></p>
+<h3 id="api">API</h3>
+<pre><code class="language-java">class DisjointSets {
+    void connect(int p, int q);     // union: merge p's group with q's group
+    boolean isConnected(int p, int q);
+    int find(int p);                 // return root of p's group
+}
+</code></pre>
+<h3 id="implementations-evolution-toward-wqu-path-compression">Implementations (evolution toward WQU + Path Compression)</h3>
+<p><strong>1. Quick Find (id array)</strong></p>
+<ul>
+<li><code>id[i]</code> = group label of i.</li>
+<li><code>isConnected</code>: <code>id[p] == id[q]</code> → Θ(1).</li>
+<li><code>connect</code>: scan all and rewrite labels → Θ(n).</li>
+</ul>
+<p><strong>2. Quick Union (parent array)</strong></p>
+<ul>
+<li><code>parent[i]</code> = parent of i. <code>parent[i] == i</code> if i is root.</li>
+<li><code>find(p)</code>: walk up parents until root. Up to Θ(n) (skinny tree).</li>
+<li><code>connect(p, q)</code>: <code>parent[find(p)] = find(q)</code>. Θ(n) worst case.</li>
+</ul>
+<p><strong>3. Weighted Quick Union (WQU)</strong></p>
+<ul>
+<li>Track size of each tree (typically as a negative number at root: <code>parent[root] = -size</code>).</li>
+<li><code>connect</code>: attach smaller tree under larger. Tree height ≤ log n.</li>
+<li>All ops Θ(log n).</li>
+</ul>
+<p><strong>4. WQU + Path Compression</strong></p>
+<ul>
+<li>During <code>find</code>, make every visited node point directly at the root.</li>
+<li>Amortized nearly Θ(1) (technically α(n), inverse Ackermann — call it constant).</li>
+</ul>
+<h3 id="canonical-pseudocode-wqu-pc">Canonical pseudocode (WQU + PC)</h3>
+<pre><code class="language-java">int[] parent;        // parent[i] = parent of i, OR -size if i is root
+
+int find(int p) {
+    int root = p;
+    while (parent[root] &gt;= 0) root = parent[root];
+
+    // Path compression: make every node on the path point to root
+    while (parent[p] &gt;= 0) {
+        int next = parent[p];
+        parent[p] = root;
+        p = next;
+    }
+    return root;
+}
+
+void connect(int p, int q) {
+    int rp = find(p), rq = find(q);
+    if (rp == rq) return;
+    int sizeP = -parent[rp], sizeQ = -parent[rq];
+    if (sizeP &lt; sizeQ) {                  // attach smaller under larger
+        parent[rp] = rq;
+        parent[rq] = -(sizeP + sizeQ);
+    } else {
+        parent[rq] = rp;
+        parent[rp] = -(sizeP + sizeQ);
+    }
+}
+</code></pre>
+<h3 id="runtime-table">Runtime table</h3>
+<table>
+<thead>
+<tr>
+<th>Implementation</th>
+<th>connect</th>
+<th>isConnected</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Quick Find</td>
+<td>Θ(n)</td>
+<td>Θ(1)</td>
+</tr>
+<tr>
+<td>Quick Union</td>
+<td>Θ(n) worst</td>
+<td>Θ(n) worst</td>
+</tr>
+<tr>
+<td>Weighted QU</td>
+<td>Θ(log n)</td>
+<td>Θ(log n)</td>
+</tr>
+<tr>
+<td>WQU + Path Compression</td>
+<td>Θ(α(n)) ≈ Θ(1) amortized</td>
+<td>Θ(α(n)) ≈ Θ(1) amortized</td>
+</tr>
+</tbody>
+</table>
+<h3 id="exam-patterns-pitfalls_7">Exam patterns / pitfalls</h3>
+<ul>
+<li><code>parent[]</code> size is fixed at construction. It doesn't shrink.</li>
+<li>"Trace WQU on these connect operations" → keep an array, mark roots negative with size.</li>
+<li><code>connect(a, b)</code> modifies <code>parent[root_of_a]</code> (or <code>root_of_b</code>), NOT <code>parent[a]</code>.</li>
+<li>Path compression only fires during <code>find</code>, not during <code>connect</code> directly.</li>
+</ul>
+<hr />
+<h1 id="9-binary-search-trees-bsts">9. Binary Search Trees (BSTs)</h1>
+<p><em>[Lec 17]</em></p>
+<h3 id="invariant">Invariant</h3>
+<p>For every node N: all keys in N's left subtree are &lt; N.key; all keys in N's right subtree are &gt; N.key.</p>
+<h3 id="operations">Operations</h3>
+<p><strong>search(key):</strong> walk down using comparisons. Θ(h) where h is height.
+<strong>insert(key):</strong> walk down to where the search would fall off; attach a new leaf. Θ(h).
+<strong>delete(key) — Hibbard deletion:</strong></p>
+<ul>
+<li>0 children: just remove.</li>
+<li>1 child: promote child.</li>
+<li>2 children: find in-order successor (smallest in right subtree), replace, then delete successor (which now has at most 1 child).</li>
+</ul>
+<h3 id="heights">Heights</h3>
+<ul>
+<li>Best case (perfectly balanced): h = Θ(log n)</li>
+<li>Worst case (skinny / inserted in order): h = Θ(n)</li>
+<li>→ BSTs are NOT self-balancing; that's why we need RB-trees / B-trees.</li>
+</ul>
+<h3 id="in-order-traversal-yields-sorted-output">In-order traversal (yields sorted output)</h3>
+<pre><code class="language-java">void inorder(Node n) {
+    if (n == null) return;
+    inorder(n.left);
+    visit(n);
+    inorder(n.right);
+}
+</code></pre>
+<h3 id="runtime-table-bst-h-height">Runtime table (BST, h = height)</h3>
+<table>
+<thead>
+<tr>
+<th>Op</th>
+<th>Best</th>
+<th>Worst</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>search</td>
+<td>Θ(log n)</td>
+<td>Θ(n)</td>
+</tr>
+<tr>
+<td>insert</td>
+<td>Θ(log n)</td>
+<td>Θ(n)</td>
+</tr>
+<tr>
+<td>delete</td>
+<td>Θ(log n)</td>
+<td>Θ(n)</td>
+</tr>
+<tr>
+<td>in-order traversal</td>
+<td>Θ(n)</td>
+<td>Θ(n)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="exam-patterns-pitfalls_8">Exam patterns / pitfalls</h3>
+<ul>
+<li>"Trace BST after these inserts" — draw step by step, hang each new key as a leaf.</li>
+<li>"What's the worst-case shape after inserting 1, 2, 3, 4, 5 in order?" — fully right-skewed, height n-1.</li>
+<li>Hibbard deletion with 2 children: in-order successor (or predecessor), don't forget the recursive delete.</li>
+</ul>
+<hr />
+<h1 id="10-b-trees-2-3-4-trees">10. B-Trees (2-3-4 Trees)</h1>
+<p><em>[Lec 18]</em></p>
+<h3 id="definition_1">Definition</h3>
+<p>A 2-3-4 tree is a B-tree with L=3 (each node holds 1 to 3 keys, has 2 to 4 children). All leaves at the SAME depth → tree is always perfectly height-balanced.</p>
+<h3 id="invariants">Invariants</h3>
+<ol>
+<li>Each non-leaf node with <code>k</code> keys has <code>k+1</code> children.</li>
+<li>Keys within a node are sorted.</li>
+<li>Children's key ranges are bounded by their parent's keys (BST-like across the whole tree).</li>
+<li>All leaves at the same depth.</li>
+</ol>
+<h3 id="insertion-61as-reactive-variant">Insertion (61A's reactive variant)</h3>
+<ol>
+<li>Walk down to the appropriate leaf (BST-style).</li>
+<li>Insert the new key into that leaf.</li>
+<li>If the leaf now has 4 keys (overfull): <strong>split</strong>.</li>
+</ol>
+<ul>
+<li>Promote the <strong>left-middle</strong> key (the second-smallest of 4, per 61B convention) up to the parent.</li>
+<li>Split the remaining 3 keys into two siblings of 1 and 2 keys (or however 61B defines it — verify slide 18).
+4. If the parent now has 4 keys, split it too. Chain reaction up the tree.
+5. The tree GROWS IN HEIGHT only when the root splits — creating a new root above.</li>
+</ul>
+<h3 id="worked-example-insert-1-2-3-4-into-empty-2-3-4-tree">Worked example (insert 1, 2, 3, 4 into empty 2-3-4 tree)</h3>
+<div class="diagram"><svg viewBox="0 0 660 280" xmlns="http://www.w3.org/2000/svg" class="diagram-svg" role="img" aria-label="2-3-4 tree insertion with split-and-promote">
+  <!-- Snapshots: insert 1; insert 2; insert 3; insert 4 (overflow → split) -->
+  <text x="80"  y="30" text-anchor="middle" font-size="13" font-weight="600" fill="#1f4e79">insert 1</text>
+  <text x="220" y="30" text-anchor="middle" font-size="13" font-weight="600" fill="#1f4e79">insert 2</text>
+  <text x="370" y="30" text-anchor="middle" font-size="13" font-weight="600" fill="#1f4e79">insert 3</text>
+  <text x="540" y="30" text-anchor="middle" font-size="13" font-weight="600" fill="#c44">insert 4 → SPLIT</text>
+  <!-- Snapshot 1: [1] -->
+  <rect x="60" y="50" width="40" height="34" stroke="#333" fill="white" stroke-width="1.5" rx="3"/>
+  <text x="80" y="73" text-anchor="middle" font-size="14" font-weight="600">1</text>
+  <!-- Snapshot 2: [1, 2] -->
+  <rect x="190" y="50" width="60" height="34" stroke="#333" fill="white" stroke-width="1.5" rx="3"/>
+  <text x="207" y="73" text-anchor="middle" font-size="14">1</text>
+  <line x1="220" y1="50" x2="220" y2="84" stroke="#333" stroke-width="1"/>
+  <text x="234" y="73" text-anchor="middle" font-size="14">2</text>
+  <!-- Snapshot 3: [1, 2, 3] -->
+  <rect x="335" y="50" width="80" height="34" stroke="#333" fill="white" stroke-width="1.5" rx="3"/>
+  <text x="352" y="73" text-anchor="middle" font-size="14">1</text>
+  <line x1="365" y1="50" x2="365" y2="84" stroke="#333" stroke-width="1"/>
+  <text x="378" y="73" text-anchor="middle" font-size="14">2</text>
+  <line x1="392" y1="50" x2="392" y2="84" stroke="#333" stroke-width="1"/>
+  <text x="404" y="73" text-anchor="middle" font-size="14">3</text>
+  <!-- Snapshot 4: split → promote 2; left=[1], right=[3,4] -->
+  <!-- Root [2] -->
+  <rect x="525" y="60" width="38" height="34" stroke="#c44" fill="#fff5f5" stroke-width="2" rx="3"/>
+  <text x="544" y="83" text-anchor="middle" font-size="14" font-weight="700" fill="#c44">2</text>
+  <!-- Left child [1] -->
+  <rect x="465" y="155" width="36" height="32" stroke="#333" fill="white" stroke-width="1.5" rx="3"/>
+  <text x="483" y="177" text-anchor="middle" font-size="13">1</text>
+  <line x1="540" y1="94" x2="483" y2="155" stroke="#333" stroke-width="1.2"/>
+  <!-- Right child [3, 4] -->
+  <rect x="565" y="155" width="58" height="32" stroke="#333" fill="white" stroke-width="1.5" rx="3"/>
+  <text x="580" y="177" text-anchor="middle" font-size="13">3</text>
+  <line x1="594" y1="155" x2="594" y2="187" stroke="#333" stroke-width="1"/>
+  <text x="608" y="177" text-anchor="middle" font-size="13">4</text>
+  <line x1="548" y1="94" x2="594" y2="155" stroke="#333" stroke-width="1.2"/>
+  <!-- annotation -->
+  <text x="544" y="228" text-anchor="middle" font-size="11" fill="#c44">promote 2 to new root</text>
+  <text x="544" y="244" text-anchor="middle" font-size="11" fill="#c44">tree height grows by 1</text>
+</svg></div>
+
+<h3 id="runtime">Runtime</h3>
+<p>All operations: Θ(log n). Tree height is always ≤ log_2(n+1) for 2-3-4.</p>
+<h3 id="exam-patterns-pitfalls_9">Exam patterns / pitfalls</h3>
+<ul>
+<li>"Insert these keys, draw the tree" — most common B-tree question.</li>
+<li>"Which key gets promoted on split?" — 61B's convention is left-middle. Some textbooks use right-middle. Use the convention from your slides.</li>
+<li>All leaves at same depth — if your trace produces uneven leaves, you made an error.</li>
+</ul>
+<hr />
+<h1 id="11-tree-rotations-and-red-black-trees">11. Tree Rotations and Red-Black Trees</h1>
+<p><em>[Lec 19]</em></p>
+<h3 id="tree-rotation">Tree Rotation</h3>
+<p><strong>Definition.</strong> A rotation reshapes a BST while preserving the BST invariant. Two operations:</p>
+<ul>
+<li><code>rotateLeft(G)</code>: G's right child becomes new root of subtree; G becomes left child.</li>
+<li><code>rotateRight(G)</code>: G's left child becomes new root; G becomes right child.</li>
+</ul>
+<h3 id="rotateright-diagram">rotateRight diagram</h3>
+<div class="diagram"><svg viewBox="0 0 580 280" xmlns="http://www.w3.org/2000/svg" class="diagram-svg" role="img" aria-label="BST right rotation, before and after">
+  <text x="140" y="30" text-anchor="middle" font-size="14" font-weight="600" fill="#444">Before rotateRight(G)</text>
+  <text x="440" y="30" text-anchor="middle" font-size="14" font-weight="600" fill="#444">After rotateRight(G)</text>
+  <!-- BEFORE: G is top, P is left child of G, a/b are children of P, c is right child of G -->
+  <circle cx="140" cy="60" r="18" fill="white" stroke="#1f4e79" stroke-width="2"/>
+  <text x="140" y="65" text-anchor="middle" font-size="13" font-weight="600">G</text>
+  <line x1="124" y1="74" x2="86" y2="116" stroke="#333" stroke-width="1.4"/>
+  <line x1="156" y1="74" x2="194" y2="116" stroke="#333" stroke-width="1.4"/>
+  <circle cx="80" cy="130" r="16" fill="white" stroke="#5b7f2e" stroke-width="2"/>
+  <text x="80" y="135" text-anchor="middle" font-size="13" font-weight="600">P</text>
+  <circle cx="200" cy="130" r="14" fill="white" stroke="#888" stroke-width="1.5"/>
+  <text x="200" y="135" text-anchor="middle" font-size="12">c</text>
+  <line x1="65" y1="142" x2="36" y2="180" stroke="#333" stroke-width="1.4"/>
+  <line x1="95" y1="142" x2="124" y2="180" stroke="#333" stroke-width="1.4"/>
+  <circle cx="32" cy="195" r="13" fill="white" stroke="#888" stroke-width="1.5"/>
+  <text x="32" y="200" text-anchor="middle" font-size="12">a</text>
+  <circle cx="128" cy="195" r="13" fill="white" stroke="#888" stroke-width="1.5"/>
+  <text x="128" y="200" text-anchor="middle" font-size="12">b</text>
+  <!-- AFTER: P at top; a left of P; G right of P; b left of G; c right of G -->
+  <circle cx="440" cy="60" r="18" fill="white" stroke="#5b7f2e" stroke-width="2"/>
+  <text x="440" y="65" text-anchor="middle" font-size="13" font-weight="600">P</text>
+  <line x1="424" y1="74" x2="386" y2="116" stroke="#333" stroke-width="1.4"/>
+  <line x1="456" y1="74" x2="494" y2="116" stroke="#333" stroke-width="1.4"/>
+  <circle cx="380" cy="130" r="14" fill="white" stroke="#888" stroke-width="1.5"/>
+  <text x="380" y="135" text-anchor="middle" font-size="12">a</text>
+  <circle cx="500" cy="130" r="16" fill="white" stroke="#1f4e79" stroke-width="2"/>
+  <text x="500" y="135" text-anchor="middle" font-size="13" font-weight="600">G</text>
+  <line x1="485" y1="142" x2="455" y2="180" stroke="#333" stroke-width="1.4"/>
+  <line x1="515" y1="142" x2="545" y2="180" stroke="#333" stroke-width="1.4"/>
+  <circle cx="450" cy="195" r="13" fill="white" stroke="#888" stroke-width="1.5"/>
+  <text x="450" y="200" text-anchor="middle" font-size="12">b</text>
+  <circle cx="549" cy="195" r="13" fill="white" stroke="#888" stroke-width="1.5"/>
+  <text x="549" y="200" text-anchor="middle" font-size="12">c</text>
+  <!-- arrow between -->
+  <line x1="245" y1="130" x2="335" y2="130" stroke="#c44" stroke-width="2.5" marker-end="url(#aROT)"/>
+  <defs><marker id="aROT" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#c44"/></marker></defs>
+  <text x="290" y="120" text-anchor="middle" font-size="12" fill="#c44" font-weight="600">rotateRight</text>
+  <text x="290" y="252" text-anchor="middle" font-size="11" fill="#666">"middle" subtree (b) moves from P's right child to G's left child.</text>
+</svg></div>
+
+<p><strong>Rule.</strong> The "middle" subtree (<code>b</code> here) moves from being P's right child to being G's left child.</p>
+<h3 id="red-black-trees-llrb-convention">Red-Black Trees (LLRB convention)</h3>
+<p><strong>Plain English.</strong> A BST that maintains balance using rotations and color-flips. Equivalent to a 2-3 (or 2-3-4) tree in structure.</p>
+<p><strong>Left-Leaning Red-Black (LLRB) invariants:</strong>
+1. Every node is RED or BLACK.
+2. Root is BLACK.
+3. Red links lean left (right child can never be red on its own).
+4. No two red links in a row.
+5. Every path from root to NULL has the same number of black links (perfect black balance).</p>
+<h3 id="mapping-llrb-2-3-tree">Mapping LLRB ↔ 2-3 Tree</h3>
+<ul>
+<li>A red link in LLRB corresponds to two keys in the same 2-3-tree node.</li>
+<li>Black links separate 2-3-tree nodes.</li>
+<li>→ an LLRB has the same height-balance properties as a 2-3 tree.</li>
+</ul>
+<h3 id="insertion-fix-ups-after-standard-bst-insert-with-new-node-red">Insertion fix-ups (after standard BST insert with new node = RED)</h3>
+<ol>
+<li>If right child is RED and left is BLACK → <code>rotateLeft</code>.</li>
+<li>If left is RED and left.left is RED → <code>rotateRight</code>.</li>
+<li>If both children are RED → <code>flipColors</code> (both become BLACK, parent becomes RED).</li>
+</ol>
+<h3 id="runtime_1">Runtime</h3>
+<p>All ops: Θ(log n). Tree height ≤ 2 · log n (factor of 2 because of red links).</p>
+<h3 id="exam-patterns-pitfalls_10">Exam patterns / pitfalls</h3>
+<ul>
+<li>"Trace insertion into an LLRB" — do BST insert, then apply the 3 fix-up rules bottom-up.</li>
+<li>"Which rotation do I need here?" — left rotation if right child is red without a red left; right rotation if there are two red links in a row leaning left.</li>
+<li>LLRB vs general RB: 61B uses LLRB; standard textbooks may use general red-black trees with different rules.</li>
+</ul>
+<hr />
+<h1 id="12-heaps-and-priority-queues">12. Heaps and Priority Queues</h1>
+<p><em>[Lec 20]</em></p>
+<h3 id="min-heap-invariant">Min-Heap Invariant</h3>
+<ol>
+<li>Every node's key ≤ its children's keys.</li>
+<li>The tree is a complete binary tree (filled level by level, last level filled left-to-right).</li>
+</ol>
+<p>(Max-heap: parent ≥ children.)</p>
+<h3 id="array-representation">Array Representation</h3>
+<p>A complete binary tree fits perfectly in an array indexed 1..n (root at index 1):</p>
+<ul>
+<li>Parent of i: <code>i / 2</code></li>
+<li>Left child of i: <code>2 * i</code></li>
+<li>Right child of i: <code>2 * i + 1</code></li>
+</ul>
+<p>(Some textbooks use 0-indexed; left=2i+1, right=2i+2, parent=(i-1)/2.)</p>
+<h3 id="swim-move-a-node-up"><code>swim</code> (move a node up)</h3>
+<p>After inserting at the bottom: while the new node is smaller than its parent, swap.</p>
+<pre><code class="language-java">void swim(int k) {
+    while (k &gt; 1 &amp;&amp; a[k] &lt; a[k/2]) {
+        swap(k, k/2);
+        k = k/2;
+    }
+}
+</code></pre>
+<h3 id="sink-move-a-node-down"><code>sink</code> (move a node down)</h3>
+<p>After replacing root with last element: while the node is larger than its smaller child, swap with that smaller child.</p>
+<pre><code class="language-java">void sink(int k) {
+    while (2*k &lt;= n) {
+        int j = 2*k;
+        if (j &lt; n &amp;&amp; a[j+1] &lt; a[j]) j = j + 1;   // pick smaller child
+        if (a[k] &lt;= a[j]) break;                  // already in place
+        swap(k, j);
+        k = j;
+    }
+}
+</code></pre>
+<h3 id="operations_1">Operations</h3>
+<ul>
+<li><code>insert(x)</code>: append to end, then <code>swim</code>. Θ(log n).</li>
+<li><code>peekMin()</code>: return <code>a[1]</code>. Θ(1).</li>
+<li><code>removeMin()</code>: save <code>a[1]</code>, replace with <code>a[n]</code>, decrement n, then <code>sink(1)</code>. Θ(log n).</li>
+<li><code>heapify(array)</code>: call <code>sink</code> on each non-leaf, bottom-up. Θ(n) (NOT n log n).</li>
+</ul>
+<h3 id="runtime-table_1">Runtime table</h3>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Time</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>insert</td>
+<td>Θ(log n)</td>
+</tr>
+<tr>
+<td>peekMin</td>
+<td>Θ(1)</td>
+</tr>
+<tr>
+<td>removeMin</td>
+<td>Θ(log n)</td>
+</tr>
+<tr>
+<td>heapify a whole array</td>
+<td>Θ(n)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="exam-patterns-pitfalls_11">Exam patterns / pitfalls</h3>
+<ul>
+<li>"Insert these keys into an empty heap, draw the tree" — most common heap question. Use <code>swim</code>.</li>
+<li>"removeMin — show the array after each step" — replace root with last, decrement size, sink.</li>
+<li>Heapify in Θ(n) is counterintuitive — it's because the bottom layer (most nodes) only sinks O(1).</li>
+<li>Min-heap finds minimum in Θ(1), but finding the maximum requires O(n) (scan).</li>
+</ul>
+<hr />
+<h1 id="13-hashing">13. Hashing</h1>
+<p><em>[Lec 26–27]</em></p>
+<h3 id="hash-map-definition">Hash Map Definition</h3>
+<p><strong>Plain English.</strong> Stores (key, value) pairs in a fixed-size array of "buckets." A hash function maps keys to bucket indices. Collisions handled by chaining (a list per bucket) or open addressing (probing).</p>
+<h3 id="hash-function">Hash function</h3>
+<ul>
+<li>Compute a key's <code>hashCode()</code> (an int).</li>
+<li>Reduce to bucket index: <code>index = (hashCode % capacity + capacity) % capacity</code> (handle negative).</li>
+</ul>
+<h3 id="equalshashcode-contract-critical-see-inheritance-section"><code>equals</code>/<code>hashCode</code> contract (CRITICAL — see Inheritance section)</h3>
+<ol>
+<li><code>a.equals(b)</code> ⟹ <code>a.hashCode() == b.hashCode()</code>.</li>
+<li>The reverse is NOT required.</li>
+</ol>
+<h3 id="separate-chaining">Separate chaining</h3>
+<p><strong>Plain English.</strong> Each bucket holds a list of entries. Lookup walks the list to find a matching key.</p>
+<ul>
+<li><code>put(k, v)</code>: hash to bucket, then walk list. If key exists, update; else prepend.</li>
+<li><code>get(k)</code>: hash to bucket, walk list, return matching value.</li>
+<li>Average time: Θ(1 + load factor).</li>
+<li>Worst case (all keys hash to same bucket): Θ(n).</li>
+</ul>
+<h3 id="linear-probing-open-addressing">Linear probing (open addressing)</h3>
+<p><strong>Plain English.</strong> No lists — store entries directly in the array. On collision, probe to the next slot.</p>
+<ul>
+<li><code>put(k, v)</code>: hash to index. If occupied with different key, check index+1, +2, ... wrapping around.</li>
+<li><code>get(k)</code>: probe until match or empty slot.</li>
+<li>Tombstones needed for deletion.</li>
+</ul>
+<h3 id="load-factor-and-resize">Load factor and resize</h3>
+<ul>
+<li>Load factor \(\alpha = N / M\) (N entries, M buckets).</li>
+<li>When \(\alpha\) exceeds a threshold (typically 0.5–0.75), double the array and rehash all entries.</li>
+<li>Resize is Θ(N), but amortized Θ(1) per insert (same argument as AList).</li>
+</ul>
+<h3 id="runtime-table-assume-good-hash-function-bounded">Runtime table (assume good hash function, α bounded)</h3>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Average</th>
+<th>Worst</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>put</td>
+<td>Θ(1)</td>
+<td>Θ(n)</td>
+</tr>
+<tr>
+<td>get</td>
+<td>Θ(1)</td>
+<td>Θ(n)</td>
+</tr>
+<tr>
+<td>remove</td>
+<td>Θ(1)</td>
+<td>Θ(n)</td>
+</tr>
+<tr>
+<td>iteration over all entries</td>
+<td>Θ(N + M)</td>
+<td>same</td>
+</tr>
+</tbody>
+</table>
+<h3 id="hashcode-design-rules"><code>hashCode</code> design rules</h3>
+<ul>
+<li>Should distribute keys uniformly.</li>
+<li>Should be deterministic (same key → same code, every call).</li>
+<li>Must be consistent with <code>equals</code>.</li>
+</ul>
+<pre><code class="language-java">@Override
+public int hashCode() {
+    int hash = 17;
+    hash = 31 * hash + Objects.hashCode(field1);
+    hash = 31 * hash + Objects.hashCode(field2);
+    return hash;
+}
+</code></pre>
+<h3 id="exam-patterns-pitfalls_12">Exam patterns / pitfalls</h3>
+<ul>
+<li>"Insert these keys with this hash function — show the table" — common.</li>
+<li>"Calculate load factor; when does it resize?" — compute N/M.</li>
+<li>Wrong <code>hashCode</code>/<code>equals</code> consistency → hash maps lose entries.</li>
+<li>Linear probing performance degrades as load factor approaches 1 ("primary clustering"). Resize earlier than chaining would.</li>
+</ul>
+<hr />
+<h1 id="14-tries">14. Tries</h1>
+<p><em>[Lec 28]</em></p>
+<h3 id="definition_2">Definition</h3>
+<p><strong>Plain English.</strong> A tree where each path from root to a node spells a string. Used for sets/maps with string keys, fast prefix queries.</p>
+<h3 id="structure-simple-r-way-trie-r26-for-lowercase-az">Structure (simple R-way trie, R=26 for lowercase a–z)</h3>
+<pre><code class="language-java">class TrieNode {
+    boolean isWord;             // true if a word ends here
+    TrieNode[] children = new TrieNode[26];
+}
+</code></pre>
+<h3 id="operations_2">Operations</h3>
+<p><strong>insert(word):</strong></p>
+<pre><code class="language-java">void insert(String word) {
+    TrieNode p = root;
+    for (char c : word.toCharArray()) {
+        int i = c - 'a';
+        if (p.children[i] == null) p.children[i] = new TrieNode();
+        p = p.children[i];
+    }
+    p.isWord = true;
+}
+</code></pre>
+<p><strong>contains(word):</strong></p>
+<pre><code class="language-java">boolean contains(String word) {
+    TrieNode p = root;
+    for (char c : word.toCharArray()) {
+        int i = c - 'a';
+        if (p.children[i] == null) return false;
+        p = p.children[i];
+    }
+    return p.isWord;
+}
+</code></pre>
+<h3 id="runtime_2">Runtime</h3>
+<p>All operations on word of length L: Θ(L). Independent of N (number of words stored). This is the trie's superpower.</p>
+<p><strong>Prefix queries:</strong> finding all words with prefix P is Θ(L + #matches), trivial with a trie. Hash maps cannot do this efficiently.</p>
+<h3 id="variants">Variants</h3>
+<ul>
+<li><strong>R-way trie</strong> — array of size R per node. Fast but space-wasteful for sparse alphabets.</li>
+<li><strong>TST (Ternary Search Trie)</strong> — each node has left/middle/right child with character. More space-efficient. Verify whether 61B SP26 covers it.</li>
+</ul>
+<h3 id="exam-patterns-pitfalls_13">Exam patterns / pitfalls</h3>
+<ul>
+<li>"Insert these words; draw the trie." — node-by-node.</li>
+<li>"What's the runtime of search?" — Θ(length of word), NOT log n.</li>
+<li>Don't confuse with BST; tries don't use comparison-based search.</li>
+</ul>
+<hr />
+<h1 id="15-graphs-representations-and-traversals-dfs-bfs">15. Graphs — Representations and Traversals (DFS, BFS)</h1>
+<p><em>[Lec 21–22]</em></p>
+<h3 id="definitions_1">Definitions</h3>
+<ul>
+<li><strong>Vertex (node).</strong> A point in the graph.</li>
+<li><strong>Edge.</strong> A connection between two vertices. Can be directed or undirected; weighted or unweighted.</li>
+<li><strong>Path.</strong> Sequence of edges.</li>
+<li><strong>Cycle.</strong> Path that starts and ends at the same vertex.</li>
+<li><strong>Connected.</strong> All vertices reachable from each other (undirected); strongly connected for directed.</li>
+<li><strong>DAG.</strong> Directed Acyclic Graph.</li>
+</ul>
+<h3 id="adjacency-representations">Adjacency representations</h3>
+<p><strong>Adjacency Matrix.</strong> N×N boolean (or weight) matrix. <code>A[i][j] = 1</code> if edge i→j.</p>
+<ul>
+<li>Space: Θ(V²).</li>
+<li>Edge query: Θ(1).</li>
+<li>Iterate neighbors of i: Θ(V).</li>
+</ul>
+<p><strong>Adjacency List.</strong> Array of lists; <code>adj[i]</code> = list of neighbors of i.</p>
+<ul>
+<li>Space: Θ(V + E).</li>
+<li>Edge query: Θ(degree).</li>
+<li>Iterate neighbors of i: Θ(degree).</li>
+</ul>
+<p><strong>When to use which:</strong> dense graphs (E ≈ V²) → matrix; sparse → list. Most real-world graphs are sparse → adjacency list.</p>
+<h3 id="dfs-depth-first-search">DFS (Depth-First Search)</h3>
+<p><strong>Pseudocode (recursive).</strong></p>
+<pre><code class="language-java">boolean[] visited;
+void dfs(int v) {
+    if (visited[v]) return;
+    visited[v] = true;
+    process(v);                           // pre-order processing
+    for (int u : adj[v]) dfs(u);
+    // post-order processing (e.g., add to topo-sort stack)
+}
+</code></pre>
+<p><strong>Pseudocode (iterative with stack).</strong></p>
+<pre><code class="language-java">void dfs(int start) {
+    Stack&lt;Integer&gt; s = new Stack&lt;&gt;();
+    s.push(start);
+    while (!s.isEmpty()) {
+        int v = s.pop();
+        if (visited[v]) continue;
+        visited[v] = true;
+        process(v);
+        for (int u : adj[v]) if (!visited[u]) s.push(u);
+    }
+}
+</code></pre>
+<p><strong>Key uses.</strong> Detecting cycles, topological sort, finding connected components, path finding (any path).</p>
+<h3 id="bfs-breadth-first-search">BFS (Breadth-First Search)</h3>
+<p><strong>Pseudocode.</strong></p>
+<pre><code class="language-java">void bfs(int start) {
+    Queue&lt;Integer&gt; q = new ArrayDeque&lt;&gt;();
+    q.add(start);
+    visited[start] = true;
+    while (!q.isEmpty()) {
+        int v = q.poll();
+        process(v);
+        for (int u : adj[v]) {
+            if (!visited[u]) {
+                visited[u] = true;
+                q.add(u);
+            }
+        }
+    }
+}
+</code></pre>
+<p><strong>Key uses.</strong> Shortest path in UNWEIGHTED graphs, level-by-level processing.</p>
+<h3 id="runtime_3">Runtime</h3>
+<p>Both DFS and BFS: Θ(V + E) with adjacency list, Θ(V²) with adjacency matrix.</p>
+<h3 id="dfs-vs-bfs-choice">DFS vs BFS choice</h3>
+<ul>
+<li>DFS: simpler recursive code, good for "explore everything," topological order, cycle detection.</li>
+<li>BFS: gives shortest path in unweighted graphs (number of edges).</li>
+</ul>
+<h3 id="exam-patterns-pitfalls_14">Exam patterns / pitfalls</h3>
+<ul>
+<li>"Trace DFS / BFS visit order" — depends on neighbor ordering. The exam will tell you ("explore neighbors in order shown" or "in alphabetical order").</li>
+<li>DFS does NOT find shortest paths. BFS does (in unweighted graphs).</li>
+<li>Forgetting to mark <code>visited</code> causes infinite loops on cyclic graphs.</li>
+</ul>
+<hr />
+<h1 id="16-shortest-paths-dijkstra-a">16. Shortest Paths — Dijkstra, A*</h1>
+<p><em>[Lec 23]</em></p>
+<h3 id="single-source-shortest-path">Single-Source Shortest Path</h3>
+<p><strong>Goal.</strong> Given source <code>s</code>, find shortest path from <code>s</code> to every other vertex.</p>
+<h3 id="dijkstras-algorithm">Dijkstra's Algorithm</h3>
+<p><strong>Requires.</strong> All edge weights ≥ 0. (Fails with negative edges.)</p>
+<p><strong>Pseudocode.</strong></p>
+<pre><code class="language-java">dist[s] = 0; dist[other] = INF;
+PriorityQueue&lt;Vertex&gt; pq;     // min-heap by dist
+pq.add(s);
+
+while (!pq.isEmpty()) {
+    Vertex v = pq.poll();             // unvisited vertex with smallest dist
+    if (visited[v]) continue;
+    visited[v] = true;
+    for (Edge e : v.edges) {
+        Vertex u = e.to();
+        double newDist = dist[v] + e.weight();
+        if (newDist &lt; dist[u]) {
+            dist[u] = newDist;
+            pred[u] = v;
+            pq.add(u);                // (could decrease-key; usually re-add)
+        }
+    }
+}
+</code></pre>
+<p><strong>Invariant.</strong> When a vertex is polled, its <code>dist</code> is final (it's the true shortest distance from <code>s</code>).</p>
+<p><strong>Why this works.</strong> Because edges are non-negative, you can never improve a finalized vertex by going through later vertices.</p>
+<h3 id="runtime_4">Runtime</h3>
+<ul>
+<li>With binary heap: Θ((V + E) log V).</li>
+<li>With Fibonacci heap (theoretical): Θ(V log V + E).</li>
+<li>61B's standard answer: <strong>Θ(E log V)</strong> (assumes connected, E ≥ V).</li>
+</ul>
+<h3 id="why-dijkstra-fails-on-negative-edges">Why Dijkstra fails on negative edges</h3>
+<p>Once a vertex is finalized, Dijkstra ignores it. A negative edge could later improve it, but Dijkstra won't revisit. (Use Bellman-Ford for negative edges; not in 61B SP26 scope.)</p>
+<h3 id="a-search">A* Search</h3>
+<p><strong>Plain English.</strong> Dijkstra prioritizes by <code>dist[v]</code>. A* prioritizes by <code>dist[v] + h(v)</code> where <code>h(v)</code> is a heuristic estimate of remaining distance to the goal.</p>
+<ul>
+<li>If <code>h</code> is <strong>admissible</strong> (never overestimates true remaining distance), A* finds the optimal path.</li>
+<li>If <code>h ≡ 0</code>, A* reduces to Dijkstra.</li>
+<li>A* is much faster when a good heuristic is available (e.g., Euclidean distance for road networks).</li>
+</ul>
+<h3 id="exam-patterns-pitfalls_15">Exam patterns / pitfalls</h3>
+<ul>
+<li>"Trace Dijkstra step-by-step" — most common graph question. Maintain (visited, dist, pred) table; pull smallest dist each step.</li>
+<li>"Why does Dijkstra fail with negative edges?" — show a 3-vertex counterexample.</li>
+<li>A* heuristic must be admissible AND (for graph search) consistent.</li>
+</ul>
+<hr />
+<h1 id="17-minimum-spanning-trees-prim-kruskal">17. Minimum Spanning Trees — Prim, Kruskal</h1>
+<p><em>[Lec 24]</em></p>
+<h3 id="mst-definition">MST Definition</h3>
+<p>A spanning tree of a connected, weighted, undirected graph that has minimum total edge weight.</p>
+<h3 id="cut-property-key-mst-theorem">Cut Property (key MST theorem)</h3>
+<p><strong>Statement.</strong> For any cut (partition of vertices into two sets), the minimum-weight edge crossing the cut is in the MST.
+<strong>Plain English.</strong> Both Prim and Kruskal exploit this — they greedily add a minimum crossing edge at each step.</p>
+<h3 id="prims-algorithm">Prim's Algorithm</h3>
+<p><strong>Plain English.</strong> Grow a single tree. Start with one vertex. Repeatedly add the cheapest edge connecting the tree to an outside vertex.</p>
+<p><strong>Pseudocode.</strong></p>
+<pre><code class="language-java">PriorityQueue&lt;Edge&gt; pq;         // edges crossing the current tree boundary
+boolean[] inTree;
+inTree[start] = true;
+add all edges from start to pq;
+
+while (treeSize &lt; V) {
+    Edge e = pq.poll();         // smallest crossing edge
+    Vertex v = the unvisited endpoint of e;
+    if (inTree[v]) continue;    // both endpoints in tree → skip
+    inTree[v] = true;
+    add e to MST;
+    add v's edges to pq (skip those whose other endpoint is already in tree);
+}
+</code></pre>
+<p><strong>Runtime.</strong> Θ(E log V) with binary heap.</p>
+<h3 id="kruskals-algorithm">Kruskal's Algorithm</h3>
+<p><strong>Plain English.</strong> Don't grow a tree — sort all edges, add them in order, skip any that would create a cycle. Use Union-Find to detect cycles.</p>
+<p><strong>Pseudocode.</strong></p>
+<pre><code class="language-java">sort edges by weight ascending;
+DisjointSets ds = new DisjointSets(V);
+List&lt;Edge&gt; mst = new ArrayList&lt;&gt;();
+
+for (Edge e : sortedEdges) {
+    if (!ds.isConnected(e.u, e.v)) {
+        ds.connect(e.u, e.v);
+        mst.add(e);
+        if (mst.size() == V - 1) break;
+    }
+}
+</code></pre>
+<p><strong>Runtime.</strong> Θ(E log E) for sorting + Θ(E α(V)) for union-find ≈ Θ(E log V).</p>
+<h3 id="comparison">Comparison</h3>
+<table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Prim</th>
+<th>Kruskal</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Approach</td>
+<td>Grow tree from one vertex</td>
+<td>Add edges by weight; skip cycles</td>
+</tr>
+<tr>
+<td>Helper</td>
+<td>Priority queue</td>
+<td>Sort + union-find</td>
+</tr>
+<tr>
+<td>Best for</td>
+<td>Dense graphs</td>
+<td>Sparse graphs</td>
+</tr>
+<tr>
+<td>Runtime</td>
+<td>Θ(E log V)</td>
+<td>Θ(E log E)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="exam-patterns-pitfalls_16">Exam patterns / pitfalls</h3>
+<ul>
+<li>"Trace Prim's / Kruskal's on this graph" — maintain MST edge set step by step.</li>
+<li>Tie-breaking on equal-weight edges is exam-specified. Read carefully.</li>
+<li>Both algorithms produce A minimum spanning tree, possibly different trees if there are ties (same total weight).</li>
+<li>Prim with a Fibonacci heap is asymptotically faster but not in 61B scope.</li>
+</ul>
+<hr />
+<h1 id="18-directed-acyclic-graphs-and-topological-sort">18. Directed Acyclic Graphs and Topological Sort</h1>
+<p><em>[Lec 25]</em></p>
+<h3 id="dag-directed-acyclic-graph">DAG (Directed Acyclic Graph)</h3>
+<p><strong>Definition.</strong> A directed graph with no cycles.
+<strong>Plain English.</strong> Models dependencies (course prerequisites, build orders, scheduling).</p>
+<h3 id="topological-order">Topological Order</h3>
+<p><strong>Definition.</strong> A linear ordering of vertices such that for every directed edge u → v, u appears before v.
+<strong>Plain English.</strong> "Process A before B if there's a path from A to B." Only exists for DAGs.</p>
+<h3 id="algorithm-1-dfs-based-topological-sort">Algorithm 1 — DFS-based topological sort</h3>
+<p><strong>Plain English.</strong> Run DFS. As each vertex finishes (post-order), push it onto a stack. The stack, popped, gives a topological order.</p>
+<pre><code class="language-java">Stack&lt;Integer&gt; order;
+boolean[] visited;
+void dfs(int v) {
+    visited[v] = true;
+    for (int u : adj[v]) if (!visited[u]) dfs(u);
+    order.push(v);                      // post-order
+}
+
+void topoSort() {
+    for (int v = 0; v &lt; V; v++) if (!visited[v]) dfs(v);
+    // pop everything from order → topological order
+}
+</code></pre>
+<p><strong>Runtime.</strong> Θ(V + E).</p>
+<h3 id="algorithm-2-kahns-algorithm-bfs-based">Algorithm 2 — Kahn's algorithm (BFS-based)</h3>
+<p><strong>Plain English.</strong> Repeatedly remove vertices with in-degree 0.</p>
+<pre><code class="language-java">int[] indegree = compute in-degrees;
+Queue&lt;Integer&gt; q;
+for (int v = 0; v &lt; V; v++) if (indegree[v] == 0) q.add(v);
+
+while (!q.isEmpty()) {
+    int v = q.poll();
+    output v;                           // next in topo order
+    for (int u : adj[v]) {
+        if (--indegree[u] == 0) q.add(u);
+    }
+}
+</code></pre>
+<p><strong>Runtime.</strong> Θ(V + E).</p>
+<h3 id="cycle-detection-with-topological-sort">Cycle detection with topological sort</h3>
+<ul>
+<li>DFS-based: a back edge during DFS = a cycle.</li>
+<li>Kahn's: if you can't process all vertices (queue empties before output reaches V), there's a cycle.</li>
+</ul>
+<h3 id="critical-longest-path-in-dag">Critical / Longest Path in DAG</h3>
+<p><strong>Plain English.</strong> In project scheduling, the longest path in a DAG of tasks gives the minimum total time.
+<strong>Algorithm.</strong> Topologically sort; relax edges in topological order computing longest distance.</p>
+<h3 id="exam-patterns-pitfalls_17">Exam patterns / pitfalls</h3>
+<ul>
+<li>"Give a topological order" — multiple valid answers. State the order; if the exam pre-specifies tie-breaking, follow it.</li>
+<li>"Does this graph have a topological order?" — only if it's a DAG (no cycles).</li>
+<li>DFS-based: the order is the REVERSE of finishing order.</li>
+</ul>
+<hr />
+<h1 id="19-sorting-basic-sorts-quicksort-mergesort">19. Sorting — Basic Sorts, Quicksort, Mergesort</h1>
+<p><em>[Lec 32–34]</em></p>
+<h3 id="selection-sort">Selection Sort</h3>
+<p><strong>Plain English.</strong> Find the smallest, swap to front. Repeat for the rest.</p>
+<pre><code class="language-java">for (int i = 0; i &lt; n; i++) {
+    int minIdx = i;
+    for (int j = i+1; j &lt; n; j++)
+        if (a[j] &lt; a[minIdx]) minIdx = j;
+    swap(a, i, minIdx);
+}
+</code></pre>
+<p><strong>Runtime.</strong> Θ(n²) always (best, average, worst). Stable: NO. In-place: yes.</p>
+<h3 id="insertion-sort">Insertion Sort</h3>
+<p><strong>Plain English.</strong> Walk left-to-right; for each element, slide it back into the sorted prefix.</p>
+<pre><code class="language-java">for (int i = 1; i &lt; n; i++) {
+    int x = a[i], j = i - 1;
+    while (j &gt;= 0 &amp;&amp; a[j] &gt; x) {
+        a[j+1] = a[j]; j--;
+    }
+    a[j+1] = x;
+}
+</code></pre>
+<p><strong>Runtime.</strong> Best Θ(n) (already sorted), worst Θ(n²), average Θ(n²). Stable: YES. In-place: yes.
+<strong>Used in practice.</strong> For small n, beats fancier sorts due to low overhead. Often combined with quicksort/mergesort for the base case.</p>
+<h3 id="mergesort">Mergesort</h3>
+<p><strong>Plain English.</strong> Split array in half, recursively sort each half, then merge.</p>
+<pre><code class="language-java">void mergesort(int[] a, int lo, int hi) {
+    if (lo &gt;= hi) return;
+    int mid = (lo + hi) / 2;
+    mergesort(a, lo, mid);
+    mergesort(a, mid+1, hi);
+    merge(a, lo, mid, hi);          // merge two sorted subarrays
+}
+</code></pre>
+<p><strong>Runtime.</strong> Always Θ(n log n) (best, average, worst). Stable: YES. In-place: NO (Θ(n) extra space).
+<strong>Recurrence.</strong> T(n) = 2T(n/2) + Θ(n) → Θ(n log n).</p>
+<h3 id="quicksort">Quicksort</h3>
+<p><strong>Plain English.</strong> Pick a pivot. Partition: smaller-than-pivot left, bigger-than-pivot right. Recurse on each side.</p>
+<pre><code class="language-java">void quicksort(int[] a, int lo, int hi) {
+    if (lo &gt;= hi) return;
+    int p = partition(a, lo, hi);    // returns final index of pivot
+    quicksort(a, lo, p - 1);
+    quicksort(a, p + 1, hi);
+}
+</code></pre>
+<p><strong>Lomuto partition (pivot = last):</strong></p>
+<pre><code class="language-java">int partition(int[] a, int lo, int hi) {
+    int pivot = a[hi];
+    int i = lo;
+    for (int j = lo; j &lt; hi; j++) {
+        if (a[j] &lt; pivot) { swap(a, i, j); i++; }
+    }
+    swap(a, i, hi);
+    return i;
+}
+</code></pre>
+<p><strong>Runtime.</strong></p>
+<ul>
+<li>Best/average: Θ(n log n)</li>
+<li>Worst: Θ(n²) — happens when pivot is always min or max (e.g., already sorted array with pivot=last)</li>
+<li>Stable: NO (depends on partition; standard variants are not).</li>
+<li>In-place: yes.</li>
+</ul>
+<p><strong>Pivot strategies.</strong></p>
+<ul>
+<li>First/last: simple but susceptible to sorted-input worst case.</li>
+<li>Random pivot: avoids adversarial worst case in expectation.</li>
+<li>Median-of-three: pick median of first/middle/last; reduces likelihood of bad pivot.</li>
+</ul>
+<h3 id="quickselect-find-k-th-smallest">Quickselect (find k-th smallest)</h3>
+<p><strong>Plain English.</strong> Like quicksort, but only recurse on the side containing the k-th element.
+<strong>Runtime.</strong> Average Θ(n), worst Θ(n²). With median-of-medians: worst Θ(n) (theoretical).</p>
+<h3 id="heapsort">Heapsort</h3>
+<p><strong>Plain English.</strong> Heapify the array; repeatedly extract the max.
+<strong>Runtime.</strong> Θ(n log n) always. In-place: yes. Stable: NO.</p>
+<h3 id="sorting-summary-table-memorize">Sorting summary table (memorize)</h3>
+<table>
+<thead>
+<tr>
+<th>Algorithm</th>
+<th>Best</th>
+<th>Average</th>
+<th>Worst</th>
+<th>Space</th>
+<th>Stable?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Selection</td>
+<td>Θ(n²)</td>
+<td>Θ(n²)</td>
+<td>Θ(n²)</td>
+<td>Θ(1)</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Insertion</td>
+<td>Θ(n)</td>
+<td>Θ(n²)</td>
+<td>Θ(n²)</td>
+<td>Θ(1)</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Mergesort</td>
+<td>Θ(n log n)</td>
+<td>Θ(n log n)</td>
+<td>Θ(n log n)</td>
+<td>Θ(n)</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Quicksort</td>
+<td>Θ(n log n)</td>
+<td>Θ(n log n)</td>
+<td>Θ(n²)</td>
+<td>Θ(log n) stack</td>
+<td>Usually No</td>
+</tr>
+<tr>
+<td>Heapsort</td>
+<td>Θ(n log n)</td>
+<td>Θ(n log n)</td>
+<td>Θ(n log n)</td>
+<td>Θ(1)</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Radix (LSD)</td>
+<td>Θ(WN)</td>
+<td>Θ(WN)</td>
+<td>Θ(WN)</td>
+<td>Θ(N + R)</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<p>(W = number of digits, R = radix size for Radix Sort.)</p>
+<h3 id="stability-what-it-means">Stability — what it means</h3>
+<p><strong>Plain English.</strong> Two records with equal keys retain their original relative order. Matters when sorting by multiple keys (sort by name, then stable-sort by age — names stay in order within each age).</p>
+<h3 id="exam-patterns-pitfalls_18">Exam patterns / pitfalls</h3>
+<ul>
+<li>"Show the array after each pass of insertion sort" — outer loop iterations.</li>
+<li>"Show the partition step in quicksort with pivot=X" — important to specify partition variant; results differ.</li>
+<li>"Which sort is best for nearly-sorted data?" — insertion sort (Θ(n)).</li>
+<li>"Which sort needs O(n) extra space?" — mergesort.</li>
+</ul>
+<hr />
+<h1 id="20-sorting-theoretical-bounds-radix-sort">20. Sorting — Theoretical Bounds, Radix Sort</h1>
+<p><em>[Lec 35–36]</em></p>
+<h3 id="theoretical-lower-bound-for-comparison-sorts">Theoretical Lower Bound for Comparison Sorts</h3>
+<p><strong>Theorem.</strong> Any comparison-based sorting algorithm requires Ω(n log n) comparisons in the worst case.
+<strong>Argument (decision tree).</strong> A comparison sort can be modeled as a binary decision tree where each leaf is a permutation. There are n! permutations. A binary tree of depth d has ≤ 2^d leaves, so we need 2^d ≥ n!, i.e., d ≥ log₂(n!) ≈ n log n (Stirling).</p>
+<p><strong>Implication.</strong> Mergesort, heapsort are asymptotically optimal among comparison sorts.</p>
+<h3 id="radix-sort-lsd-least-significant-digit">Radix Sort (LSD — Least Significant Digit)</h3>
+<p><strong>Plain English.</strong> Sort by the rightmost digit, then by the next-to-rightmost, etc. Each digit-pass is a stable counting sort.</p>
+<p><strong>Why it beats the n log n bound.</strong> Radix sort doesn't compare elements directly — it inspects digits. The lower bound only applies to comparison sorts.</p>
+<p><strong>Pseudocode (LSD on integers, base R).</strong></p>
+<pre><code class="language-java">void radixSort(int[] a, int W) {     // W = number of digits per number
+    for (int d = 0; d &lt; W; d++) {
+        countingSort(a, d, R);        // stable-sort by d-th digit
+    }
+}
+</code></pre>
+<p><strong>Runtime.</strong> Θ(W · (N + R)) where N is array size, R is radix (alphabet size), W is max number of digits. For fixed-width integers, W is constant → Θ(N).</p>
+<h3 id="msd-vs-lsd">MSD vs LSD</h3>
+<ul>
+<li><strong>LSD.</strong> Start at least significant digit. Stable counting sort each pass. Simple, requires fixed-width keys.</li>
+<li><strong>MSD.</strong> Start at most significant digit. Recursive (each prefix becomes a sub-problem). Useful for variable-length strings.</li>
+</ul>
+<h3 id="counting-sort-the-building-block">Counting Sort (the building block)</h3>
+<p><strong>Plain English.</strong> For small-range integer keys (0..K), count occurrences of each key, then output in order.</p>
+<pre><code class="language-java">int[] count = new int[K+1];
+for (int x : a) count[x]++;
+int idx = 0;
+for (int k = 0; k &lt;= K; k++)
+    for (int j = 0; j &lt; count[k]; j++)
+        a[idx++] = k;
+</code></pre>
+<p><strong>Runtime.</strong> Θ(N + K). Stable variant requires prefix-sum + back-to-front placement.</p>
+<h3 id="exam-patterns-pitfalls_19">Exam patterns / pitfalls</h3>
+<ul>
+<li>"Trace LSD radix sort on these integers" — pass by pass, by digit.</li>
+<li>"Why is radix sort not used for floating-point keys?" — interpreting bits is tricky; comparison-based usually wins for floats.</li>
+<li>"Why doesn't radix violate the n log n lower bound?" — it doesn't compare; it inspects bits.</li>
+</ul>
+<hr />
+<h1 id="21-compression-huffman-light-coverage">21. Compression (Huffman) — light coverage</h1>
+<p><em>[Lec 39]</em></p>
+<h3 id="huffman-coding">Huffman Coding</h3>
+<p><strong>Plain English.</strong> Variable-length prefix-free codes for symbols, where frequent symbols get shorter codes.</p>
+<p><strong>Algorithm.</strong>
+1. Compute frequency of each symbol.
+2. Build a min-heap of (frequency, symbol) pairs.
+3. Repeatedly: pop the two smallest, merge into a new internal node with frequency = sum, push back.
+4. The final tree's root-to-leaf paths give the codes (left=0, right=1).</p>
+<p><strong>Runtime.</strong> Θ(K log K) where K is number of distinct symbols.</p>
+<p><strong>Why it works.</strong> Optimal among prefix-free codes: minimizes total bits for the given frequency distribution (Shannon-Fano-Elias / Huffman optimality).</p>
+<h3 id="exam-patterns-pitfalls_20">Exam patterns / pitfalls</h3>
+<ul>
+<li>"Build the Huffman tree for these frequencies" — typical question.</li>
+<li>"Why prefix-free?" — so that any encoded bit string can be decoded uniquely without delimiters.</li>
+<li>Generally a small section on the final, if it appears at all.</li>
+</ul>
+<hr />
+<h2 id="closing-notes">Closing notes</h2>
+<p>This guide spans every major topic from MT1 to the final. Use it together with:</p>
+<ul>
+<li>Your <code>MT2_study_guide.md</code> and <code>MT2_cheatsheet.md</code> (sections 5–12 here are the same scope; defer to those when they trigger).</li>
+<li>Past finals: Spring 2025 + Fall 2024 + Fall 2023 (representative recent ones).</li>
+<li>The course site: https://sp26.datastructur.es/ for exam logistics.</li>
+</ul>
+<p><strong>Verify before exam day:</strong></p>
+<ul>
+<li>Final exam exact time and location at https://sp26.datastructur.es/.</li>
+<li>Cheat sheet allowance (count of double-sided handwritten sheets).</li>
+<li>Any topics you missed in lecture (sp26 specifics).</li>
+</ul>
+<p><strong>Memorize cold (cheat sheet candidates):</strong></p>
+<ul>
+<li>Operation runtime tables for: lists (SLList/DLList/AList), BSTs, heaps, hash maps, graph algorithms, all sorts.</li>
+<li>Master Theorem statement and the n^(log_b a) comparison rule.</li>
+<li>Common recurrence solutions table (Section 6).</li>
+<li>Heap array-indexing formulas (parent = i/2, children = 2i and 2i+1).</li>
+<li>Disjoint Sets WQU+PC operations and ~Θ(1) amortized claim.</li>
+<li>B-tree (2-3-4) split-and-promote rule.</li>
+<li>LLRB three fix-up rules (rotateLeft / rotateRight / flipColors).</li>
+<li>Dijkstra invariant ("polled vertex has final dist") and the non-negative-edge requirement.</li>
+<li>Prim vs Kruskal selection criteria.</li>
+<li>Topological sort: DFS post-order vs Kahn's in-degree.</li>
+<li>Quicksort partition (Lomuto or Hoare — pick one and know it cold).</li>
+<li>Sorting summary table (best/avg/worst/space/stable).</li>
+<li>Comparison-sort lower bound argument (decision tree → Θ(n log n)).</li>
+</ul>
+</div>
+<script>
+// Collapsible H2 sections
+document.querySelectorAll('h2').forEach(function(h){
+  if (h.parentElement && h.parentElement.classList.contains('toc')) return;
+  h.addEventListener('click', function(){
+    h.classList.toggle('collapsed');
+    var el = h.nextElementSibling;
+    while (el && el.tagName !== 'H2') {
+      el.style.display = (el.style.display === 'none') ? '' : 'none';
+      el = el.nextElementSibling;
+    }
+  });
+});
+</script>
+</body>
+</html>

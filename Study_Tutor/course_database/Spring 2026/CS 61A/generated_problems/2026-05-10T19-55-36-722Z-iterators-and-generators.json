@@ -1,0 +1,19 @@
+{
+  "course": "CS 61A",
+  "semester": "Spring 2026",
+  "topic": "Iterators and Generators",
+  "problemType": "What Would Python Display? (WWPD)",
+  "difficulty": "medium",
+  "problem": "What would Python display for each of the following expressions? If an expression produces an error, write ERROR. If an expression produces a generator object, write GENERATOR. If an expression produces an iterator object, write ITERATOR. If the expression would run forever, write INFINITE.\n\n>>> def gen_skip(n):\n...     i = 0\n...     while i < n:\n...         yield i\n...         i += 2\n>>> g = gen_skip(6)\n>>> next(g)\n______\n>>> next(g)\n______\n>>> next(g)\n______\n>>> def double_yield(lst):\n...     for item in lst:\n...         yield item\n...         yield item * 2\n>>> d = double_yield([1, 2, 3])\n>>> list(d)\n______\n>>> list(d)\n______\n>>> def gen_chain(g1, g2):\n...     yield from g1\n...     yield from g2\n>>> c = gen_chain(gen_skip(4), gen_skip(3))\n>>> [next(c) for _ in range(4)]\n______",
+  "expectedAnswer": "0\n2\n4\n[1, 2, 2, 4, 3, 6]\n[]\n[0, 2, 0, 2]",
+  "gradingRubric": [
+    "First next(g) returns 0 (initial value of i before increment)",
+    "Second next(g) returns 2 (i increments by 2)",
+    "Third next(g) returns 4 (i increments by 2 again)",
+    "list(d) on fresh generator returns [1, 2, 2, 4, 3, 6] (each item followed by its double)",
+    "Second list(d) returns [] because generator is exhausted after first consumption",
+    "List comprehension with gen_chain returns [0, 2, 0, 2] (first generator yields 0, 2; second yields 0, 2)",
+    "Understands that generators are single-use and cannot be reused after exhaustion",
+    "Correctly traces yield from behavior and generator chaining"
+  ]
+}

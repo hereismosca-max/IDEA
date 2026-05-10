@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ECON 131 — Public Economics — Study Guide</title>
+<style>
+
+:root {
+  --accent: #1f3a5f;
+  --accent-soft: #5b7f2e;
+  --soft-bg: #f6f4ef;
+  --code-bg: #f3f3f3;
+  --border: #d8d2c6;
+  --text: #222;
+  --muted: #555;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  padding: 0;
+  font-family: Georgia, "Charter", "Iowan Old Style", serif;
+  font-size: 16px;
+  line-height: 1.55;
+  color: var(--text);
+  background: #fbfaf6;
+}
+.wrap {
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 36px 28px 80px 28px;
+}
+.cover {
+  text-align: center;
+  padding: 40px 0 28px 0;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 28px;
+}
+.cover h1 {
+  font-family: "Helvetica Neue", -apple-system, sans-serif;
+  font-size: 36px;
+  margin: 0 0 8px 0;
+  color: var(--accent);
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+.cover .subtitle {
+  font-size: 19px;
+  color: var(--muted);
+  font-style: italic;
+  margin: 0;
+}
+.cover .meta {
+  margin-top: 18px;
+  font-size: 14px;
+  color: var(--muted);
+}
+h1, h2, h3, h4 {
+  font-family: "Helvetica Neue", -apple-system, sans-serif;
+  color: var(--accent);
+  margin-top: 1.6em;
+  margin-bottom: 0.4em;
+  line-height: 1.25;
+}
+h1 { font-size: 28px; border-bottom: 2px solid var(--accent); padding-bottom: 8px; }
+h2 {
+  font-size: 22px;
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+  padding-right: 24px;
+}
+h2::after {
+  content: "▾";
+  position: absolute;
+  right: 4px;
+  top: 4px;
+  font-size: 14px;
+  color: var(--muted);
+  transition: transform 0.15s ease;
+}
+h2.collapsed::after { transform: rotate(-90deg); }
+h3 {
+  font-size: 17px;
+  color: var(--accent-soft);
+  margin-top: 1.4em;
+  border-left: 3px solid var(--accent-soft);
+  padding-left: 10px;
+}
+h4 { font-size: 15px; color: var(--accent); }
+p { margin: 0.7em 0; }
+em { color: #444; }
+strong { color: var(--text); }
+ul, ol { margin: 0.5em 0; padding-left: 1.6em; }
+li { margin: 0.25em 0; }
+hr { border: 0; border-top: 1px solid var(--border); margin: 28px 0; }
+a { color: var(--accent); text-decoration: none; border-bottom: 1px dotted var(--accent); }
+a:hover { border-bottom-style: solid; }
+code, pre { font-family: "SF Mono", Menlo, Consolas, monospace; }
+code {
+  background: var(--code-bg);
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-size: 0.92em;
+}
+pre {
+  background: var(--code-bg);
+  padding: 14px 16px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  overflow-x: auto;
+  font-size: 13.5px;
+  line-height: 1.45;
+}
+pre code { background: transparent; padding: 0; font-size: inherit; }
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 16px 0;
+  font-size: 14.5px;
+}
+th, td {
+  border: 1px solid var(--border);
+  padding: 8px 12px;
+  text-align: left;
+  vertical-align: top;
+}
+th { background: var(--accent); color: white; font-weight: 600; font-family: "Helvetica Neue", sans-serif; }
+tr:nth-child(even) td { background: var(--soft-bg); }
+.diagram, figure {
+  margin: 22px auto;
+  text-align: center;
+}
+.diagram-svg {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+  background: white;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+.toc {
+  background: var(--soft-bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 16px 22px;
+  margin: 24px 0;
+}
+.toc h2 {
+  font-size: 18px;
+  margin: 0 0 8px 0;
+  cursor: default;
+  padding: 0;
+}
+.toc h2::after { display: none; }
+.toc ol { margin: 8px 0; padding-left: 24px; }
+.toc a { font-size: 14px; }
+mjx-container { font-size: 1.05em !important; }
+mjx-container[display="true"] { margin: 0.8em 0 !important; }
+.callout {
+  background: var(--soft-bg);
+  border-left: 4px solid var(--accent-soft);
+  padding: 10px 14px;
+  margin: 12px 0;
+  font-size: 14.5px;
+}
+@media print {
+  body { background: white; font-size: 11pt; }
+  .wrap { max-width: 100%; padding: 0; }
+  h2 { cursor: default; page-break-after: avoid; }
+  h2::after { display: none; }
+  pre, table, .diagram { page-break-inside: avoid; }
+}
+
+</style>
+<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [['\\(','\\)']],
+    displayMath: [['\\[','\\]']],
+    processEscapes: true
+  },
+  svg: { fontCache: 'global' },
+  options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code'] }
+};
+</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<div class="wrap">
+<h1 id="econ-131-public-economics">ECON 131 — Public Economics</h1>
+<h2 id="exam-level-study-guide">Exam-Level Study Guide</h2>
+<p><strong>Course:</strong> Economics 131 — Public Economics
+<strong>Instructor:</strong> Danny Yagan
+<strong>Textbook:</strong> Jonathan Gruber, <em>Public Finance and Public Policy</em> (any edition; loosely followed)
+<strong>Final exam:</strong> Friday, May 15, 2026 — 3:00–6:00 PM PT (180 min)
+<strong>Format:</strong> In-person, written, on paper. <strong>NO notes. NO cheat sheet. NO calculator. NO devices.</strong> Cumulative across the full semester (including material tested on Midterms 1 and 2).</p>
+<p><strong>The Yagan Rule (from his syllabus, summarized).</strong> You MUST know: definitions, basic formula definitions (poverty rate, debt evolution equation, elasticity definitions). You do NOT need to memorize formulas mathematically derived in lecture (e.g., the optimal top tax rate formula). You DO need to know the <em>lessons</em> those formulas communicate (e.g., "high taxable-income elasticity ⟹ low optimal top rate").</p>
+<p><strong>How to use this guide.</strong> Each topic block follows the same shape:</p>
+<ul>
+<li><strong>Definition</strong> — formal one-line statement (memorize cold; closed-everything exam).</li>
+<li><strong>Plain English</strong> — what it actually means and why it matters.</li>
+<li><strong>Formulas</strong> — those you MUST memorize are flagged ⚠ MEMORIZE; others are concept-only.</li>
+<li><strong>Variables</strong> — what each symbol means.</li>
+<li><strong>Diagram</strong> — ASCII sketch where the geometry is the lesson; prose where ASCII can't capture curvature.</li>
+<li><strong>Exam patterns / pitfalls</strong> — what Yagan-style finals do with this concept.</li>
+</ul>
+<hr />
+<h2 id="table-of-contents">Table of Contents</h2>
+<ol>
+<li>The 9 Mandatory Definitions (memorize cold)</li>
+<li>Empirical Tools — DiD, RD, Event Study</li>
+<li>Government Budget Constraint and Debt Dynamics</li>
+<li>Income Distribution and Poverty</li>
+<li>Tax Incidence</li>
+<li>Deadweight Loss</li>
+<li>Optimal Labor Income Taxation</li>
+<li>Labor Supply and Taxable Income (EITC)</li>
+<li>Business / Corporate Taxation</li>
+<li>Capital Income Taxation and the Life-Cycle Model</li>
+<li>Externalities and Pigouvian Taxation</li>
+<li>Public Goods</li>
+<li>Local Public Goods and Tiebout Sorting</li>
+<li>Education (Human Capital vs Signaling)</li>
+<li>Social Insurance — Adverse Selection and Moral Hazard</li>
+<li>Unemployment Insurance (Baily-Chetty)</li>
+<li>Disability Insurance and Workers' Compensation</li>
+<li>Health Insurance (RAND HIE, ACA)</li>
+<li>Social Security</li>
+</ol>
+<hr />
+<h1 id="1-the-9-mandatory-definitions">1. The 9 Mandatory Definitions</h1>
+<p><em>(Per Yagan's syllabus rule, you must be able to write each of these from memory.)</em></p>
+<p>This section is your daily-drill list. Re-write each one from memory every day from May 13 forward.</p>
+<h3 id="1-us-poverty-rate">1. U.S. Poverty Rate</h3>
+<p><strong>Definition.</strong> The fraction of the U.S. population living in households whose pre-tax cash income falls below a threshold that depends on family size and composition. The threshold is set by the Census Bureau, originally based on 3× a minimum food budget (Orshansky 1963).
+<strong>Plain English.</strong> Count the number of people in households below the income line for their family size; divide by total population. Note: pre-tax, cash only — excludes SNAP, Medicaid, EITC, housing subsidies. The "Supplemental Poverty Measure" (SPM) corrects for these.</p>
+<h3 id="2-government-debt-evolution-equation-memorize">2. Government Debt Evolution Equation ⚠ MEMORIZE</h3>
+<p><strong>Formula.</strong> \(D_{t+1} = (1 + r) \cdot D_t + G_t - T_t\)
+<strong>Variables.</strong> <code>D_t</code> = debt at end of period t; <code>r</code> = real interest rate; <code>G_t</code> = government spending; <code>T_t</code> = tax revenue; <code>(G_t − T_t)</code> = primary deficit.
+<strong>Plain English.</strong> Tomorrow's debt = today's debt rolled over with interest, plus this year's primary deficit.</p>
+<h3 id="3-debt-to-gdp-dynamics-memorize">3. Debt-to-GDP Dynamics ⚠ MEMORIZE</h3>
+<p><strong>Formula.</strong> \(b_{t+1} = (1+r)/(1+g) \cdot b_t + (G_t - T_t)/Y_t\)
+where \(b_t = D_t / Y_t\), <code>g</code> = real GDP growth rate.
+<strong>Lesson.</strong> If <code>r &lt; g</code>, debt-to-GDP falls automatically even with primary deficits. If <code>r &gt; g</code>, debt-to-GDP grows; surpluses required for sustainability.</p>
+<h3 id="4-price-elasticity-of-demand">4. Price Elasticity of Demand</h3>
+<p><strong>Definition.</strong> The percentage change in quantity demanded divided by the percentage change in price.
+<strong>Formula.</strong> \(\varepsilon _D = (\Delta Q_D / Q_D) / (\Delta P / P) = (\partial Q_D/\partial P) \cdot (P / Q_D)\) (typically negative).
+<strong>Plain English.</strong> How responsive buyers are to price. Inelastic (|ε|&lt;1) = quantity barely changes with price; elastic (|ε|&gt;1) = strong response.</p>
+<h3 id="5-price-elasticity-of-supply">5. Price Elasticity of Supply</h3>
+<p><strong>Formula.</strong> \(\varepsilon _S = (\Delta Q_S / Q_S) / (\Delta P / P)\) (typically positive).
+<strong>Plain English.</strong> How responsive sellers are to price.</p>
+<h3 id="6-taxable-income-elasticity-eti">6. Taxable Income Elasticity (ETI)</h3>
+<p><strong>Definition.</strong> The percentage change in reported taxable income in response to a percentage change in the <em>net-of-tax rate</em> (\(1 - \tau\)).
+<strong>Formula.</strong> \(e = (\Delta z / z) / (\Delta (1-\tau ) / (1-\tau ))\)
+<strong>Plain English.</strong> When the tax rate goes up, people reduce reported taxable income (less labor, more avoidance, more sheltering). ETI captures the total behavioral response. The MOST important elasticity in modern public finance.</p>
+<h3 id="7-tax-incidence-rule">7. Tax Incidence Rule</h3>
+<p><strong>Statement.</strong> Statutory burden does NOT equal economic burden. Burden falls on the more inelastic side of the market.
+<strong>Plain English.</strong> It doesn't matter who writes the check to the government — what matters is who can substitute away. The side that can't budge bears the tax.</p>
+<h3 id="8-deadweight-loss-harberger-triangle">8. Deadweight Loss (Harberger Triangle)</h3>
+<p><strong>Plain English statement.</strong> A tax causes some otherwise-mutually-beneficial trades not to happen. The lost surplus is the deadweight loss (DWL), drawn as a triangle in the supply-demand diagram.
+<strong>Formula (linear approximation).</strong> \(DWL \approx ½ \cdot t \cdot \Delta Q\) where <code>t</code> is the per-unit tax and \(\Delta Q\) is the reduction in quantity. Equivalent: \(DWL \approx ½ \cdot (\varepsilon _D \cdot \varepsilon _S / (\varepsilon _S - \varepsilon _D)) \cdot t² \cdot (Q/P)\) — concept only, don't memorize this exact form.
+<strong>Lesson.</strong> DWL grows with the SQUARE of the tax rate. Doubling the tax quadruples the DWL.</p>
+<h3 id="9-adverse-selection-vs-moral-hazard">9. Adverse Selection vs Moral Hazard</h3>
+<p><strong>Adverse Selection.</strong> Pre-contract information asymmetry: people who know they're high-risk are more likely to buy insurance. The insurer's pool tilts toward bad risks; pricing must reflect this; some good risks get priced out (death spiral).
+<strong>Moral Hazard.</strong> Post-contract behavioral change: insured people behave differently because the cost is borne by someone else. (Insured drivers drive less carefully; insured patients consume more healthcare.)
+<strong>Plain English memory aid.</strong> Adverse selection: I don't know what I'm buying. Moral hazard: I behave differently because I'm covered.</p>
+<h3 id="bonus-optimal-ui-replacement-rate-baily-chetty-intuition">Bonus: Optimal UI Replacement Rate (Baily-Chetty intuition)</h3>
+<p>The optimal replacement rate balances <strong>consumption smoothing</strong> (insurance value) against <strong>moral hazard</strong> (longer unemployment durations). High consumption-smoothing benefit + low moral hazard ⟹ high optimal replacement rate. Low benefit + high moral hazard ⟹ low replacement rate. Memorize the trade-off in words; the formula is concept-only.</p>
+<hr />
+<h1 id="2-empirical-tools-did-rd-event-study">2. Empirical Tools — DiD, RD, Event Study</h1>
+<p><em>[Lec 03 + supplements 08B]</em></p>
+<h3 id="difference-in-differences-did">Difference-in-Differences (DiD)</h3>
+<p><strong>Definition.</strong> Compare the change in outcomes for a treated group to the change for a control group. Identifies the treatment effect under the parallel-trends assumption.
+<strong>Plain English.</strong> "Both groups would have moved together if not for the treatment. The treated group's extra movement is the treatment effect."</p>
+<p><strong>Formula.</strong> <code>ATT = (Y_{T,post} − Y_{T,pre}) − (Y_{C,post} − Y_{C,pre})</code>
+<strong>Variables.</strong> <code>Y</code> = outcome; <code>T</code> = treated; <code>C</code> = control; pre/post = before/after treatment.</p>
+<p><strong>Identification assumption.</strong> Parallel trends: in the absence of treatment, treated and control would have evolved similarly. (Cannot be tested directly, but pre-treatment parallel trends provide supporting evidence.)</p>
+<p><strong>Diagram (parallel trends).</strong></p>
+<div class="diagram"><svg viewBox="0 0 620 380" xmlns="http://www.w3.org/2000/svg" class="diagram-svg" role="img" aria-label="DiD parallel trends, treated and control before and after">
+  <defs>
+    <marker id="atrend" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#333"/>
+    </marker>
+  </defs>
+  <text x="310" y="28" text-anchor="middle" font-size="15" fill="#5b7f2e" font-weight="700">Parallel trends in difference-in-differences</text>
+
+  <!-- axes -->
+  <line x1="70" y1="325" x2="585" y2="325" stroke="#333" stroke-width="1.6" marker-end="url(#atrend)"/>
+  <line x1="70" y1="325" x2="70" y2="50" stroke="#333" stroke-width="1.6" marker-end="url(#atrend)"/>
+  <text x="325" y="360" text-anchor="middle" font-size="13" font-style="italic">time</text>
+  <text x="24" y="190" text-anchor="middle" font-size="13" font-style="italic" transform="rotate(-90 24 190)">Y (outcome)</text>
+
+  <!-- treatment timing -->
+  <line x1="210" y1="325" x2="210" y2="58" stroke="#888" stroke-width="1.1" stroke-dasharray="5 5"/>
+  <text x="210" y="344" text-anchor="middle" font-size="12">treatment</text>
+  <text x="140" y="344" text-anchor="middle" font-size="12">pre</text>
+  <text x="425" y="344" text-anchor="middle" font-size="12">post</text>
+
+  <!-- observed control and treated pre-period trend: matching pre-period slopes -->
+  <polyline points="95,270 210,245 535,185" stroke="#999" stroke-width="2.6" fill="none"/>
+  <polyline points="95,220 210,195" stroke="#1f4e79" stroke-width="3" fill="none"/>
+  <circle cx="210" cy="245" r="4.8" fill="#999"/>
+  <circle cx="535" cy="185" r="4.8" fill="#999"/>
+  <text x="495" y="174" font-size="13" fill="#666" font-weight="700">Control</text>
+
+  <!-- treated counterfactual: same post-treatment slope as control -->
+  <line x1="210" y1="195" x2="535" y2="135" stroke="#1f4e79" stroke-width="2" stroke-dasharray="7 5" opacity="0.55"/>
+  <text x="375" y="126" text-anchor="middle" font-size="12" fill="#1f4e79">treated counterfactual</text>
+
+  <!-- treated actual outcome after treatment -->
+  <polyline points="210,195 535,80" stroke="#1f4e79" stroke-width="3" fill="none"/>
+  <circle cx="210" cy="195" r="5" fill="#1f4e79"/>
+  <circle cx="535" cy="80" r="5" fill="#1f4e79"/>
+  <text x="490" y="68" font-size="13" fill="#1f4e79" font-weight="700">Treated</text>
+
+  <!-- DiD effect annotation -->
+  <line x1="535" y1="135" x2="535" y2="80" stroke="#c44" stroke-width="3"/>
+  <line x1="527" y1="135" x2="543" y2="135" stroke="#c44" stroke-width="2"/>
+  <line x1="527" y1="80" x2="543" y2="80" stroke="#c44" stroke-width="2"/>
+  <text x="548" y="112" font-size="12" fill="#c44" font-weight="700">DiD effect</text>
+</svg></div>
+
+<p><strong>Exam patterns.</strong> Yagan likes "explain why DiD requires parallel trends" and "what threatens identification" (e.g., differential trends, anticipation effects).</p>
+<h3 id="regression-discontinuity-rd">Regression Discontinuity (RD)</h3>
+<p><strong>Definition.</strong> Compare units just above vs just below a threshold that determines treatment. Identifies the treatment effect at the cutoff.
+<strong>Plain English.</strong> If a scholarship is awarded to students with test scores ≥ 80, students at 79 vs 80 are essentially identical except for treatment status. So differences in their later outcomes are causally attributable to the scholarship.</p>
+<p><strong>Identification assumption.</strong> No manipulation: units cannot precisely control which side of the threshold they end up on.</p>
+<p><strong>Sharp RD vs Fuzzy RD.</strong></p>
+<ul>
+<li><strong>Sharp.</strong> Treatment is deterministic at the threshold (probability jumps from 0 to 1).</li>
+<li><strong>Fuzzy.</strong> Treatment probability jumps but not from 0 to 1 (e.g., 0.3 to 0.8). Use IV-style adjustment.</li>
+</ul>
+<p><strong>Exam patterns.</strong> "Why might manipulation fail at this threshold?" "Distinguish sharp vs fuzzy RD."</p>
+<h3 id="event-study">Event Study</h3>
+<p><strong>Definition.</strong> Plot outcomes over time, indexed to the date of an event. Look for changes in trend at the event date relative to before.
+<strong>Plain English.</strong> Like DiD but using time itself as the comparison: outcomes before the event vs after, controlling for unit fixed effects.</p>
+<p><strong>Use case.</strong> Effects of policy changes (tax reforms, regulations), corporate announcements, etc.</p>
+<h3 id="exam-patterns-pitfalls-empirical">Exam patterns / pitfalls (empirical)</h3>
+<ul>
+<li>Yagan likes "interpret this graph" — recognize identification logic from a chart.</li>
+<li>Always state the identifying assumption (parallel trends, no manipulation, no anticipation).</li>
+<li>The most common failures are: (1) violated parallel trends, (2) endogenous treatment timing, (3) sorting around the threshold.</li>
+</ul>
+<hr />
+<h1 id="3-government-budget-constraint-and-debt-dynamics">3. Government Budget Constraint and Debt Dynamics</h1>
+<p><em>[Lec 04, Gruber Ch 4]</em></p>
+<h3 id="government-budget-constraint">Government Budget Constraint</h3>
+<p><strong>Definition.</strong> Each period's spending must be financed by tax revenue or by issuing new debt.
+<strong>Formula (level).</strong> \(G_t + r \cdot D_{t-1} = T_t + (D_t - D_{t-1})\)</p>
+<ul>
+<li>LHS: total outlays (program spending + interest)</li>
+<li>RHS: financing (taxes + new borrowing)</li>
+</ul>
+<p><strong>Equivalent rearrangement.</strong> \(D_t = (1 + r) \cdot D_{t-1} + (G_t - T_t)\) ⚠ MEMORIZE</p>
+<h3 id="primary-vs-total-deficit">Primary vs Total Deficit</h3>
+<ul>
+<li><strong>Primary deficit:</strong> <code>G_t − T_t</code> (excludes interest payments).</li>
+<li><strong>Total deficit:</strong> \(G_t + r \cdot D_{t-1} - T_t\) (includes interest).</li>
+<li>Distinction matters: a country with a primary surplus but high interest payments may still have a total deficit.</li>
+</ul>
+<h3 id="debt-to-gdp-dynamics">Debt-to-GDP Dynamics</h3>
+<p><strong>Formula.</strong> \(b_{t+1} = (1+r)/(1+g) \cdot b_t + (G_t - T_t)/Y_t\) ⚠ MEMORIZE
+<strong>Approximation (small <code>r</code>, <code>g</code>).</strong> \(\Delta b_t \approx (r - g) \cdot b_t + primary deficit ratio\)</p>
+<p><strong>Three regimes:</strong></p>
+<ul>
+<li><code>r &lt; g</code> and primary balance ≥ 0 → debt/GDP falls. (U.S. post-WWII into the 1970s.)</li>
+<li><code>r &gt; g</code> and primary deficit → debt/GDP grows without bound; eventual default or fiscal correction.</li>
+<li>\(r \approx g\) → debt/GDP roughly constant if primary balance is zero.</li>
+</ul>
+<h3 id="sustainability">Sustainability</h3>
+<p><strong>Definition.</strong> A fiscal path is sustainable if the debt-to-GDP ratio doesn't explode under reasonable assumptions about future deficits.
+<strong>Plain English.</strong> Government can run primary deficits forever IF <code>r &lt; g</code>. If <code>r &gt; g</code>, eventual primary surpluses are required.</p>
+<h3 id="exam-patterns-pitfalls">Exam patterns / pitfalls</h3>
+<ul>
+<li>"Compute next year's <code>b</code> given numbers" — apply the formula directly.</li>
+<li>"Is this debt path sustainable?" — sign of <code>r − g</code>, then primary balance.</li>
+<li>"Why might <code>r &lt; g</code> recently?" — secular stagnation, demographic factors, low real rates post-2008.</li>
+<li>Don't confuse primary deficit with total deficit.</li>
+</ul>
+<hr />
+<h1 id="4-income-distribution-and-poverty">4. Income Distribution and Poverty</h1>
+<p><em>[Lec 05, Gruber Ch 17–18]</em></p>
+<h3 id="measures-of-inequality">Measures of Inequality</h3>
+<p><strong>Gini coefficient.</strong> A scalar summary, range 0 (perfect equality) to 1 (one person has everything). Geometric: 1 − 2·(area under Lorenz curve).</p>
+<p><strong>Top income shares.</strong> Share of total income earned by the top 1%, 0.1%, 10%, etc. Easier to communicate; preferred by Piketty/Saez.</p>
+<p><strong>Lorenz curve.</strong> Plot of cumulative income share against cumulative population share. A 45° line = perfect equality; the more it bows down, the more unequal.</p>
+<h3 id="us-poverty-rate-know-definition-cold">U.S. Poverty Rate ⚠ KNOW DEFINITION COLD</h3>
+<p>See Section 1, Definition 1. Re-state from memory.</p>
+<h3 id="spm-supplemental-poverty-measure">SPM (Supplemental Poverty Measure)</h3>
+<p><strong>Definition.</strong> A more comprehensive poverty measure that includes non-cash benefits (SNAP, EITC, housing) and subtracts necessary expenses (taxes, work expenses, healthcare).
+<strong>Plain English.</strong> SPM tells a different story than the official rate. EITC and SNAP have done substantial poverty reduction not visible in the official measure.</p>
+<h3 id="recent-us-trends-pikettysaezzucman-broadly">Recent U.S. trends (Piketty/Saez/Zucman, broadly)</h3>
+<ul>
+<li>Top 1% income share: ~10% in 1970s → ~20% by 2010s.</li>
+<li>Top 0.1% income share: roughly tripled over the same period.</li>
+<li>Income inequality + wealth inequality have both risen substantially since 1980.</li>
+</ul>
+<h3 id="exam-patterns-pitfalls_1">Exam patterns / pitfalls</h3>
+<ul>
+<li>"Define poverty rate." — memorize.</li>
+<li>"Why might the official rate misrepresent poverty trends?" — exclusion of non-cash transfers, EITC, etc.</li>
+<li>"What's the difference between income and wealth inequality?" — flow vs stock.</li>
+</ul>
+<hr />
+<h1 id="5-tax-incidence">5. Tax Incidence</h1>
+<p><em>[Lec 06, Gruber Ch 19] — TIER 1 PRIORITY</em></p>
+<h3 id="statutory-vs-economic-incidence">Statutory vs Economic Incidence</h3>
+<p><strong>Definition.</strong></p>
+<ul>
+<li><strong>Statutory incidence.</strong> Who legally writes the check (e.g., consumers pay sales tax at register).</li>
+<li><strong>Economic incidence.</strong> Who actually bears the burden after prices adjust.</li>
+</ul>
+<p><strong>Plain English.</strong> A sales tax of $1 is "statutorily" on the consumer, but the firm might lower its pre-tax price by $0.40 in response. So consumers economically bear $0.60 and firms bear $0.40.</p>
+<h3 id="the-incidence-rule">The Incidence Rule</h3>
+<p><strong>Statement.</strong> Burden falls on the more inelastic side of the market. ⚠ MEMORIZE
+<strong>Formula (share of burden).</strong> Share borne by buyers ≈ \(\varepsilon _S / (\varepsilon _S - \varepsilon _D)\) (with ε_D negative).
+<strong>Plain English.</strong> When demand is perfectly inelastic (\(\varepsilon _D = 0\)), buyers bear 100% of the tax. When supply is perfectly inelastic, sellers bear 100%.</p>
+<h3 id="tax-incidence-diagram-per-unit-tax-t-on-suppliers">Tax incidence diagram (per-unit tax <code>t</code> on suppliers)</h3>
+<div class="diagram"><svg viewBox="0 0 600 390" xmlns="http://www.w3.org/2000/svg" class="diagram-svg" role="img" aria-label="Tax incidence with supply, demand, tax wedge, buyer/seller prices">
+  <defs>
+    <marker id="aTI" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#333"/>
+    </marker>
+  </defs>
+  <line x1="60" y1="330" x2="580" y2="330" stroke="#333" stroke-width="1.5" marker-end="url(#aTI)"/>
+  <line x1="60" y1="330" x2="60" y2="30" stroke="#333" stroke-width="1.5" marker-end="url(#aTI)"/>
+  <text x="320" y="370" text-anchor="middle" font-size="13" font-style="italic">Quantity</text>
+  <text x="22" y="180" text-anchor="middle" font-size="13" font-style="italic" transform="rotate(-90 22 180)">Price</text>
+  <!-- Demand (downward) -->
+  <line x1="80" y1="60" x2="540" y2="320" stroke="#1f4e79" stroke-width="2.5"/>
+  <text x="548" y="320" font-size="13" fill="#1f4e79" font-weight="600">D</text>
+  <!-- Supply (upward) -->
+  <line x1="80" y1="290" x2="540" y2="80" stroke="#5b7f2e" stroke-width="2.5"/>
+  <text x="548" y="80" font-size="13" fill="#5b7f2e" font-weight="600">S</text>
+  <!-- S+t shifted up by 65 -->
+  <line x1="80" y1="225" x2="540" y2="20" stroke="#5b7f2e" stroke-width="1.8" stroke-dasharray="5 4"/>
+  <text x="548" y="20" font-size="12" fill="#5b7f2e">S + t</text>
+  <!-- No-tax equilibrium D∩S at (305, 187) — gray dot -->
+  <circle cx="305" cy="187" r="4.5" fill="#444"/>
+  <!-- After-tax: D∩(S+t) at x=243.
+       P_b on D at (243, 152), BLUE matches D.
+       P_s on S at (243, 216), GREEN matches S. -->
+  <circle cx="243" cy="152" r="5" fill="#1f4e79"/>
+  <circle cx="243" cy="216" r="5" fill="#5b7f2e"/>
+  <!-- Tax wedge -->
+  <line x1="243" y1="152" x2="243" y2="216" stroke="#c44" stroke-width="3"/>
+  <text x="252" y="188" font-size="14" fill="#c44" font-weight="700">t</text>
+  <!-- P_b dashed line and label (left of y-axis) -->
+  <line x1="60" y1="152" x2="243" y2="152" stroke="#1f4e79" stroke-width="1" stroke-dasharray="3 3"/>
+  <text x="55" y="156" text-anchor="end" font-size="12" font-weight="700" fill="#1f4e79">P_b</text>
+  <!-- P_0 dashed line and label -->
+  <line x1="60" y1="187" x2="305" y2="187" stroke="#888" stroke-width="0.8" stroke-dasharray="2 3"/>
+  <text x="55" y="190" text-anchor="end" font-size="11" fill="#666">P_0</text>
+  <!-- P_s dashed line and label -->
+  <line x1="60" y1="216" x2="243" y2="216" stroke="#5b7f2e" stroke-width="1" stroke-dasharray="3 3"/>
+  <text x="55" y="220" text-anchor="end" font-size="12" font-weight="700" fill="#5b7f2e">P_s</text>
+  <!-- Q_t marker -->
+  <line x1="243" y1="330" x2="243" y2="216" stroke="#888" stroke-width="0.8" stroke-dasharray="3 3"/>
+  <text x="243" y="348" text-anchor="middle" font-size="12" font-weight="700">Q_t</text>
+  <!-- Q_0 marker -->
+  <line x1="305" y1="330" x2="305" y2="187" stroke="#888" stroke-width="0.8" stroke-dasharray="2 3"/>
+  <text x="305" y="348" text-anchor="middle" font-size="11">Q_0</text>
+  <!-- Annotation -->
+  <text x="60" y="20" font-size="12" fill="#5b7f2e">Burden split: (P_b − P_0) on buyers; (P_0 − P_s) on sellers. Falls on more inelastic side.</text>
+</svg></div>
+<p>The vertical distance between <code>P_buyer</code> and <code>P_seller</code> is the tax <code>t</code>. The split of <code>t</code> between buyers and sellers depends on relative elasticities.</p>
+<h3 id="special-cases-memorize">Special cases (memorize)</h3>
+<ul>
+<li><strong>Perfectly elastic supply</strong> (horizontal S, e.g., world commodity): buyers bear 100%.</li>
+<li><strong>Perfectly inelastic supply</strong> (vertical S, e.g., land): sellers bear 100%.</li>
+<li><strong>Perfectly elastic demand</strong>: sellers bear 100%.</li>
+<li><strong>Perfectly inelastic demand</strong>: buyers bear 100%.</li>
+</ul>
+<h3 id="payroll-tax-incidence">Payroll tax incidence</h3>
+<p><strong>Setup.</strong> Statutory: half on employer (FICA employer share), half on employee. Economic incidence: depends on labor supply elasticity.
+<strong>Lesson.</strong> Empirically, labor supply is fairly inelastic in the long run (most workers don't quit if their wage drops 1%). So workers bear most of the payroll tax burden, regardless of statutory split.</p>
+<h3 id="exam-patterns-pitfalls_2">Exam patterns / pitfalls</h3>
+<ul>
+<li>"Who bears this tax?" — always answer with elasticity reasoning.</li>
+<li>Dirgrams: draw S, D, shift S up by <code>t</code>, identify <code>P_buyer</code> and <code>P_seller</code>.</li>
+<li>"Does it matter who writes the check?" — NO (this is the key insight). It matters only for compliance/administrative costs.</li>
+</ul>
+<hr />
+<h1 id="6-deadweight-loss">6. Deadweight Loss</h1>
+<p><em>[Lec 06, Gruber Ch 19]</em></p>
+<h3 id="deadweight-loss-dwl">Deadweight Loss (DWL)</h3>
+<p><strong>Definition.</strong> Loss of total surplus due to a tax (or other distortion) that causes the equilibrium quantity to fall below the efficient level.
+<strong>Plain English.</strong> Some mutually-beneficial trades don't happen because of the tax. The lost surplus from those un-made trades is the DWL.</p>
+<p><strong>Diagram — Harberger Triangle.</strong></p>
+<div class="diagram"><svg viewBox="0 0 580 380" xmlns="http://www.w3.org/2000/svg" class="diagram-svg" role="img" aria-label="Deadweight loss as Harberger triangle">
+  <defs>
+    <marker id="aDWL" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#333"/>
+    </marker>
+  </defs>
+  <line x1="60" y1="330" x2="560" y2="330" stroke="#333" stroke-width="1.5" marker-end="url(#aDWL)"/>
+  <line x1="60" y1="330" x2="60" y2="30" stroke="#333" stroke-width="1.5" marker-end="url(#aDWL)"/>
+  <text x="310" y="365" text-anchor="middle" font-size="13" font-style="italic">Quantity</text>
+  <text x="22" y="180" text-anchor="middle" font-size="13" font-style="italic" transform="rotate(-90 22 180)">Price</text>
+  <!-- Demand -->
+  <line x1="80" y1="60" x2="540" y2="320" stroke="#1f4e79" stroke-width="2.5"/>
+  <text x="510" y="318" font-size="13" fill="#1f4e79" font-weight="600">D</text>
+  <!-- Supply -->
+  <line x1="80" y1="290" x2="540" y2="80" stroke="#5b7f2e" stroke-width="2.5"/>
+  <text x="510" y="78" font-size="13" fill="#5b7f2e" font-weight="600">S</text>
+  <!-- DWL triangle vertices: P_b on D = (243,152); P_s on S = (243,216); P_0 = D∩S = (305,187). -->
+  <polygon points="243,152 243,216 305,187" fill="#c44" fill-opacity="0.35" stroke="#c44" stroke-width="2"/>
+  <text x="320" y="178" font-size="13" fill="#c44" font-weight="700">DWL</text>
+  <text x="320" y="194" font-size="11" fill="#c44">≈ ½ · t · ΔQ</text>
+  <!-- Tax wedge dashed -->
+  <line x1="243" y1="152" x2="243" y2="216" stroke="#888" stroke-width="1.5" stroke-dasharray="3 3"/>
+  <!-- Q_t and Q_0 markers -->
+  <line x1="243" y1="330" x2="243" y2="152" stroke="#888" stroke-width="1" stroke-dasharray="3 3"/>
+  <text x="243" y="348" text-anchor="middle" font-size="12">Q_t</text>
+  <line x1="305" y1="330" x2="305" y2="187" stroke="#888" stroke-width="1" stroke-dasharray="3 3"/>
+  <text x="305" y="348" text-anchor="middle" font-size="11">Q_0</text>
+  <text x="60" y="20" font-size="12" fill="#c44">DWL = lost surplus from trades that don't happen because of tax. Grows ∝ t².</text>
+</svg></div>
+<p>The triangle between Q_t and Q_0, bounded above by D and below by S, is the deadweight loss.</p>
+<h3 id="formula-linear-approximation">Formula (linear approximation)</h3>
+<p><strong>Formula.</strong> \(DWL \approx ½ \cdot t \cdot \Delta Q\)</p>
+<ul>
+<li><code>t</code> = per-unit tax</li>
+<li>\(\Delta Q\) = reduction in quantity
+<strong>Lesson (key).</strong> DWL is approximately PROPORTIONAL TO \(t²\).
+<strong>Implication.</strong> Doubling the tax rate quadruples the DWL. This is why Yagan's class emphasizes that small taxes are nearly free; large taxes are increasingly costly.</li>
+</ul>
+<h3 id="compensated-vs-uncompensated-demand-advanced">Compensated vs Uncompensated demand (advanced)</h3>
+<p>For accurate welfare analysis, DWL should use the <em>compensated</em> (Hicksian) demand curve, not the observed (Marshallian) demand. Concept-only — Yagan covers it briefly; you don't need the algebra.</p>
+<h3 id="exam-patterns-pitfalls_3">Exam patterns / pitfalls</h3>
+<ul>
+<li>"Show DWL on a diagram" — draw the triangle.</li>
+<li>"What's the relationship between DWL and tax rate?" — quadratic.</li>
+<li>"Why is DWL ½·t·ΔQ?" — area of a triangle with base <code>t</code> and height \(\Delta Q\).</li>
+</ul>
+<hr />
+<h1 id="7-optimal-labor-income-taxation">7. Optimal Labor Income Taxation</h1>
+<p><em>[Lec 07, Gruber Ch 20–21] — TIER 1 PRIORITY</em></p>
+<h3 id="the-equity-efficiency-trade-off">The Equity-Efficiency Trade-off</h3>
+<p><strong>Plain English.</strong> Higher tax rates on the wealthy redistribute (equity gain) but reduce labor supply / shift income to non-taxable forms (efficiency loss). Optimal policy balances these.</p>
+<h3 id="optimal-top-marginal-tax-rate-saez-formula-concept-only-do-not-memorize">Optimal Top Marginal Tax Rate (Saez formula — concept only, do NOT memorize)</h3>
+<p><strong>Formula (concept-only).</strong> \(\tau * = 1 / (1 + a \cdot e)\)</p>
+<ul>
+<li><code>a</code> = Pareto parameter of the top-income distribution (~1.5 for U.S.)</li>
+<li>
+<p><code>e</code> = elasticity of taxable income (ETI) at the top
+<strong>Lesson.</strong> ⚠ MEMORIZE THE LESSON, NOT THE FORMULA:</p>
+</li>
+<li>
+<p>High ETI → low optimal top tax rate (because high-income taxpayers will reduce reported income a lot in response to higher rates).</p>
+</li>
+<li>Low ETI → high optimal top tax rate (rates can be high without much behavioral cost).</li>
+<li>Fatter top tail (lower <code>a</code>) → higher optimal rate (more revenue from top earners).</li>
+</ul>
+<h3 id="why-the-lesson-matters">Why the lesson matters</h3>
+<p><strong>Plain English.</strong> Empirical estimates of ETI matter enormously for tax policy debates. Older estimates (~1980s) suggested ETI is high → low optimal top rate (in the 30s–40s%). More recent estimates suggest ETI is moderate (0.2–0.3) → optimal top rates 50%–70%.</p>
+<h3 id="behavioral-responses-to-taxes-three-margins">Behavioral responses to taxes (three margins)</h3>
+<ol>
+<li><strong>Real economic activity</strong> — work less, retire earlier, less effort.</li>
+<li><strong>Avoidance</strong> — shift compensation from cash to non-taxable forms (deferred comp, fringe benefits).</li>
+<li><strong>Evasion</strong> — illegal underreporting.</li>
+</ol>
+<p>ETI captures the SUM of these. Different margins matter for different policy designs.</p>
+<h3 id="exam-patterns-pitfalls_4">Exam patterns / pitfalls</h3>
+<ul>
+<li>"Why is the optimal top tax rate lower if ETI is high?" — high ETI = high cost of taxation (large behavioral response) → benefits of redistribution outweighed sooner.</li>
+<li>"Distinguish ETI from labor supply elasticity." — labor supply only captures hours; ETI captures hours + form-shifting + evasion.</li>
+<li>Yagan loves: "What is your best guess for the optimal top marginal rate, and why?"</li>
+</ul>
+<hr />
+<h1 id="8-labor-supply-and-taxable-income-eitc">8. Labor Supply and Taxable Income (EITC)</h1>
+<p><em>[Lec 08, Lec 08 live analysis]</em></p>
+<h3 id="intensive-vs-extensive-margin">Intensive vs Extensive Margin</h3>
+<p><strong>Intensive margin.</strong> Hours worked given that you work (work 30 vs 40 hours).
+<strong>Extensive margin.</strong> Whether to work at all (labor force participation).
+<strong>Plain English.</strong> Different policies affect different margins. Income taxes mostly affect intensive. Welfare programs and EITC mostly affect extensive (whether to enter the workforce at all).</p>
+<h3 id="labor-supply-elasticities-typical-estimates">Labor supply elasticities (typical estimates)</h3>
+<ul>
+<li><strong>Intensive (prime-age men):</strong> very small, often near 0.1.</li>
+<li><strong>Intensive (married women):</strong> historically larger, around 0.5; declining as labor force participation has converged.</li>
+<li><strong>Extensive (low-income workers):</strong> larger, especially for single mothers (EITC literature).</li>
+</ul>
+<h3 id="eitc-earned-income-tax-credit">EITC (Earned Income Tax Credit)</h3>
+<p><strong>Definition.</strong> A refundable tax credit for low-income working families. Phases in (subsidizes earnings up to a limit), plateaus, then phases out.
+<strong>Plain English.</strong> Designed to make work more attractive for low-income workers. Encourages labor force participation (extensive margin), with mixed effects on hours (intensive margin).</p>
+<p><strong>Three regions:</strong>
+1. <strong>Phase-in.</strong> Each $1 earned → ~$0.40 EITC. Strongly encourages working.
+2. <strong>Plateau.</strong> Maximum credit; no marginal effect.
+3. <strong>Phase-out.</strong> Each $1 earned → loss of EITC. Implicit marginal tax rate ~21%, discourages additional hours.</p>
+<p><strong>EITC diagram (concept).</strong></p>
+<div class="diagram"><svg viewBox="0 0 600 320" xmlns="http://www.w3.org/2000/svg" class="diagram-svg" role="img" aria-label="EITC schedule with phase-in, plateau, phase-out">
+  <defs>
+    <marker id="aEITC" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#333"/>
+    </marker>
+  </defs>
+  <line x1="60" y1="270" x2="570" y2="270" stroke="#333" stroke-width="1.5" marker-end="url(#aEITC)"/>
+  <line x1="60" y1="270" x2="60" y2="30" stroke="#333" stroke-width="1.5" marker-end="url(#aEITC)"/>
+  <text x="315" y="305" text-anchor="middle" font-size="13" font-style="italic">Earned income (E)</text>
+  <text x="20" y="150" text-anchor="middle" font-size="13" font-style="italic" transform="rotate(-90 20 150)">EITC ($)</text>
+  <!-- Phase-in: linear up from (60,270) to (180,80) -->
+  <line x1="60" y1="270" x2="180" y2="80" stroke="#1f4e79" stroke-width="2.5"/>
+  <!-- Plateau: flat from (180,80) to (300,80) -->
+  <line x1="180" y1="80" x2="300" y2="80" stroke="#1f4e79" stroke-width="2.5"/>
+  <!-- Phase-out: linear down from (300,80) to (490,270) -->
+  <line x1="300" y1="80" x2="490" y2="270" stroke="#1f4e79" stroke-width="2.5"/>
+  <!-- Section labels -->
+  <text x="120" y="180" font-size="11" fill="#5b7f2e" font-weight="600">phase-in</text>
+  <text x="120" y="195" font-size="10" fill="#5b7f2e">+$ per $1 earned</text>
+  <text x="240" y="100" font-size="11" fill="#5b7f2e" text-anchor="middle" font-weight="600">plateau</text>
+  <text x="240" y="115" font-size="10" fill="#5b7f2e" text-anchor="middle">max EITC</text>
+  <text x="395" y="180" font-size="11" fill="#c44" font-weight="600">phase-out</text>
+  <text x="395" y="195" font-size="10" fill="#c44">implicit MTR ≈ 21%</text>
+  <!-- Earnings markers E1, E2, E3 -->
+  <text x="60" y="290" font-size="11" text-anchor="middle">0</text>
+  <line x1="180" y1="270" x2="180" y2="265" stroke="#333" stroke-width="1.5"/>
+  <text x="180" y="290" font-size="11" text-anchor="middle">E₁</text>
+  <line x1="300" y1="270" x2="300" y2="265" stroke="#333" stroke-width="1.5"/>
+  <text x="300" y="290" font-size="11" text-anchor="middle">E₂</text>
+  <line x1="490" y1="270" x2="490" y2="265" stroke="#333" stroke-width="1.5"/>
+  <text x="490" y="290" font-size="11" text-anchor="middle">E₃</text>
+</svg></div>
+
+<h3 id="empirical-findings-on-eitc">Empirical findings on EITC</h3>
+<ul>
+<li>Strong increase in labor force participation among single mothers.</li>
+<li>Modest decrease in hours among those already working (phase-out region).</li>
+<li>Net effect on poverty: large reduction (EITC is one of the largest U.S. anti-poverty programs).</li>
+</ul>
+<h3 id="exam-patterns-pitfalls_5">Exam patterns / pitfalls</h3>
+<ul>
+<li>"Sketch the EITC schedule" — three regions.</li>
+<li>"Why does EITC encourage participation but not always hours?" — extensive vs intensive distinction.</li>
+<li>"What's the implicit marginal tax rate in the phase-out?" — phase-out rate (~21% in standard EITC).</li>
+</ul>
+<hr />
+<h1 id="9-business-corporate-taxation">9. Business / Corporate Taxation</h1>
+<p><em>[Lec 09, Gruber Ch 24]</em></p>
+<h3 id="corporate-tax-basics">Corporate Tax Basics</h3>
+<p><strong>What's taxed.</strong> Corporate profits (revenues minus deductible costs including interest, depreciation).
+<strong>U.S. statutory rate.</strong> Was 35% pre-2017 (TCJA), now 21%.
+<strong>Effective rate.</strong> Often much lower due to deductions, credits, and international tax planning.</p>
+<h3 id="corporate-tax-incidence">Corporate Tax Incidence</h3>
+<p><strong>Statutory.</strong> On the corporation.
+<strong>Economic.</strong> Empirically debated. Likely shared between:</p>
+<ul>
+<li>Capital owners (shareholders) — through lower returns.</li>
+<li>Workers — through lower wages (especially in open economies where capital is mobile).</li>
+</ul>
+<p><strong>Lesson.</strong> In a fully open economy with perfectly mobile capital, capital owners can escape corporate tax by relocating; the incidence falls more on workers. In a closed economy, capital bears more of it.</p>
+<h3 id="marginal-effective-tax-rate-metr-on-investment">Marginal Effective Tax Rate (METR) on Investment</h3>
+<p><strong>Definition.</strong> The wedge between pre-tax and post-tax return on a marginal investment, accounting for all tax provisions (corporate rate, depreciation, interest deductibility, investment credits).
+<strong>Plain English.</strong> A high statutory rate but generous depreciation can yield a low METR. Policy should target the METR, not the statutory rate.</p>
+<h3 id="why-corporate-taxation-is-complicated">Why corporate taxation is complicated</h3>
+<ul>
+<li><strong>Double taxation.</strong> Corporate profits taxed at the firm; dividends/capital gains taxed at the shareholder.</li>
+<li><strong>Debt vs equity asymmetry.</strong> Interest is deductible; dividends are not. → Tax code subsidizes debt financing.</li>
+<li><strong>Depreciation rules.</strong> Determine the timing of when investment costs offset profits — large effect on METR.</li>
+<li><strong>International tax planning.</strong> Multinationals shift profits to low-tax jurisdictions; recent BEPS reforms (OECD) aim to reduce this.</li>
+</ul>
+<h3 id="exam-patterns-pitfalls_6">Exam patterns / pitfalls</h3>
+<ul>
+<li>"Who bears the corporate tax?" — qualified answer; shared between capital and labor; depends on capital mobility.</li>
+<li>"Why might lowering the corporate rate not raise revenue?" — Laffer-style argument, but evidence is mixed.</li>
+</ul>
+<hr />
+<h1 id="10-capital-income-taxation-and-the-life-cycle-model">10. Capital Income Taxation and the Life-Cycle Model</h1>
+<p><em>[Lec 10, Gruber Ch 22–23]</em></p>
+<h3 id="the-life-cycle-model">The Life-Cycle Model</h3>
+<p><strong>Plain English.</strong> Households save during working years, dis-save in retirement. Saving today = future consumption. Capital income tax = tax on future consumption financed from current saving.</p>
+<h3 id="the-atkinson-stiglitz-chamley-judd-argument-concept-only">The Atkinson-Stiglitz / Chamley-Judd Argument (concept only)</h3>
+<p><strong>Lesson.</strong> In benchmark models, optimal capital income tax in the long run is ZERO — because taxing capital is equivalent to a higher and higher tax rate on consumption far in the future, distorting the lifetime savings decision.
+<strong>Caveats.</strong></p>
+<ul>
+<li>The result depends on strong assumptions (homogeneous preferences, no liquidity constraints, no inheritance).</li>
+<li>Modern public finance (Saez, Diamond) has rehabilitated capital taxation under more realistic assumptions.</li>
+</ul>
+<h3 id="why-capital-and-labor-taxation-differ">Why capital and labor taxation differ</h3>
+<ul>
+<li><strong>Labor income.</strong> One-shot decision per period. Taxed once.</li>
+<li><strong>Capital income.</strong> Compounds over time. A 20% annual tax over 40 years has a much larger cumulative wedge than a one-time 20% labor tax.</li>
+</ul>
+<h3 id="tax-favored-savings-vehicles-us">Tax-favored savings vehicles (U.S.)</h3>
+<ul>
+<li>401(k), IRA — pre-tax contributions, taxed at withdrawal.</li>
+<li>Roth — post-tax contributions, tax-free withdrawals.</li>
+<li>Tax-advantaged accounts illustrate the principle: shifting taxation across time has welfare consequences.</li>
+</ul>
+<h3 id="exam-patterns-pitfalls_7">Exam patterns / pitfalls</h3>
+<ul>
+<li>"Why might labor tax ≠ consumption tax?" — labor tax ≈ 1 − τ on take-home; consumption tax ≈ 1/(1+t) of price; equivalent in static models BUT different in life-cycle models with savings.</li>
+<li>"Why is taxing capital like increasing taxes on future consumption?" — the future-consumption price is \(1 + r \cdot (1-\tau )\); taxing capital reduces it.</li>
+</ul>
+<hr />
+<h1 id="11-externalities-and-pigouvian-taxation">11. Externalities and Pigouvian Taxation</h1>
+<p><em>[Lec 11, Gruber Ch 5–6] — TIER 1 PRIORITY</em></p>
+<h3 id="externality">Externality</h3>
+<p><strong>Definition.</strong> A cost or benefit of an action that falls on someone other than the decision-maker.</p>
+<ul>
+<li><strong>Negative externality.</strong> Cost imposed on others (pollution, congestion, smoking).</li>
+<li><strong>Positive externality.</strong> Benefit conferred on others (vaccination, education, R&amp;D).</li>
+</ul>
+<h3 id="the-inefficiency">The Inefficiency</h3>
+<p><strong>Plain English.</strong> Without correction, agents make decisions based on private cost/benefit, not social. With a negative externality, the market produces TOO MUCH (private MC &lt; social MC). With a positive externality, TOO LITTLE (private MB &lt; social MB).</p>
+<h3 id="pigouvian-tax-and-subsidy">Pigouvian Tax (and Subsidy)</h3>
+<p><strong>Definition.</strong> A tax equal to the marginal external damage at the optimal quantity.
+<strong>Formula (rule).</strong> <code>t* = MEC(Q*)</code> where MEC is the marginal external cost at the socially optimal quantity. ⚠ MEMORIZE THE LESSON.
+<strong>Plain English.</strong> Charge polluters exactly the harm their pollution causes. They internalize the cost; their private decision aligns with social optimum.</p>
+<p><strong>Symmetric for positive externalities.</strong> Subsidize at rate equal to marginal external benefit.</p>
+<h3 id="diagram-externality-with-pigouvian-tax">Diagram — externality with Pigouvian tax</h3>
+<div class="diagram"><svg viewBox="0 0 640 400" xmlns="http://www.w3.org/2000/svg" class="diagram-svg" role="img" aria-label="Negative externality with Pigouvian tax: MPC, MSC, demand, market vs efficient quantity">
+  <defs>
+    <marker id="aPIG" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#333"/>
+    </marker>
+  </defs>
+  <text x="80" y="28" font-size="12" fill="#444">Pigouvian tax sets private cost equal to social cost at Q*.</text>
+  <line x1="70" y1="345" x2="600" y2="345" stroke="#333" stroke-width="1.5" marker-end="url(#aPIG)"/>
+  <line x1="70" y1="345" x2="70" y2="48" stroke="#333" stroke-width="1.5" marker-end="url(#aPIG)"/>
+  <text x="335" y="382" text-anchor="middle" font-size="13" font-style="italic">Quantity</text>
+  <text x="24" y="195" text-anchor="middle" font-size="13" font-style="italic" transform="rotate(-90 24 195)">Price / Cost</text>
+  <!-- MPC (private marginal cost) -->
+  <line x1="95" y1="292" x2="555" y2="112" stroke="#5b7f2e" stroke-width="2.2"/>
+  <text x="520" y="116" font-size="12" fill="#5b7f2e" font-weight="600">MPC</text>
+  <!-- MSC (social marginal cost = MPC + external damage) -->
+  <line x1="95" y1="232" x2="555" y2="52" stroke="#c44" stroke-width="2.5"/>
+  <text x="512" y="54" font-size="12" fill="#c44" font-weight="600">MSC</text>
+  <!-- Demand -->
+  <line x1="95" y1="72" x2="555" y2="332" stroke="#1f4e79" stroke-width="2.5"/>
+  <text x="505" y="332" font-size="12" fill="#1f4e79" font-weight="600">D = MSB</text>
+  <!-- Efficient: D∩MSC, computed = (247, 155) -->
+  <circle cx="262" cy="167" r="5" fill="#c44"/>
+  <text x="185" y="158" font-size="11" fill="#c44" font-weight="700">efficient (Q*)</text>
+  <!-- Market: D∩MPC, computed = (310, 190) -->
+  <circle cx="325" cy="202" r="5" fill="#5b7f2e"/>
+  <text x="340" y="187" font-size="11" fill="#5b7f2e" font-weight="700">market (Q_m)</text>
+  <!-- Pigouvian tax wedge: at Q*, MSC=155 to MPC=215 -->
+  <line x1="262" y1="167" x2="262" y2="227" stroke="#666" stroke-width="2" stroke-dasharray="4 3"/>
+  <text x="145" y="213" font-size="11" fill="#666">tax = MEC at Q*</text>
+  <!-- Q markers -->
+  <line x1="262" y1="345" x2="262" y2="167" stroke="#888" stroke-width="0.8" stroke-dasharray="3 3"/>
+  <line x1="325" y1="345" x2="325" y2="202" stroke="#888" stroke-width="0.8" stroke-dasharray="3 3"/>
+  <text x="262" y="364" text-anchor="middle" font-size="12" font-weight="700" fill="#c44">Q*</text>
+  <text x="325" y="364" text-anchor="middle" font-size="12" font-weight="700" fill="#5b7f2e">Q_m</text>
+</svg></div>
+
+<ul>
+<li>Without tax: market produces <code>Q_market</code> (where MPC = D).</li>
+<li>With Pigouvian tax: market produces <code>Q*</code> (where MSC = D). DWL eliminated.</li>
+</ul>
+<h3 id="coase-theorem">Coase Theorem</h3>
+<p><strong>Statement.</strong> If property rights are well-defined and transaction costs are zero, parties can bargain to the efficient outcome regardless of who initially holds the rights.
+<strong>Plain English.</strong> The role of government is mainly to assign property rights; private negotiation handles the rest.
+<strong>Real-world caveat.</strong> Transaction costs are rarely zero (especially with many parties), so Coase is more of a benchmark than a policy prescription.</p>
+<h3 id="cap-and-trade-vs-pigouvian-tax">Cap-and-Trade vs Pigouvian Tax</h3>
+<ul>
+<li><strong>Pigouvian tax.</strong> Sets the price of pollution; quantity adjusts.</li>
+<li><strong>Cap-and-trade.</strong> Sets the quantity of pollution; price adjusts.</li>
+<li><strong>Equivalence (Weitzman).</strong> Under perfect information, equivalent. Under uncertainty about MC vs MB, choice depends on relative slopes.</li>
+<li><strong>Practical considerations.</strong> Tax is simpler administratively but less politically tractable; cap-and-trade is more market-friendly framing but harder to design well.</li>
+</ul>
+<h3 id="exam-patterns-pitfalls_8">Exam patterns / pitfalls</h3>
+<ul>
+<li>"Diagram a negative externality and the Pigouvian solution."</li>
+<li>"Why do markets fail with externalities?" — private cost ≠ social cost.</li>
+<li>"When is cap-and-trade preferred?" — when quantity certainty matters more (e.g., crossing a critical pollution threshold).</li>
+</ul>
+<hr />
+<h1 id="12-public-goods">12. Public Goods</h1>
+<p><em>[Lec 12, Gruber Ch 7] — TIER 1 PRIORITY</em></p>
+<h3 id="definition">Definition</h3>
+<p><strong>Public good.</strong> A good that is both:</p>
+<ul>
+<li><strong>Non-rival.</strong> My consumption doesn't reduce yours (e.g., national defense).</li>
+<li><strong>Non-excludable.</strong> Can't prevent people from using it (e.g., clean air).</li>
+</ul>
+<p><strong>Pure private good.</strong> Rival AND excludable (food).
+<strong>Pure public good.</strong> Non-rival AND non-excludable (national defense).
+<strong>Mixed cases.</strong> Club goods (non-rival but excludable: cable TV), common-pool resources (rival but non-excludable: ocean fish).</p>
+<h3 id="why-markets-fail">Why markets fail</h3>
+<p><strong>Free-rider problem.</strong> Each individual hopes others will pay; if everyone reasons this way, nothing gets provided.
+<strong>Plain English.</strong> I personally benefit from clean air whether or not I personally pay for pollution control. Why pay?</p>
+<h3 id="the-samuelson-condition-efficient-provision-rule-memorize">The Samuelson Condition (efficient provision rule) ⚠ MEMORIZE</h3>
+<p><strong>Statement.</strong> For a public good, sum the marginal rates of substitution across all consumers; this equals the marginal rate of transformation (the cost of provision).
+<strong>Formula.</strong> \(\Sigma MRS_i = MRT\)
+<strong>Plain English.</strong> For a private good, only the buyer's MRS matters. For a public good, EVERYONE consumes the same unit, so we sum their willingness-to-pay.</p>
+<h3 id="vertical-vs-horizontal-aggregation">Vertical vs horizontal aggregation</h3>
+<ul>
+<li><strong>Private good.</strong> Add demand curves HORIZONTALLY (sum quantities at each price).</li>
+<li><strong>Public good.</strong> Add demand curves VERTICALLY (sum prices at each quantity — the willingness-to-pay for the same unit).</li>
+</ul>
+<h3 id="lindahl-pricing-theoretical-solution">Lindahl Pricing (theoretical solution)</h3>
+<p><strong>Plain English.</strong> Each person pays a personalized price equal to their marginal benefit. Sum of prices covers the cost.
+<strong>Practical issue.</strong> Requires each person to truthfully reveal their MRS. They have an incentive to understate (free-ride).</p>
+<h3 id="public-good-provision-in-practice">Public good provision in practice</h3>
+<ul>
+<li>Government provision financed by taxation (national defense, basic research).</li>
+<li>Private provision under specific conditions (charity, club goods with exclusion technology).</li>
+<li>Crowding out: government provision may displace some private provision.</li>
+</ul>
+<h3 id="exam-patterns-pitfalls_9">Exam patterns / pitfalls</h3>
+<ul>
+<li>"What makes national defense a public good?" — non-rival + non-excludable.</li>
+<li>"Why is the Samuelson condition \(\Sigma MRS = MRT\)?" — same unit consumed by everyone; sum benefits.</li>
+<li>"Why doesn't Lindahl pricing work in practice?" — preference revelation problem; people understate.</li>
+</ul>
+<hr />
+<h1 id="13-local-public-goods-and-tiebout-sorting">13. Local Public Goods and Tiebout Sorting</h1>
+<p><em>[Lec 14, Gruber Ch 10]</em></p>
+<h3 id="local-public-goods">Local Public Goods</h3>
+<p><strong>Definition.</strong> Public goods provided at a sub-national level (schools, parks, local police). Benefits are geographically bounded.</p>
+<h3 id="tiebout-sorting">Tiebout Sorting</h3>
+<p><strong>Definition.</strong> Households "vote with their feet" by choosing the jurisdiction whose mix of taxes and public-good provision matches their preferences.
+<strong>Plain English.</strong> Don't like your local school taxes? Move. Tiebout argued this competition can solve the public-goods preference-revelation problem at the LOCAL level (because exit is feasible).</p>
+<p><strong>Tiebout's assumptions.</strong>
+1. Many jurisdictions to choose from.
+2. Free mobility (no moving costs).
+3. Full information about each jurisdiction's policies.
+4. No spillovers between jurisdictions.</p>
+<p><strong>Plain English.</strong> Tiebout sorting works to the extent these assumptions hold. In practice, mobility is costly (housing market frictions, social ties), so sorting is incomplete.</p>
+<h3 id="implications">Implications</h3>
+<ul>
+<li><strong>Pro Tiebout.</strong> Local public goods can be provided efficiently without a central planner.</li>
+<li><strong>Anti Tiebout / cautions.</strong> Sorting tends to produce homogeneous communities (rich cluster with rich, poor with poor). Inequality across jurisdictions in school funding, public services. Race and class segregation reinforced.</li>
+</ul>
+<h3 id="exam-patterns-pitfalls_10">Exam patterns / pitfalls</h3>
+<ul>
+<li>"What does Tiebout assume?" — list the four assumptions.</li>
+<li>"Why can Tiebout sorting reproduce inequality?" — sorting by preferences correlates with sorting by income.</li>
+<li>"Should the federal government fund local services?" — depends on spillovers, equity concerns.</li>
+</ul>
+<hr />
+<h1 id="14-education-human-capital-vs-signaling">14. Education (Human Capital vs Signaling)</h1>
+<p><em>[Lec 15, Gruber Ch 11]</em></p>
+<h3 id="two-theories-of-the-returns-to-education">Two Theories of the Returns to Education</h3>
+<p><strong>Human capital theory (Becker).</strong> Education makes you more productive. Returns reflect actual skill acquisition.
+<strong>Signaling theory (Spence).</strong> Education signals pre-existing ability to employers. Returns reflect employers' beliefs about ability, not actual productivity gains.</p>
+<h3 id="why-distinguishing-matters-for-policy">Why distinguishing matters for policy</h3>
+<ul>
+<li><strong>If pure human capital.</strong> Subsidizing college is welfare-improving (positive externalities; underprovision).</li>
+<li><strong>If pure signaling.</strong> Subsidizing college is wasteful (just changes the signaling threshold; no productivity gain). Subsidies might even reduce welfare.</li>
+<li><strong>Reality.</strong> Both effects coexist. The empirical question is the relative weight.</li>
+</ul>
+<h3 id="empirical-evidence">Empirical evidence</h3>
+<ul>
+<li>Mincer regressions: returns to schooling ≈ 8–10% per year of education.</li>
+<li>Sheepskin effects: extra return at degree completion (a year of college that doesn't end in a degree pays less than the year that does).</li>
+<li>Twin studies, regression discontinuity at school-leaving age, draft-lottery instruments — all suggest substantial human-capital component.</li>
+</ul>
+<h3 id="public-provision-of-education">Public Provision of Education</h3>
+<p><strong>Justifications.</strong></p>
+<ul>
+<li>Positive externalities (informed citizens, civic participation, lower crime).</li>
+<li>Liquidity constraints prevent poor families from financing optimal education for their children.</li>
+<li>Equity concerns about intergenerational mobility.</li>
+</ul>
+<h3 id="exam-patterns-pitfalls_11">Exam patterns / pitfalls</h3>
+<ul>
+<li>"Distinguish human capital from signaling." — the productivity-gain question.</li>
+<li>"Why might government provide education?" — externalities + liquidity + equity.</li>
+<li>"What's evidence against pure signaling?" — sheepskin effects, twin studies.</li>
+</ul>
+<hr />
+<h1 id="15-social-insurance-adverse-selection-and-moral-hazard">15. Social Insurance — Adverse Selection and Moral Hazard</h1>
+<p><em>[Lec 16, Gruber Ch 12]</em></p>
+<h3 id="why-insurance-markets-need-government">Why Insurance Markets Need Government</h3>
+<p><strong>Plain English.</strong> Private insurance markets often fail or provide inadequate coverage due to information asymmetries. Adverse selection and moral hazard are the two main failures.</p>
+<h3 id="adverse-selection-revisit-know-definition">Adverse Selection (revisit) ⚠ KNOW DEFINITION</h3>
+<p><strong>Definition.</strong> Pre-contract information asymmetry: high-risk individuals are more likely to buy insurance, raising the insurer's average cost, raising premiums, driving low-risk people out (death spiral).</p>
+<p><strong>Akerlof's "lemons" model.</strong> Sellers of used cars know quality; buyers don't. Buyers offer prices reflecting average quality. Owners of high-quality cars refuse to sell. Average quality of cars on the market falls. Buyers update their offers down. Iterates until only "lemons" trade.</p>
+<p><strong>In insurance.</strong> Replace "high-quality car" with "low-risk individual." Without correction, insurance markets unravel.</p>
+<h3 id="moral-hazard-revisit-know-definition">Moral Hazard (revisit) ⚠ KNOW DEFINITION</h3>
+<p><strong>Definition.</strong> Post-contract behavioral change: insured individuals take more risk or consume more of the insured event because they don't bear the full cost.
+<strong>Plain English.</strong> Insured drivers may drive less carefully. Insured patients may consume unnecessary care. Unemployment-insured workers may search less intensely.</p>
+<h3 id="governments-role">Government's Role</h3>
+<p><strong>Mandates.</strong> Mandatory participation (everyone in the same pool) eliminates adverse selection. Why Social Security and Medicare are mandatory.
+<strong>Risk pooling.</strong> Pooling across the entire population averages out risk.
+<strong>Regulation.</strong> Limits on premium discrimination, guaranteed issue, community rating.</p>
+<h3 id="trade-off-in-insurance-design">Trade-off in Insurance Design</h3>
+<p><strong>Optimal insurance balances:</strong></p>
+<ul>
+<li><strong>Consumption smoothing benefit.</strong> Insurance provides utility by reducing volatility in consumption.</li>
+<li><strong>Moral hazard cost.</strong> Insurance distorts behavior, causing inefficient choices.
+<strong>Lesson.</strong> No insurance is optimal in a fully calm world (no risk to smooth). Full insurance is suboptimal due to moral hazard. Optimal is partial — co-pays, deductibles, time limits.</li>
+</ul>
+<h3 id="exam-patterns-pitfalls_12">Exam patterns / pitfalls</h3>
+<ul>
+<li>"Distinguish adverse selection from moral hazard." — pre vs post-contract information.</li>
+<li>"How does a mandate solve adverse selection?" — eliminates self-selection.</li>
+<li>"Why doesn't the optimal insurance design provide full coverage?" — moral hazard.</li>
+</ul>
+<hr />
+<h1 id="16-unemployment-insurance-baily-chetty">16. Unemployment Insurance (Baily-Chetty)</h1>
+<p><em>[Lec 17, Gruber Ch 14]</em></p>
+<h3 id="ui-basics-us">UI Basics (U.S.)</h3>
+<p><strong>Definition.</strong> State-run program providing partial wage replacement to unemployed workers.
+<strong>Typical parameters.</strong> Replacement rate ~50% of pre-unemployment wage; maximum duration 26 weeks (extended in recessions); requires job search.
+<strong>Funded by.</strong> Payroll taxes paid by employers, varying by state and (sometimes) firm-level layoff history (experience rating).</p>
+<h3 id="optimal-ui-replacement-rate-baily-chetty-intuition">Optimal UI Replacement Rate (Baily-Chetty intuition)</h3>
+<p><strong>The trade-off.</strong> Replacement rate = <code>b/w</code> where <code>b</code> is benefit and <code>w</code> is pre-unemployment wage.</p>
+<ul>
+<li><strong>Higher <code>b</code></strong> → better consumption smoothing during unemployment (insurance value).</li>
+<li><strong>Higher <code>b</code></strong> → reduced job-search effort (moral hazard cost via longer unemployment durations).</li>
+</ul>
+<p><strong>Optimal rate</strong> balances marginal smoothing benefit against marginal moral hazard cost.</p>
+<p><strong>Baily-Chetty formula (concept-only):</strong> \(b/w \approx \varepsilon _u \cdot \gamma\) (ish — exact form varies; concept is what matters).
+<strong>Plain English / lesson.</strong> ⚠ MEMORIZE LESSON, NOT FORMULA: Optimal replacement rate is HIGHER when:</p>
+<ul>
+<li>Consumption smoothing benefit is large (workers can't borrow / save much).</li>
+<li>Moral hazard is small (UI doesn't extend duration much).</li>
+</ul>
+<p>OPPOSITE conditions → lower optimal rate.</p>
+<h3 id="empirical-evidence-on-ui-moral-hazard">Empirical evidence on UI moral hazard</h3>
+<ul>
+<li><strong>Duration response.</strong> Extending UI by 1 week increases unemployment duration by ~0.1–0.5 weeks (varies by study).</li>
+<li><strong>Search effort.</strong> Self-reported search intensity decreases with higher benefits.</li>
+<li><strong>Reservation wage effect.</strong> Higher UI raises the wage at which someone accepts a job offer.</li>
+</ul>
+<p><strong>Big picture.</strong> Moral hazard is real but moderate. Consumption smoothing benefits are also real and large for liquidity-constrained households. Most economists support UI but disagree on optimal generosity.</p>
+<h3 id="recent-debates">Recent debates</h3>
+<ul>
+<li><strong>2008 GFC and COVID extensions.</strong> UI was extended substantially. Some studies found large moral hazard; others found minimal effects (especially during deep recessions when there are few jobs to search for).</li>
+<li><strong>State variation.</strong> U.S. states vary in generosity; provides natural experiments.</li>
+</ul>
+<h3 id="exam-patterns-pitfalls_13">Exam patterns / pitfalls</h3>
+<ul>
+<li>"What does Baily-Chetty say about optimal UI?" — trade-off, lessons (high smoothing benefit + low moral hazard → high replacement rate).</li>
+<li>"Why might moral hazard from UI be smaller during recessions?" — fewer jobs to search; the marginal worker isn't passing up offers.</li>
+</ul>
+<hr />
+<h1 id="17-disability-insurance-and-workers-compensation">17. Disability Insurance and Workers' Compensation</h1>
+<p><em>[Lec 17 cont., Gruber Ch 14]</em></p>
+<h3 id="social-security-disability-insurance-ssdi">Social Security Disability Insurance (SSDI)</h3>
+<p><strong>Definition.</strong> Federal program providing benefits to workers unable to engage in "substantial gainful activity" due to a long-term disability.
+<strong>Eligibility.</strong> Strict medical criteria + prior work history (paid into Social Security).
+<strong>Plain English.</strong> Designed for long-term, work-preventing disabilities. Different from short-term disability or workers' comp.</p>
+<h3 id="issues-with-ssdi">Issues with SSDI</h3>
+<ul>
+<li><strong>Application surge.</strong> Application rates have grown substantially since the 1980s, partly tied to economic conditions (higher applications in recessions).</li>
+<li><strong>Moral hazard.</strong> Once on SSDI, very few return to work. Lifetime cost per recipient is high.</li>
+<li><strong>Targeting.</strong> Difficult to verify "inability to work." Some marginal cases.</li>
+</ul>
+<h3 id="workers-compensation-wc">Workers' Compensation (WC)</h3>
+<p><strong>Definition.</strong> State-run program providing medical coverage and partial wage replacement for workplace injuries.
+<strong>Funded by.</strong> Employer-paid premiums.
+<strong>Plain English.</strong> Employer-side moral hazard mitigation: experience rating means firms with more claims pay more, incentivizing safer workplaces.</p>
+<h3 id="exam-patterns-pitfalls_14">Exam patterns / pitfalls</h3>
+<ul>
+<li>"How does SSDI moral hazard work?" — workers may apply for SSDI rather than seek lower-paying jobs.</li>
+<li>"Why is workers' comp employer-funded?" — internalizes the cost of unsafe workplaces.</li>
+<li>These programs are usually a smaller portion of the final than UI.</li>
+</ul>
+<hr />
+<h1 id="18-health-insurance-rand-hie-aca">18. Health Insurance (RAND HIE, ACA)</h1>
+<p><em>[Lec 18, Gruber Ch 15–16]</em></p>
+<h3 id="why-health-insurance-has-both-as-and-mh">Why Health Insurance Has Both AS and MH</h3>
+<p><strong>Adverse selection.</strong> Sick people more likely to buy insurance. Without intervention, healthy people drop out, premiums rise, market unravels.
+<strong>Moral hazard.</strong> Insured patients consume more healthcare than they would without insurance — sometimes more than the marginal benefit warrants.</p>
+<h3 id="the-rand-health-insurance-experiment-19711986">The RAND Health Insurance Experiment (1971–1986)</h3>
+<p><strong>Plain English.</strong> A landmark RCT randomly assigning households to different cost-sharing levels (zero copay vs various deductibles).
+<strong>Findings.</strong></p>
+<ul>
+<li>People with no copay used ~30% more healthcare than those with high copays.</li>
+<li>Health outcomes: mostly NO difference between groups, EXCEPT for low-income subgroups who benefited from free care.</li>
+<li>Implication: most extra healthcare is moral hazard (low marginal benefit), but for vulnerable populations free care has real value.</li>
+</ul>
+<h3 id="affordable-care-act-aca-2010">Affordable Care Act (ACA, 2010)</h3>
+<p><strong>Three pillars (designed to address adverse selection):</strong>
+1. <strong>Guaranteed issue.</strong> Insurers must accept anyone (no pre-existing condition exclusions).
+2. <strong>Individual mandate.</strong> Everyone must have insurance (eliminates self-selection out). Originally enforced by tax penalty; penalty zeroed out in 2017.
+3. <strong>Premium subsidies.</strong> Means-tested subsidies for individual market enrollees.</p>
+<p><strong>Plus:</strong> Medicaid expansion (states could opt-in to expand to ~138% of FPL), federally-funded.</p>
+<p><strong>Lesson.</strong> The "three-legged stool" addresses both adverse selection (mandate) and affordability (subsidies). Removing the mandate weakens the system but doesn't immediately collapse it because subsidies preserve participation among low-income enrollees.</p>
+<h3 id="cost-control-issues-in-us-healthcare">Cost-control issues in U.S. healthcare</h3>
+<ul>
+<li><strong>Fee-for-service.</strong> Pays providers per procedure → incentives to over-treat.</li>
+<li><strong>Third-party payment.</strong> Patients don't see the price → demand-side moral hazard.</li>
+<li><strong>Provider market power.</strong> Hospital consolidation raises prices.</li>
+<li><strong>Pharmaceutical pricing.</strong> Drug prices in the U.S. are 2–3× higher than other developed countries.</li>
+</ul>
+<h3 id="exam-patterns-pitfalls_15">Exam patterns / pitfalls</h3>
+<ul>
+<li>"What did RAND HIE find?" — substantial moral hazard (more usage); minimal health effects except for vulnerable groups.</li>
+<li>"Why is the ACA structured the way it is?" — three-legged stool addressing adverse selection.</li>
+<li>"Why might the U.S. healthcare cost so much?" — fee-for-service, provider market power, third-party payment, drug prices.</li>
+</ul>
+<hr />
+<h1 id="19-social-security">19. Social Security</h1>
+<p><em>[Lec 19, Gruber Ch 13]</em></p>
+<h3 id="pay-as-you-go-paygo-vs-fully-funded">Pay-As-You-Go (PAYGO) vs Fully Funded</h3>
+<p><strong>PAYGO.</strong> Current workers' payroll taxes fund current retirees' benefits. No build-up of assets.
+<strong>Fully Funded.</strong> Each generation saves for its own retirement (essentially individual retirement accounts).
+<strong>U.S. system is mostly PAYGO.</strong> A small Trust Fund exists but holds Treasury bonds (i.e., government IOUs to itself).</p>
+<h3 id="why-paygo">Why PAYGO?</h3>
+<ul>
+<li>Politically easier to enact (no decades of saving before benefits begin).</li>
+<li>Insurance value (provides income to current poor elderly immediately upon enactment).</li>
+<li><strong>Cost.</strong> Sustainability depends on the ratio of workers to retirees (dependency ratio). As populations age, fewer workers per retiree → higher payroll taxes or lower benefits required.</li>
+</ul>
+<h3 id="replacement-rate">Replacement Rate</h3>
+<p><strong>Definition.</strong> Social Security benefit as a fraction of pre-retirement earnings.
+<strong>U.S. formula.</strong> Progressive: replacement rate is HIGHER for low earners (~70%+) and LOWER for high earners (~25–30%). Maximum benefit is capped.
+<strong>Plain English.</strong> Designed to provide a floor income for low-wage workers; supplement (not replace) savings for high-wage workers.</p>
+<h3 id="implicit-marginal-tax-on-working-longer">Implicit Marginal Tax on Working Longer</h3>
+<p><strong>Definition.</strong> Continuing to work past normal retirement age may produce little increase in benefits, especially after the maximum-earnings cap is reached. Effectively a tax on working longer.
+<strong>Lesson.</strong> Distortionary effects on labor force participation among older workers. Past reforms have raised the retirement age and adjusted incentives.</p>
+<h3 id="demographic-challenges">Demographic challenges</h3>
+<p><strong>The wave.</strong> Baby boomers retiring → increase in beneficiary population.
+<strong>Future.</strong> Per current projections, the trust fund will be depleted around the early 2030s (varies by year of projection). At depletion, current law would force benefit cuts of ~20–25% unless reform.</p>
+<h3 id="reform-options">Reform options</h3>
+<ul>
+<li><strong>Raise retirement age.</strong> Gradually shifts the program toward fewer beneficiary years per person.</li>
+<li><strong>Increase payroll tax.</strong> Either raise the rate or raise/eliminate the wage cap.</li>
+<li><strong>Reduce benefits.</strong> Especially for high earners (means-testing).</li>
+<li><strong>Privatize.</strong> Move to fully-funded individual accounts. Politically contentious; transition costs.</li>
+</ul>
+<h3 id="exam-patterns-pitfalls_16">Exam patterns / pitfalls</h3>
+<ul>
+<li>"What's the difference between PAYGO and fully funded?" — financing mechanism.</li>
+<li>"Why is Social Security facing solvency issues?" — demographic shift + PAYGO design.</li>
+<li>"What's the implicit tax on working longer?" — concept question; understand the incentive distortion.</li>
+</ul>
+<hr />
+<h2 id="closing-notes">Closing notes</h2>
+<p>This guide spans the full course. Use it together with:</p>
+<ul>
+<li>Your <code>Section Worksheets/Final Exam Review (From GSI)/</code> — the highest-signal practice doc on Yagan's specific exam style.</li>
+<li>Past finals: <code>Final_fall2019.pdf</code>, <code>Final_fall2020.pdf</code> (timed practice; review every wrong answer).</li>
+<li>The 9 mandatory definitions in Section 1 above — you will literally write these from memory the morning of May 15.</li>
+</ul>
+<p><strong>The 9 definitions / formulas to memorize cold (re-state from memory daily May 13 onward):</strong>
+1. U.S. poverty rate (Census definition)
+2. Government debt evolution: \(D_{t+1} = (1+r) \cdot D_t + G_t - T_t\)
+3. Debt-to-GDP dynamics: \(b_{t+1} = (1+r)/(1+g) \cdot b_t + (G-T)/Y\)
+4. Price elasticity of demand
+5. Price elasticity of supply
+6. Taxable income elasticity (ETI)
+7. Tax incidence rule (burden falls on more inelastic side)
+8. Deadweight loss ≈ ½·t·ΔQ; DWL ∝ t² (lesson)
+9. Adverse selection vs moral hazard distinction</p>
+<ul>
+<li>Bonus: Baily-Chetty trade-off (consumption smoothing vs moral hazard) for optimal UI.</li>
+</ul>
+<p><strong>The 8 priority diagrams to be able to draw:</strong>
+1. Tax incidence (S, D, with tax wedge; identify P_buyer, P_seller).
+2. Deadweight loss (Harberger triangle).
+3. EITC schedule (phase-in, plateau, phase-out).
+4. Externality with Pigouvian tax (MPC, MSC, D, optimum vs market).
+5. Public good vertical aggregation of demand curves.
+6. Lorenz curve (and where Gini = area between curve and 45° line).
+7. Adverse selection death spiral (price-quality death spiral / Akerlof lemons).
+8. Indifference curve / budget constraint with labor-leisure (intensive margin).</p>
+<p><strong>Yagan's exam philosophy reminder:</strong> Conceptual + diagrammatic + algebra-light. Definitions are gold. Don't memorize derived formulas; know the LESSONS those formulas communicate.</p>
+<p><strong>Final preparation rule.</strong> Yagan's exams reward short, precise answers more than long elaborations. If you can state the definition + the lesson + draw the diagram in 60 seconds, you can win the question.</p>
+</div>
+<script>
+// Collapsible H2 sections
+document.querySelectorAll('h2').forEach(function(h){
+  if (h.parentElement && h.parentElement.classList.contains('toc')) return;
+  h.addEventListener('click', function(){
+    h.classList.toggle('collapsed');
+    var el = h.nextElementSibling;
+    while (el && el.tagName !== 'H2') {
+      el.style.display = (el.style.display === 'none') ? '' : 'none';
+      el = el.nextElementSibling;
+    }
+  });
+});
+</script>
+</body>
+</html>

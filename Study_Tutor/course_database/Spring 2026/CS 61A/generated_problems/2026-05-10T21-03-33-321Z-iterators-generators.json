@@ -1,0 +1,28 @@
+{
+  "course": "CS 61A",
+  "semester": "Spring 2026",
+  "topic": "Iterators & Generators",
+  "problemType": "What Would Python Display (WWPD)",
+  "difficulty": "medium",
+  "problem": "What would Python display for each of the following expressions? If an expression causes an error, write ERROR. If an expression returns a generator object, write GENERATOR. If an expression returns an iterator object, write ITERATOR.\n\n>>> def gen_mystery(n):\n...     print('Start')\n...     i = 0\n...     while i < n:\n...         print('Before yield', i)\n...         yield i\n...         i += 1\n...         print('After yield')\n\n>>> g = gen_mystery(3)\n>>> next(g)\n\n>>> next(g)\n\n>>> result = [x for x in gen_mystery(2)]\n>>> result\n\n>>> def double_yield(lst):\n...     for item in lst:\n...         yield item\n...         yield item * 2\n\n>>> gen = double_yield([1, 2])\n>>> next(gen)\n\n>>> sum(gen)\n\n>>> sum(gen)",
+  "answerParts": [
+    "Expression 1: next(g) after creation",
+    "Expression 2: next(g) second call",
+    "Expression 3: result list",
+    "Expression 4: next(gen) on double_yield",
+    "Expression 5: sum(gen) first call",
+    "Expression 6: sum(gen) second call"
+  ],
+  "needsDrawing": false,
+  "expectedAnswer": "Expression 1: Start\\nBefore yield 0\\n0\n\nExpression 2: After yield\\nBefore yield 1\\n1\n\nExpression 3: Start\\nBefore yield 0\\nAfter yield\\nBefore yield 1\\nAfter yield\\n[0, 1]\n\nExpression 4: 1\n\nExpression 5: 9\n\nExpression 6: 0",
+  "gradingRubric": [
+    "Expression 1: Recognizes that generator creation does not execute body, and first next() prints 'Start' and 'Before yield 0', then returns 0 (2 points)",
+    "Expression 2: Recognizes continuation from yield point, printing 'After yield' and 'Before yield 1', then returning 1 (2 points)",
+    "Expression 3: Recognizes list comprehension exhausts generator, creating new generator instance, with all print statements executed and final list [0, 1] (2 points)",
+    "Expression 4: Correctly identifies first yield returns 1, not 2 (1 point)",
+    "Expression 5: Correctly computes sum of remaining values in gen: 2 + 1 + 2 + 2 + 4 = 9 (note first element already consumed) (2 points)",
+    "Expression 6: Recognizes generator exhaustion returns 0 for empty sum (1 point)"
+  ],
+  "id": "2026-05-10T21-03-33-321Z-iterators-generators",
+  "generatedAt": "2026-05-10T21:03:33.321Z"
+}

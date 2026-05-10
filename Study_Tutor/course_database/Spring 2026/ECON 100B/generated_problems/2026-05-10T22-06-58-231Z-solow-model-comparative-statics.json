@@ -1,0 +1,27 @@
+{
+  "course": "ECON 100B",
+  "semester": "Spring 2026",
+  "topic": "Solow Model Comparative Statics",
+  "problemType": "Applied long-form problem with graphical analysis",
+  "difficulty": "medium",
+  "problem": "A major earthquake destroys 40% of the physical capital stock in a small country that was previously in steady state. The country's production function is Y = ĀK^(1/3)L^(2/3), with Ā = 1. The saving rate is s = 0.30, the depreciation rate is d = 0.05, and the population growth rate is n = 0.02.\n\nPart (a): Draw a Solow model diagram showing the initial steady state. Clearly label your axes, the production function y = Āk^(1/3), the saving curve sy, the depreciation line (n+d)k, and mark the initial steady state values k* and y*.\n\nPart (b): Does this earthquake change any of the parameters in the Solow model (s, d, n, or Ā)? Briefly explain what happens to the capital stock per worker k immediately after the earthquake.\n\nPart (c): On your diagram from part (a), show the immediate effect of the earthquake and mark the economy's new position. Then show what happens to the economy over time. Will the country return to its original steady state, reach a new steady state, or something else? Explain the transition dynamics.\n\nPart (d): In the short run (immediately after the earthquake), does output per worker rise, fall, or stay the same? What about in the long run? Use the Solow model logic to explain your answer in 2-3 sentences.\n\nPart (e): During the recovery period, will this country's growth rate be faster than, slower than, or equal to its original steady-state growth rate? Explain why in terms of the Solow model's convergence properties.",
+  "answerParts": [
+    "Part (a): Solow diagram with initial steady state",
+    "Part (b): Parameter identification and immediate impact",
+    "Part (c): Graphical analysis of transition dynamics",
+    "Part (d): Short-run vs. long-run output effects",
+    "Part (e): Growth rate during recovery"
+  ],
+  "needsDrawing": true,
+  "expectedAnswer": "Part (a): Diagram should show: k on x-axis, y on y-axis; upward curving production function y = k^(1/3); saving curve sy = 0.30k^(1/3) below it; straight line (n+d)k = 0.07k from origin; intersection at k* = (0.30/0.07)^(3/2) ≈ 12.37 and y* ≈ 2.31.\n\nPart (b): The earthquake does NOT change any parameters (s, d, n, Ā all remain the same). However, it destroys 40% of the capital stock, so K falls to 0.60K. Since L is unchanged, capital per worker k immediately falls to 0.60k*. This is a one-time shock to the level of k, not a change in the model's parameters.\n\nPart (c): The economy immediately jumps from k* to 0.60k* (move left along the horizontal axis). At this lower k, actual investment sy exceeds the break-even investment (n+d)k, creating positive net investment. The economy will gradually accumulate capital back toward the original k*. The country returns to the exact same steady state because none of the parameters changed. Transition dynamics: faster growth initially (further below k*), slowing as k approaches k*.\n\nPart (d): Short run: Output per worker falls immediately because y = Āk^(1/3) and k decreased. If k falls to 0.60k*, then y falls to (0.60)^(1/3)k*^(1/3) ≈ 0.84y*, about a 16% decline. Long run: Output per worker returns to y* because the steady state is unchanged. The Solow model predicts full recovery to the original steady state when only the capital stock (not parameters) is affected.\n\nPart (e): Faster than the original steady-state growth rate. At steady state, growth of y equals zero (in per-worker terms) or equals n (in total terms). During recovery, the economy is below k*, so sy > (n+d)k, generating positive net investment and positive growth in k and y per worker. The convergence property means growth is faster when further from steady state, so the country experiences temporarily high growth during reconstruction.",
+  "gradingRubric": [
+    "Part (a) - 5 points: Correct diagram with all elements labeled (axes, curves, steady state values). Deduct 1 point for each missing or mislabeled element.",
+    "Part (b) - 4 points: Correctly identifies that NO parameters change (2 pts) and explains that k drops to 0.60k* as a one-time shock (2 pts).",
+    "Part (c) - 6 points: Shows economy moves left to 0.60k* on diagram (2 pts), identifies that sy > (n+d)k at new position creating positive net investment (2 pts), explains return to original k* with transition dynamics (2 pts).",
+    "Part (d) - 4 points: Short-run output falls (1 pt) with correct reasoning using production function (1 pt); long-run output returns to y* (1 pt) because steady state unchanged (1 pt).",
+    "Part (e) - 3 points: Growth rate faster during recovery (1 pt), explains convergence property that growth is faster below steady state (1 pt), notes this is temporary until k* is reached (1 pt).",
+    "Overall coherence - 2 points: Consistent story across all parts showing understanding that parameter changes affect steady state but level changes create transition dynamics."
+  ],
+  "id": "2026-05-10T22-06-58-231Z-solow-model-comparative-statics",
+  "generatedAt": "2026-05-10T22:06:58.231Z"
+}

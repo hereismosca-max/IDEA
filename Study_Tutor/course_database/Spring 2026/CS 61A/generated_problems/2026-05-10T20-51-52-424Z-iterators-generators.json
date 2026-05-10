@@ -1,0 +1,28 @@
+{
+  "course": "CS 61A",
+  "semester": "Spring 2026",
+  "topic": "Iterators & Generators",
+  "problemType": "What Would Python Display? (WWPD)",
+  "difficulty": "medium",
+  "problem": "For each of the following prompts, write the output displayed by the interactive Python interpreter when the input is evaluated. The output may have multiple lines. If an error occurs, write ERROR. If an iterator or generator object is displayed, write ITERATOR or GENERATOR respectively. If nothing is displayed, write NOTHING. Assume the following code has been executed:\n\n```python\ndef make_repeater(n):\n    def repeat(x):\n        for i in range(n):\n            yield x\n            x = x + i\n    return repeat\n\ndef combine(g1, g2):\n    yield from g1\n    yield from g2\n\nf = make_repeater(3)\ng = f(5)\nh = combine(g, f(10))\n```\n\nNow evaluate each expression:\n\n(a) `next(g)`\n\n(b) `next(g)`\n\n(c) `list(g)`\n\n(d) `next(h)`\n\n(e) `next(h)`\n\n(f) `[next(h) for _ in range(3)]`",
+  "answerParts": [
+    "Part (a)",
+    "Part (b)",
+    "Part (c)",
+    "Part (d)",
+    "Part (e)",
+    "Part (f)"
+  ],
+  "needsDrawing": false,
+  "expectedAnswer": "(a) 5\n(b) 5\n(c) [6]\n(d) 10\n(e) 10\n(f) [11, 12, 12]",
+  "gradingRubric": [
+    "Part (a): Correctly identifies that first call to next(g) yields initial value 5 (1 point)",
+    "Part (b): Correctly identifies that second call yields 5 again, then x becomes 5+0=5 (1 point)",
+    "Part (c): Correctly identifies that third iteration yields 6 (x was 5, now 5+1=6), then list shows [6] (2 points)",
+    "Part (d): Correctly identifies that h first yields from exhausted g (skips it), then starts f(10), yielding 10 (2 points)",
+    "Part (e): Correctly identifies second yield from f(10) is 10 (x was 10, still 10 after x=10+0) (1 point)",
+    "Part (f): Correctly computes third yield is 11 (x became 10+1=11), fourth is 12 (x became 11+1=12), fifth is 12 (x became 12+2=14 but yields before assignment) - final list is [11, 12, 12]. Note: The last element requires careful attention to when x is updated vs when yield happens (3 points)"
+  ],
+  "id": "2026-05-10T20-51-52-424Z-iterators-generators",
+  "generatedAt": "2026-05-10T20:51:52.424Z"
+}

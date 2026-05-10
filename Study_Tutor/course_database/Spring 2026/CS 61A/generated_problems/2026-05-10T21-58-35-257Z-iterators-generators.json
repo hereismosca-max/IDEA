@@ -1,0 +1,28 @@
+{
+  "course": "CS 61A",
+  "semester": "Spring 2026",
+  "topic": "Iterators & Generators",
+  "problemType": "What Would Python Display (WWPD)",
+  "difficulty": "medium",
+  "problem": "For each of the following expressions, write the output displayed by the interactive Python interpreter when the expression is evaluated. The output may have multiple lines. If an error occurs, write \"ERROR\". If the evaluation would run forever, write \"INFINITE\". If the result is a generator or iterator object, write \"Generator\" or \"Iterator\" respectively.\n\nAssume the following code has been executed:\n\n```python\ndef skip_even(s):\n    for elem in s:\n        if elem % 2 == 1:\n            yield elem\n\ndef double_yield(s):\n    for elem in s:\n        yield elem\n        yield elem * 2\n\ng = skip_even([1, 2, 3, 4, 5])\nh = double_yield(g)\n```\n\nNow evaluate each expression:",
+  "answerParts": [
+    "Part (a): next(h)",
+    "Part (b): next(h)",
+    "Part (c): next(h)",
+    "Part (d): list(h)",
+    "Part (e): list(skip_even([6, 7, 8]))"
+  ],
+  "needsDrawing": false,
+  "expectedAnswer": "Part (a): 1\nPart (b): 2\nPart (c): 3\nPart (d): [6, 5, 10]\nPart (e): [7]",
+  "gradingRubric": [
+    "Part (a): Correctly identifies that next(h) pulls from g (which yields 1), then h yields 1 — Award 1 point",
+    "Part (b): Correctly identifies that h yields elem * 2 where elem=1, so yields 2 — Award 1 point",
+    "Part (c): Correctly identifies that h pulls next odd from g (which is 3), then yields 3 — Award 1 point",
+    "Part (d): Correctly traces remaining elements: h yields 6 (3*2), pulls 5 from g, yields 5, yields 10 (5*2), g exhausted — Award 2 points (1 point for partial: gets [6, 5] or recognizes generator exhaustion)",
+    "Part (e): Correctly identifies fresh generator over [6, 7, 8] filters to [7] only — Award 1 point",
+    "Deduct 0.5 points per part if student writes 'Generator' or 'Iterator' instead of evaluating next() or list() as requested",
+    "Deduct 1 point per part for confusing generator state across multiple next() calls (e.g., treating each next() as starting fresh)"
+  ],
+  "id": "2026-05-10T21-58-35-257Z-iterators-generators",
+  "generatedAt": "2026-05-10T21:58:35.257Z"
+}

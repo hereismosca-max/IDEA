@@ -1,0 +1,28 @@
+{
+  "course": "CS 61B",
+  "semester": "Spring 2026",
+  "topic": "Graphs - Shortest Path (Dijkstra's Algorithm)",
+  "problemType": "Algorithm Trace and Analysis",
+  "difficulty": "medium",
+  "problem": "Consider the following weighted, directed graph:\n\nVertices: A, B, C, D, E\nEdges (from → to, weight):\nA → B, 4\nA → C, 2\nB → C, 1\nB → D, 5\nC → D, 8\nC → E, 10\nD → E, 2\nE → B, 3\n\nPart (a): Run Dijkstra's algorithm to find the shortest path from A to E. Show your work by filling in the table below for each step. At each step, indicate which vertex is being processed (removed from the fringe/priority queue) and update the best-known distances and predecessors for all other vertices.\n\nFormat your table with columns: Step | Processing | A | B | C | D | E\nFor each vertex, write: distance (predecessor) or ∞ if not yet reached.\n\nPart (b): What is the shortest path from A to E and its total cost? Write your answer as: Path: [sequence of vertices], Cost: [total]\n\nPart (c): Would Dijkstra's algorithm still produce correct shortest paths if the edge E → B had weight -1 instead of 3? Explain why or why not in 1-2 sentences.",
+  "answerParts": [
+    "Part (a)",
+    "Part (b)",
+    "Part (c)"
+  ],
+  "needsDrawing": false,
+  "expectedAnswer": "Part (a):\nInitial: A=0(none), B=∞, C=∞, D=∞, E=∞\n\nStep 1: Processing A\n  A=0(none), B=4(A), C=2(A), D=∞, E=∞\n\nStep 2: Processing C\n  A=0(none), B=3(C via A→C→B edge doesn't exist; B stays 4(A)), C=2(A), D=10(C), E=12(C)\n  [Note: No edge C→B exists, so B remains 4(A)]\n\nStep 3: Processing B\n  A=0(none), B=4(A), C=2(A), D=9(B), E=12(C)\n\nStep 4: Processing D\n  A=0(none), B=4(A), C=2(A), D=9(B), E=11(D)\n\nStep 5: Processing E\n  A=0(none), B=4(A), C=2(A), D=9(B), E=11(D)\n  [Algorithm terminates or continues; E processed]\n\nPart (b):\nPath: A → B → D → E\nCost: 11\n(Trace back: E←D←B←A)\n\nPart (c):\nNo, Dijkstra's would not produce correct shortest paths with a negative edge weight. Dijkstra's algorithm assumes all edge weights are non-negative and relies on the greedy property that once a vertex is processed, its shortest distance is finalized. A negative edge could create a shorter path to an already-processed vertex, which Dijkstra's cannot revisit.",
+  "gradingRubric": [
+    "Part (a) - Correct initial state with A=0 and all others at infinity (1 pt)",
+    "Part (a) - Step 1: Correctly processes A and updates B=4(A) and C=2(A) (2 pts)",
+    "Part (a) - Step 2: Correctly processes C (smallest unprocessed) and updates D=10(C) and E=12(C); B remains 4(A) since no C→B edge (3 pts)",
+    "Part (a) - Step 3: Correctly processes B and updates D=9(B) via relaxation (2 pts)",
+    "Part (a) - Step 4: Correctly processes D and updates E=11(D) via relaxation (2 pts)",
+    "Part (b) - Correct shortest path A → B → D → E (2 pts)",
+    "Part (b) - Correct total cost of 11 (1 pt)",
+    "Part (c) - States that Dijkstra's would NOT work correctly with negative weights (2 pts)",
+    "Part (c) - Provides valid explanation mentioning greedy property, finalized vertices, or inability to revisit processed nodes (2 pts)"
+  ],
+  "id": "2026-05-10T20-58-35-657Z-graphs-shortest-path-dijkstra-s-algorithm",
+  "generatedAt": "2026-05-10T20:58:35.657Z"
+}

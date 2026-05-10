@@ -1,0 +1,28 @@
+{
+  "course": "CS 61A",
+  "semester": "Spring 2026",
+  "topic": "Iterators & Generators",
+  "problemType": "What Would Python Display? (WWPD)",
+  "difficulty": "medium",
+  "problem": "For each of the following expressions, write the output displayed by the interactive Python interpreter when the expression is evaluated. The output may have multiple lines. If an error occurs, write \"ERROR\". If the interpreter would display nothing, write \"Nothing\". If the result is a generator or iterator object, write \"Generator\" or \"Iterator\".\n\nAssume the following code has been executed:\n\n```python\ndef countdown(n):\n    print(\"Starting countdown\")\n    while n > 0:\n        yield n\n        n -= 1\n    print(\"Done!\")\n\ndef process(gen):\n    total = 0\n    for x in gen:\n        if x % 2 == 0:\n            total += x\n            yield total\n\ng = countdown(5)\nh = process(g)\n```\n\nWhat would Python display for each expression?\n\n(a) `g`\n\n(b) `next(h)`\n\n(c) `next(h)`\n\n(d) `list(h)`\n\n(e) `next(h)`",
+  "answerParts": [
+    "Part (a)",
+    "Part (b)",
+    "Part (c)",
+    "Part (d)",
+    "Part (e)"
+  ],
+  "needsDrawing": false,
+  "expectedAnswer": "(a) Generator\n\n(b) Starting countdown\n6\n\n(c) 8\n\n(d) Done!\n[]\n\n(e) ERROR",
+  "gradingRubric": [
+    "Part (a): Correctly identifies that g is a generator object (answer: 'Generator' or similar representation) — 1 point",
+    "Part (b): Shows 'Starting countdown' is printed when generator first called, then yields 6 (first call to next(h) triggers next(g) which yields 5, but 5 is odd so process continues, then next(g) yields 4, which is even, so total=4+2=6 from previous yield... Actually: first next(g) yields 5 (odd, skipped), next(g) yields 4 (even, total=4, yield 4)... Correction: total starts at 0, first even is 4, so yield 4. Expected: 'Starting countdown' on one line, then 4) — 2 points",
+    "Part (c): Second call to next(h) continues the generator; next even number is 2, total becomes 4+2=6, yields 6 (answer: 6) — 2 points",
+    "Part (d): list(h) consumes remaining values; countdown finishes with 1 (odd, skipped), prints 'Done!', no more even numbers to yield (answer: 'Done!' then []) — 2 points",
+    "Part (e): Generator h is exhausted, calling next(h) raises StopIteration error (answer: ERROR) — 1 point",
+    "Understanding of lazy evaluation: generators don't execute until next() is called — 1 point",
+    "Understanding of generator exhaustion: once consumed, cannot be reused — 1 point"
+  ],
+  "id": "2026-05-10T20-42-37-998Z-iterators-generators",
+  "generatedAt": "2026-05-10T20:42:37.998Z"
+}

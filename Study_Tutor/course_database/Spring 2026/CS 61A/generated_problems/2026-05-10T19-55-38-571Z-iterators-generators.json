@@ -1,0 +1,16 @@
+{
+  "course": "CS 61A",
+  "semester": "Spring 2026",
+  "topic": "Iterators & Generators",
+  "problemType": "What Would Python Display (WWPD)",
+  "difficulty": "medium",
+  "problem": "What would Python display for each of the following expressions? If an expression produces an error, write ERROR. If the result is a generator object, write GENERATOR. If the result is an iterator object, write ITERATOR.\n\n>>> def make_countdown(n):\n...     print(f'Start at {n}')\n...     while n > 0:\n...         yield n\n...         n -= 1\n...     print('Done!')\n...\n>>> gen = make_countdown(3)\n>>> gen\n______\n>>> next(gen)\n______\n>>> next(gen)\n______\n>>> list(gen)\n______\n>>> sum(gen)\n______",
+  "expectedAnswer": "Expression 1: GENERATOR\nExpression 2: Start at 3\n3\nExpression 3: 2\nExpression 4: Done!\n[1]\nExpression 5: 0",
+  "gradingRubric": [
+    "Expression 1 (gen = make_countdown(3)): Correctly identifies that assigning a generator function call produces GENERATOR. No print output occurs yet because the generator body hasn't started executing. (2 points)",
+    "Expression 2 (first next(gen)): Correctly identifies that 'Start at 3' prints first (from the print statement before the while loop), then the first yield returns 3. Both lines of output required. (2 points)",
+    "Expression 3 (second next(gen)): Correctly identifies that only 2 is returned (no print statement executes between yields in the while loop). (1 point)",
+    "Expression 4 (list(gen)): Correctly identifies that list() consumes the remaining generator, yielding only 1 (the last value), prints 'Done!' when the generator completes, and returns [1]. Both the print output and the list are required. (2 points)",
+    "Expression 5 (sum(gen)): Correctly identifies that the generator is already exhausted from the previous list() call, so sum() operates on an empty iterator and returns 0. Common mistake: forgetting iterator exhaustion. (3 points)"
+  ]
+}

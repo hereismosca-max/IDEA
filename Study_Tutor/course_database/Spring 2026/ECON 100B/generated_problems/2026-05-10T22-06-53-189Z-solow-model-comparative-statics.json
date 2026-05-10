@@ -1,0 +1,24 @@
+{
+  "course": "ECON 100B",
+  "semester": "Spring 2026",
+  "topic": "Solow Model Comparative Statics",
+  "problemType": "Applied long-form problem with graphical analysis",
+  "difficulty": "medium",
+  "problem": "Suppose the economy of Atlantis is initially in steady state and can be described by the Solow model with production function Y = ĀK^(1/3)L^(2/3). A massive earthquake destroys 40% of the country's physical capital stock overnight, but does not affect the population, saving rate, depreciation rate, or productivity.\n\nPart (a): Draw a clearly labeled Solow diagram showing the initial steady state. Label your axes, the production function, the saving curve, the (n+d)k line, and mark the initial steady state capital per worker as k*.\n\nPart (b): Immediately after the earthquake (in the short run, before any new investment occurs), what happens to the actual capital per worker k? Does it change, and if so, how? Mark this new position on your diagram as k_earthquake.\n\nPart (c): On your diagram, show what happens over time as the economy adjusts. Will capital per worker return to k*, move to a new steady state k**, or something else? Explain the transition dynamics - will the economy grow faster or slower than usual during the recovery period, and why?\n\nPart (d): Compare output per worker (GDP per capita) in the short run immediately after the earthquake versus the long run after the economy fully adjusts. Be specific about whether y increases, decreases, or stays the same in each period relative to the original steady state.",
+  "answerParts": [
+    "Part (a)",
+    "Part (b)",
+    "Part (c)",
+    "Part (d)"
+  ],
+  "needsDrawing": true,
+  "expectedAnswer": "Part (a): Diagram should show: k on horizontal axis, y on vertical axis; upward-sloping concave production function curve y = Āk^(1/3); upward-sloping saving curve sy below the production function; straight line from origin (n+d)k; intersection of sy and (n+d)k marked as k* with vertical line down to axis.\n\nPart (b): The actual capital per worker k immediately falls below k*. The earthquake destroys capital but doesn't affect labor, so K falls while L stays the same, meaning k = K/L falls. This should be marked as k_earthquake to the left of k* on the horizontal axis. Important: k* itself (the steady state value) does NOT change because none of the parameters (s, Ā, n, d) changed - only the actual position k changes.\n\nPart (c): The economy will return to the original steady state k*. At k_earthquake, the sy curve is above the (n+d)k line, meaning actual investment exceeds break-even investment. This causes k to grow back toward k*. During the transition, the economy will grow faster than usual because it is further from steady state (diminishing returns are less severe at lower k), and the gap between sy and (n+d)k is larger. Arrows on diagram should show movement from k_earthquake back toward k*.\n\nPart (d): Short run (immediately after earthquake): y falls below y* because k is lower and y = Āk^(1/3), so less capital per worker means less output per worker. Long run (after full adjustment): y returns to exactly y* because k returns to k*. The earthquake causes a temporary level effect (lower output during recovery) but no permanent change in the steady state because no parameters changed.",
+  "gradingRubric": [
+    "Part (a): Correctly drawn and labeled Solow diagram with all required elements (axes labeled k and y, production function y=Āk^(1/3), saving curve sy, depreciation line (n+d)k, steady state k* marked) - 5 points",
+    "Part (b): Correctly identifies that actual k falls immediately (not k*), explains that K falls while L unchanged so k=K/L falls, marks k_earthquake on diagram to left of k* - 4 points",
+    "Part (c): Correctly states economy returns to original k* (not a new steady state), explains that sy > (n+d)k at k_earthquake causing capital accumulation, describes faster-than-normal growth during transition due to larger investment gap and diminishing returns effect, shows transition arrows on diagram - 6 points",
+    "Part (d): Correctly analyzes both time periods: short run y falls below y* because k is lower; long run y returns to y* because k returns to k*; explains this is a level effect not a growth effect because no parameters changed - 5 points"
+  ],
+  "id": "2026-05-10T22-06-53-189Z-solow-model-comparative-statics",
+  "generatedAt": "2026-05-10T22:06:53.189Z"
+}

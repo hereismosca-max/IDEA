@@ -1,0 +1,23 @@
+{
+  "course": "ECON 131",
+  "semester": "Spring 2026",
+  "topic": "Tax Incidence",
+  "problemType": "True/False/Uncertain with Explanation",
+  "difficulty": "medium",
+  "problem": "Consider a market where the supply elasticity is 0.5 and the demand elasticity is -2.0. The government is debating whether to impose a $10 per-unit tax statutorily on producers or statutorily on consumers. A policy analyst claims: \"It doesn't matter whether we tax producers or consumers—the economic incidence will be identical either way, but imposing the tax on producers will generate more tax revenue for the government.\"\n\nIs this statement true, false, or uncertain? Explain your reasoning using economic principles of tax incidence. Your explanation should be 3-10 lines.",
+  "answerParts": [
+    "Answer"
+  ],
+  "needsDrawing": false,
+  "expectedAnswer": "FALSE (or PARTIALLY FALSE). The first part of the statement is correct: economic incidence is independent of statutory incidence. Whether the tax is imposed on producers or consumers, the burden will be shared according to relative elasticities. Since demand is more elastic (|-2.0| > |0.5|), producers will bear more of the burden regardless of who legally pays the tax.\n\nHowever, the second part is incorrect: the tax revenue will be identical regardless of statutory incidence. Tax revenue equals t × Q_after_tax, and the quantity traded after the tax depends only on the size of the wedge created between buyer and seller prices, not on who remits the tax. Both statutory arrangements create the same $10 wedge, lead to the same equilibrium quantity, and therefore generate the same revenue.\n\nThe analyst confuses statutory incidence with economic incidence and incorrectly believes that who pays the tax affects revenue collected.",
+  "gradingRubric": [
+    "Correctly identifies the statement as false or partially false (label choice itself not graded, but explanation must justify the label)",
+    "Explains that economic incidence is independent of statutory incidence and depends on relative elasticities (2-3 points)",
+    "Correctly identifies that the more elastic side (demand, with |-2.0| > 0.5) bears less of the burden, so producers bear more (2-3 points)",
+    "Explains that tax revenue is identical under both statutory arrangements because revenue = t × Q and the equilibrium quantity depends only on the size of the tax wedge, not who remits it (3-4 points)",
+    "Deduct points for: restating the claim without economic reasoning, failing to address both parts of the statement, confusing statutory and economic incidence, or claiming revenue differs without justification",
+    "No credit for answers longer than 10 lines of text"
+  ],
+  "id": "2026-05-10T20-59-06-118Z-tax-incidence",
+  "generatedAt": "2026-05-10T20:59:06.118Z"
+}

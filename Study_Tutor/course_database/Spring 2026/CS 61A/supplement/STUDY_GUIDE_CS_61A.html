@@ -1,0 +1,1203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CS 61A — SICP — Study Guide</title>
+<style>
+
+:root {
+  --accent: #1f3a5f;
+  --accent-soft: #5b7f2e;
+  --soft-bg: #f6f4ef;
+  --code-bg: #f3f3f3;
+  --border: #d8d2c6;
+  --text: #222;
+  --muted: #555;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  padding: 0;
+  font-family: Georgia, "Charter", "Iowan Old Style", serif;
+  font-size: 16px;
+  line-height: 1.55;
+  color: var(--text);
+  background: #fbfaf6;
+}
+.wrap {
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 36px 28px 80px 28px;
+}
+.cover {
+  text-align: center;
+  padding: 40px 0 28px 0;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 28px;
+}
+.cover h1 {
+  font-family: "Helvetica Neue", -apple-system, sans-serif;
+  font-size: 36px;
+  margin: 0 0 8px 0;
+  color: var(--accent);
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+.cover .subtitle {
+  font-size: 19px;
+  color: var(--muted);
+  font-style: italic;
+  margin: 0;
+}
+.cover .meta {
+  margin-top: 18px;
+  font-size: 14px;
+  color: var(--muted);
+}
+h1, h2, h3, h4 {
+  font-family: "Helvetica Neue", -apple-system, sans-serif;
+  color: var(--accent);
+  margin-top: 1.6em;
+  margin-bottom: 0.4em;
+  line-height: 1.25;
+}
+h1 { font-size: 28px; border-bottom: 2px solid var(--accent); padding-bottom: 8px; }
+h2 {
+  font-size: 22px;
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+  padding-right: 24px;
+}
+h2::after {
+  content: "▾";
+  position: absolute;
+  right: 4px;
+  top: 4px;
+  font-size: 14px;
+  color: var(--muted);
+  transition: transform 0.15s ease;
+}
+h2.collapsed::after { transform: rotate(-90deg); }
+h3 {
+  font-size: 17px;
+  color: var(--accent-soft);
+  margin-top: 1.4em;
+  border-left: 3px solid var(--accent-soft);
+  padding-left: 10px;
+}
+h4 { font-size: 15px; color: var(--accent); }
+p { margin: 0.7em 0; }
+em { color: #444; }
+strong { color: var(--text); }
+ul, ol { margin: 0.5em 0; padding-left: 1.6em; }
+li { margin: 0.25em 0; }
+hr { border: 0; border-top: 1px solid var(--border); margin: 28px 0; }
+a { color: var(--accent); text-decoration: none; border-bottom: 1px dotted var(--accent); }
+a:hover { border-bottom-style: solid; }
+code, pre { font-family: "SF Mono", Menlo, Consolas, monospace; }
+code {
+  background: var(--code-bg);
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-size: 0.92em;
+}
+pre {
+  background: var(--code-bg);
+  padding: 14px 16px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  overflow-x: auto;
+  font-size: 13.5px;
+  line-height: 1.45;
+}
+pre code { background: transparent; padding: 0; font-size: inherit; }
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 16px 0;
+  font-size: 14.5px;
+}
+th, td {
+  border: 1px solid var(--border);
+  padding: 8px 12px;
+  text-align: left;
+  vertical-align: top;
+}
+th { background: var(--accent); color: white; font-weight: 600; font-family: "Helvetica Neue", sans-serif; }
+tr:nth-child(even) td { background: var(--soft-bg); }
+.diagram, figure {
+  margin: 22px auto;
+  text-align: center;
+}
+.diagram-svg {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+  background: white;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+.toc {
+  background: var(--soft-bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 16px 22px;
+  margin: 24px 0;
+}
+.toc h2 {
+  font-size: 18px;
+  margin: 0 0 8px 0;
+  cursor: default;
+  padding: 0;
+}
+.toc h2::after { display: none; }
+.toc ol { margin: 8px 0; padding-left: 24px; }
+.toc a { font-size: 14px; }
+mjx-container { font-size: 1.05em !important; }
+mjx-container[display="true"] { margin: 0.8em 0 !important; }
+.callout {
+  background: var(--soft-bg);
+  border-left: 4px solid var(--accent-soft);
+  padding: 10px 14px;
+  margin: 12px 0;
+  font-size: 14.5px;
+}
+@media print {
+  body { background: white; font-size: 11pt; }
+  .wrap { max-width: 100%; padding: 0; }
+  h2 { cursor: default; page-break-after: avoid; }
+  h2::after { display: none; }
+  pre, table, .diagram { page-break-inside: avoid; }
+}
+
+</style>
+<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [['\\(','\\)']],
+    displayMath: [['\\[','\\]']],
+    processEscapes: true
+  },
+  svg: { fontCache: 'global' },
+  options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code'] }
+};
+</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<div class="wrap">
+<h1 id="cs-61a-structure-and-interpretation-of-computer-programs">CS 61A — Structure and Interpretation of Computer Programs</h1>
+<h2 id="exam-level-study-guide">Exam-Level Study Guide</h2>
+<p><strong>Course:</strong> Computer Science 61A — Structure and Interpretation of Computer Programs
+<strong>Languages:</strong> Python (primary), Scheme, SQL
+<strong>Course site:</strong> https://cs61a.org/
+<strong>Final exam:</strong> Tue May 12, 2026 — exact time/location: verify at https://cs61a.org/articles/about-61a/
+<strong>Format:</strong> In-person, written. ~3 hours. Cheat sheet typically 2 double-sided handwritten pages.</p>
+<p><strong>How to use this guide.</strong> Each topic block follows the same shape:</p>
+<ul>
+<li><strong>Definition</strong> — formal one-line statement.</li>
+<li><strong>Plain English</strong> — what it actually means.</li>
+<li><strong>Canonical template</strong> — the code you should be able to write from memory.</li>
+<li><strong>Variables / pieces</strong> — what each part of the template means.</li>
+<li><strong>Trace example or diagram</strong> — concrete worked example or environment sketch.</li>
+<li><strong>Exam patterns / pitfalls</strong> — what 61A finals do with this concept.</li>
+</ul>
+<p><strong>Calibration note:</strong> Coverage is concept-level. For pattern-trigger references at the "see X → write Y" level, use your existing <code>61A_Exam_Reference.md</code> and <code>MT2_Code_Trigger_Sheet.md</code> as primary; this guide is the structured catalog over both.</p>
+<hr />
+<h2 id="table-of-contents">Table of Contents</h2>
+<ol>
+<li>Expressions, Functions, and Control Flow</li>
+<li>Higher-Order Functions and Lambda</li>
+<li>The Environment Model and Tracing</li>
+<li>Recursion and Tree Recursion</li>
+<li>Sequences, Containers, and Comprehensions</li>
+<li>Mutability, Aliasing, and Identity</li>
+<li>Iterators and Generators</li>
+<li>Object-Oriented Programming</li>
+<li>Linked Lists (<code>Link</code> class)</li>
+<li>Trees (<code>Tree</code> class)</li>
+<li>Scheme — Syntax and Semantics</li>
+<li>Tail Calls</li>
+<li>Streams</li>
+<li>Interpreters — Calculator and Scheme</li>
+<li>Programs as Data</li>
+<li>Macros</li>
+<li>SQL — Queries</li>
+<li>SQL — Aggregation and Recursive CTEs</li>
+</ol>
+<hr />
+<h1 id="1-expressions-functions-and-control-flow">1. Expressions, Functions, and Control Flow</h1>
+<p><em>[Slides 02–03, 07]</em></p>
+<h3 id="pure-vs-non-pure-functions">Pure vs Non-Pure Functions</h3>
+<p><strong>Definition.</strong> A pure function returns a value with no side effects. A non-pure function has effects (printing, mutation) and may return <code>None</code>.
+<em>Plain English.</em> <code>abs(-5)</code> returns <code>5</code> — pure. <code>print(5)</code> <em>displays</em> <code>5</code> and returns <code>None</code> — non-pure. The most common trap is treating <code>print(...)</code> as if it returns the value it printed.</p>
+<p><strong>Canonical examples.</strong></p>
+<pre><code class="language-python">def square(x):       # pure — returns a value
+    return x * x
+
+def announce(x):     # non-pure — prints, returns None
+    print(x)
+</code></pre>
+<p><strong>Exam patterns / pitfalls.</strong></p>
+<ul>
+<li><code>print(print(1))</code> displays <code>1</code> then displays <code>None</code>. Returns <code>None</code>.</li>
+<li><code>1 + print(2)</code> raises <code>TypeError</code> because <code>print</code> returns <code>None</code>.</li>
+<li>Always read the question for "<em>displayed</em>" vs "<em>returned</em>."</li>
+</ul>
+<h3 id="function-definitions">Function Definitions</h3>
+<p><strong>Definition.</strong> <code>def name(params): body</code> creates a function object and binds the name in the current frame.
+<em>Plain English.</em> <code>def</code> is itself a statement. It creates a function value. The function value remembers its parent frame (the frame in which it was defined).</p>
+<p><strong>Canonical template.</strong></p>
+<pre><code class="language-python">def f(x, y):       # signature: name + parameters
+    z = x + y      # body: any statements
+    return z       # return statement (without it, returns None)
+</code></pre>
+<h3 id="control-flow-essentials">Control Flow Essentials</h3>
+<p><strong><code>if/elif/else</code></strong> — only one branch executes.
+<strong>Boolean short-circuit</strong> — <code>and</code>/<code>or</code> return one of their operands, not necessarily <code>True</code>/<code>False</code>.</p>
+<ul>
+<li><code>0 and 5</code> → <code>0</code> (short-circuits at first falsy operand)</li>
+<li><code>0 or 5</code> → <code>5</code> (returns first truthy operand)</li>
+<li><code>5 or 7</code> → <code>5</code> (returns first truthy operand)
+<strong>Falsy values in Python:</strong> <code>0</code>, <code>0.0</code>, <code>''</code>, <code>[]</code>, <code>()</code>, <code>{}</code>, <code>None</code>, <code>False</code>. Everything else is truthy.</li>
+</ul>
+<p><strong>Exam pitfalls.</strong></p>
+<ul>
+<li><code>not x</code> always returns a bool. <code>x or y</code> does not.</li>
+<li><code>if []:</code> is False. <code>if [0]:</code> is True. (Empty list vs list containing 0.)</li>
+</ul>
+<hr />
+<h1 id="2-higher-order-functions-and-lambda">2. Higher-Order Functions and Lambda</h1>
+<p><em>[Slides 04, 06]</em></p>
+<h3 id="higher-order-function-hof">Higher-Order Function (HOF)</h3>
+<p><strong>Definition.</strong> A function that takes another function as an argument or returns a function as a result.
+<em>Plain English.</em> Functions are first-class values in Python — you can pass them around like numbers or strings.</p>
+<p><strong>Canonical templates.</strong></p>
+<pre><code class="language-python"># HOF taking a function
+def apply_twice(f, x):
+    return f(f(x))
+
+# HOF returning a function (closure)
+def make_adder(n):
+    def adder(k):
+        return k + n        # `n` from enclosing frame
+    return adder            # return the function object (no parens!)
+
+add5 = make_adder(5)        # add5 is a function
+add5(3)                     # → 8
+</code></pre>
+<h3 id="lambda">Lambda</h3>
+<p><strong>Definition.</strong> An anonymous function expression with a single expression body.
+<em>Plain English.</em> Quick way to write short, unnamed functions. Cannot contain statements (no <code>if</code>/<code>return</code>/loops as statements).</p>
+<p><strong>Canonical template.</strong></p>
+<pre><code class="language-python">square = lambda x: x * x        # lambda x: &lt;expression&gt;
+adder  = lambda a, b: a + b
+</code></pre>
+<p><strong>Equivalent to:</strong></p>
+<pre><code class="language-python">def square(x):
+    return x * x
+</code></pre>
+<p><strong>Differences from <code>def</code>.</strong></p>
+<ul>
+<li>Lambda is an <em>expression</em>, returns the function value. <code>def</code> is a <em>statement</em>, binds a name.</li>
+<li>Lambda has no intrinsic name (<code>__name__</code> is <code>'&lt;lambda&gt;'</code>).</li>
+<li>Body of lambda is a single expression. No multi-line statements.</li>
+</ul>
+<p><strong>Exam patterns / pitfalls.</strong></p>
+<ul>
+<li>"Convert this <code>def</code> to a lambda" → only works if the body is <code>return &lt;expr&gt;</code>.</li>
+<li>"Predict what <code>(lambda x: x * x)(3)</code> evaluates to" → call lambda inline → <code>9</code>.</li>
+<li>Closures capture variables by <em>reference</em>, not by value. The classic trap:</li>
+</ul>
+<pre><code class="language-python">funcs = [lambda: i for i in range(3)]
+[f() for f in funcs]    # → [2, 2, 2], not [0, 1, 2]
+</code></pre>
+<hr />
+<h1 id="3-the-environment-model-and-tracing">3. The Environment Model and Tracing</h1>
+<p><em>[Slide 05]</em></p>
+<h3 id="frames-and-environments">Frames and Environments</h3>
+<p><strong>Definition.</strong> A <em>frame</em> is a mapping from names to values. An <em>environment</em> is a sequence of frames (current, parent, ..., global).
+<em>Plain English.</em> When Python looks up a name, it searches frames from innermost to outermost. The order is determined by the function's parent frame at definition time, not at call time.</p>
+<p><strong>The four rules of the environment model.</strong>
+1. <strong><code>def f(x): body</code></strong> creates a function value <code>func f(x) [parent=&lt;current frame&gt;]</code> and binds <code>f</code> in the current frame.
+2. <strong><code>f(arg)</code></strong> opens a new frame called <code>f</code>. The new frame's <em>parent</em> is the function's recorded parent frame (NOT the caller's frame). Bind formal params to argument values; execute body.
+3. <strong>Name lookup</strong> walks from current frame to parent to grandparent ... to global. First match wins.
+4. <strong>Return value</strong> is the result of the function call expression. It is not bound in the new frame.</p>
+<h3 id="tracing-template-drawing-an-environment-diagram">Tracing template (drawing an environment diagram)</h3>
+<pre><code>make_adder(3) called:
+  → f1: make_adder         [parent=Global]
+        n=3
+  → def adder(k):  creates  func adder [parent=f1]
+  → returns func adder
+
+add5 = make_adder(3)
+add5(4) called:
+  → f2: adder              [parent=f1]
+        k=4
+  → looks up `n`:
+        not in f2 → walks to f1 (parent) → finds n=3
+  → returns 4 + 3 = 7
+</code></pre>
+<h3 id="exam-patterns-pitfalls">Exam patterns / pitfalls</h3>
+<ul>
+<li>The new frame's parent is the <strong>function's parent frame at definition time</strong>, not the calling frame. This is the #1 source of wrong answers.</li>
+<li>A <code>def</code> inside a <code>def</code> creates a function whose parent is the enclosing function's frame at the time of definition. Each call of the outer creates a new such frame, so the inner function can have a different parent each call.</li>
+<li>Lambdas have parents too — same rule.</li>
+<li>A <code>return</code> statement does not modify any frame; it just hands the value back to the caller.</li>
+<li>Reassigning a name (\(x = x + 1\)) inside a function modifies the <em>current</em> frame's binding, not the parent's.</li>
+</ul>
+<hr />
+<h1 id="4-recursion-and-tree-recursion">4. Recursion and Tree Recursion</h1>
+<p><em>[Slides 09–10]</em></p>
+<h3 id="linear-recursion">Linear Recursion</h3>
+<p><strong>Definition.</strong> A function that calls itself once per call. Each call reduces the problem.
+<em>Plain English.</em> Trust the recursive call: assume it works on the smaller problem. Combine its result with the current step.</p>
+<p><strong>Canonical template.</strong></p>
+<pre><code class="language-python">def f(n):
+    if &lt;base case&gt;:
+        return &lt;base value&gt;
+    return &lt;combine using f(smaller(n))&gt;
+
+# Example: factorial
+def fact(n):
+    if n == 0:
+        return 1
+    return n * fact(n - 1)
+</code></pre>
+<h3 id="tree-recursion">Tree Recursion</h3>
+<p><strong>Definition.</strong> A function that calls itself more than once per call. Branching call structure.
+<em>Plain English.</em> Used when each problem splits into multiple sub-problems. Time complexity is exponential without memoization.</p>
+<p><strong>Canonical examples.</strong></p>
+<pre><code class="language-python">def fib(n):
+    if n &lt;= 1:
+        return n
+    return fib(n - 1) + fib(n - 2)
+
+def count_partitions(n, m):
+    if n == 0:
+        return 1
+    if n &lt; 0 or m == 0:
+        return 0
+    return count_partitions(n - m, m) + count_partitions(n, m - 1)
+</code></pre>
+<h3 id="mutual-recursion">Mutual Recursion</h3>
+<p><strong>Definition.</strong> Two functions call each other to solve a problem.
+<em>Plain English.</em> Can always be rewritten as single recursion, but mutual recursion is sometimes cleaner.</p>
+<pre><code class="language-python">def is_even(n):
+    if n == 0: return True
+    return is_odd(n - 1)
+
+def is_odd(n):
+    if n == 0: return False
+    return is_even(n - 1)
+</code></pre>
+<h3 id="recursion-design-checklist">Recursion design checklist</h3>
+<ol>
+<li>Identify the base case(s). Make sure they cover all "smallest" inputs.</li>
+<li>Identify the recursive case. Make sure it makes progress toward a base case.</li>
+<li>Trust the recursive call (don't trace it in your head).</li>
+<li>Combine the recursive result with the current step.</li>
+</ol>
+<h3 id="exam-patterns-pitfalls_1">Exam patterns / pitfalls</h3>
+<ul>
+<li>Forgetting a base case → infinite recursion → <code>RecursionError</code>.</li>
+<li>Recursive case not making progress (<code>f(n)</code> calls <code>f(n)</code>).</li>
+<li>Off-by-one: "do something for \(i = 0..n\)" often becomes <code>f(0)</code> base, recurse on <code>n-1</code>.</li>
+<li>Tree recursion problems often have multiple base cases — list all of them carefully.</li>
+</ul>
+<hr />
+<h1 id="5-sequences-containers-and-comprehensions">5. Sequences, Containers, and Comprehensions</h1>
+<p><em>[Slides 11–12]</em></p>
+<h3 id="lists-tuples-sets-dicts">Lists, Tuples, Sets, Dicts</h3>
+<table>
+<thead>
+<tr>
+<th>Container</th>
+<th>Mutable?</th>
+<th>Ordered?</th>
+<th>Allows duplicates?</th>
+<th>Lookup time</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list</code></td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>O(n) by value</td>
+</tr>
+<tr>
+<td><code>tuple</code></td>
+<td>No</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>O(n) by value</td>
+</tr>
+<tr>
+<td><code>set</code></td>
+<td>Yes</td>
+<td>No</td>
+<td>No</td>
+<td>O(1) by value</td>
+</tr>
+<tr>
+<td><code>dict</code></td>
+<td>Yes</td>
+<td>Insertion order (Py3.7+)</td>
+<td>Keys unique</td>
+<td>O(1) by key</td>
+</tr>
+</tbody>
+</table>
+<h3 id="slicing">Slicing</h3>
+<p><strong>Template.</strong> <code>seq[start:stop:step]</code></p>
+<ul>
+<li>Negative <code>start</code>/<code>stop</code> count from the end.</li>
+<li><code>seq[::-1]</code> reverses.</li>
+<li><code>seq[:]</code> returns a <em>shallow copy</em>.</li>
+</ul>
+<h3 id="list-comprehensions">List Comprehensions</h3>
+<p><strong>Template.</strong> <code>[&lt;expr&gt; for &lt;var&gt; in &lt;iter&gt; if &lt;cond&gt;]</code>
+<strong>Plain English.</strong> Build a new list by iterating, optionally filtering.
+<strong>Examples.</strong></p>
+<pre><code class="language-python">[x*x for x in range(5)]                  # [0, 1, 4, 9, 16]
+[x for x in range(10) if x % 2 == 0]     # [0, 2, 4, 6, 8]
+[(i, j) for i in range(3) for j in range(3) if i &lt; j]   # [(0,1), (0,2), (1,2)]
+</code></pre>
+<h3 id="common-hofs-over-sequences">Common HOFs over sequences</h3>
+<pre><code class="language-python">sum([1, 2, 3])                # 6
+max([1, 2, 3])                # 3
+min([1, 2, 3])                # 1
+list(map(square, [1, 2, 3]))  # [1, 4, 9]
+list(filter(lambda x: x &gt; 1, [1, 2, 3]))  # [2, 3]
+</code></pre>
+<hr />
+<h1 id="6-mutability-aliasing-and-identity">6. Mutability, Aliasing, and Identity</h1>
+<p><em>[Slide 15]</em></p>
+<h3 id="is-vs"><code>is</code> vs <code>==</code></h3>
+<p><strong>Definition.</strong> <code>==</code> compares value. <code>is</code> compares object identity (same object in memory).
+<em>Plain English.</em> Two lists <code>[1, 2, 3]</code> can have equal contents (<code>==</code> is <code>True</code>) but be distinct objects (<code>is</code> is <code>False</code>).</p>
+<pre><code class="language-python">a = [1, 2, 3]
+b = [1, 2, 3]
+c = a
+a == b    # True (same value)
+a is b    # False (different objects)
+a is c    # True (same object, c is an alias)
+</code></pre>
+<p><strong>Canonical use.</strong> Always use <code>is</code> for comparison with <code>None</code>: <code>if x is None:</code> (idiomatic).</p>
+<h3 id="aliasing">Aliasing</h3>
+<p><strong>Definition.</strong> When two names refer to the same mutable object.
+<em>Plain English.</em> Mutating through one name affects all aliases. The most common bug source in beginner Python.</p>
+<pre><code class="language-python">a = [1, 2, 3]
+b = a               # b aliases a — same list
+b.append(4)
+print(a)            # [1, 2, 3, 4] — surprise!
+</code></pre>
+<h3 id="mutating-vs-reassigning">Mutating vs Reassigning</h3>
+<ul>
+<li><strong>Mutating:</strong> <code>a.append(4)</code>, <code>a[0] = 99</code>, <code>a.extend(...)</code> — modifies the existing object.</li>
+<li><strong>Reassigning:</strong> <code>a = [99, 2, 3]</code> — points <code>a</code> at a new object; old object unchanged.</li>
+<li>An alias \(b = a\) is broken by reassigning <code>a</code>, but mutating <code>a</code> still affects <code>b</code>.</li>
+</ul>
+<h3 id="exam-patterns-pitfalls_2">Exam patterns / pitfalls</h3>
+<ul>
+<li>"Predict the output" of code that mixes mutation and aliasing → always draw the box-and-arrow diagram.</li>
+<li>Function arguments: lists are passed by reference. Mutating a list inside a function affects the caller.</li>
+<li><code>x = x + [1]</code> creates a new list (reassignment); <code>x.append(1)</code> mutates in place.</li>
+</ul>
+<hr />
+<h1 id="7-iterators-and-generators">7. Iterators and Generators</h1>
+<p><em>[Slides 16–17]</em></p>
+<h3 id="iterator-protocol">Iterator Protocol</h3>
+<p><strong>Definition.</strong> An iterator is any object with a <code>__next__</code> method (returning the next value or raising <code>StopIteration</code>). An iterable has <code>__iter__</code> (returning a new iterator).
+<em>Plain English.</em> <code>for x in obj:</code> calls <code>iter(obj)</code> to get an iterator, then calls <code>next()</code> until <code>StopIteration</code>.</p>
+<pre><code class="language-python">it = iter([1, 2, 3])
+next(it)      # 1
+next(it)      # 2
+next(it)      # 3
+next(it)      # raises StopIteration
+</code></pre>
+<h3 id="generators">Generators</h3>
+<p><strong>Definition.</strong> A function with <code>yield</code> instead of <code>return</code>. Calling it returns a generator object (an iterator). Each <code>next()</code> advances the function until the next <code>yield</code>.
+<em>Plain English.</em> <code>yield</code> <em>pauses</em> the function and remembers where it left off. Resuming continues from there.</p>
+<p><strong>Canonical template.</strong></p>
+<pre><code class="language-python">def countdown(n):
+    while n &gt; 0:
+        yield n
+        n -= 1
+
+g = countdown(3)
+next(g)      # 3
+next(g)      # 2
+next(g)      # 1
+next(g)      # raises StopIteration
+
+# Use in for loop:
+for x in countdown(3):
+    print(x)        # prints 3, 2, 1
+</code></pre>
+<h3 id="generator-with-yield-from">Generator with <code>yield from</code></h3>
+<p><strong>Plain English.</strong> Delegates iteration to another iterable. Useful for tree-traversal generators.</p>
+<pre><code class="language-python">def all_pairs(lst):
+    for i in range(len(lst)):
+        for j in range(i+1, len(lst)):
+            yield lst[i], lst[j]
+
+def flatten(nested):
+    for item in nested:
+        if isinstance(item, list):
+            yield from flatten(item)        # recurse
+        else:
+            yield item
+</code></pre>
+<h3 id="exam-patterns-pitfalls_3">Exam patterns / pitfalls</h3>
+<ul>
+<li>Generators are <em>lazy</em>. <code>g = countdown(3)</code> does NOT run the function body. <code>next(g)</code> starts it.</li>
+<li>A generator can only be iterated once. After exhaustion, calling <code>next()</code> raises <code>StopIteration</code> forever.</li>
+<li>"Implement a generator that yields the powers of 2 less than n" — classic short problem.</li>
+</ul>
+<hr />
+<h1 id="8-object-oriented-programming">8. Object-Oriented Programming</h1>
+<p><em>[Slides 18–23]</em></p>
+<h3 id="class-definition">Class Definition</h3>
+<p><strong>Canonical template.</strong></p>
+<pre><code class="language-python">class Account:
+    interest = 0.02              # CLASS attribute (shared by all instances)
+
+    def __init__(self, holder):  # constructor: called by Account('Alice')
+        self.holder = holder     # INSTANCE attribute
+        self.balance = 0
+
+    def deposit(self, amount):
+        self.balance += amount
+        return self.balance
+</code></pre>
+<h3 id="attribute-lookup-rule">Attribute Lookup Rule</h3>
+<p><strong>Definition.</strong> Look up <code>obj.attr</code> first in the <em>instance dictionary</em>, then in the <em>class dictionary</em>, then up the inheritance chain.
+<em>Plain English.</em> Each instance has its own attributes. The class also has attributes. If you ask <code>acc.interest</code>, Python checks <code>acc</code>'s instance dict — not there — checks <code>Account</code>'s class dict — finds <code>0.02</code>.</p>
+<p><strong>Important.</strong> \(acc.interest = 0.05\) creates an <em>instance</em> attribute that shadows the class attribute, only for <code>acc</code>. Other instances still see <code>0.02</code>.</p>
+<h3 id="method-calls">Method Calls</h3>
+<p><strong>Definition.</strong> <code>acc.deposit(100)</code> desugars to <code>Account.deposit(acc, 100)</code>. The instance is passed as <code>self</code>.
+<em>Plain English.</em> Methods are just functions stored on the class. The dot operator binds <code>self</code>.</p>
+<h3 id="inheritance">Inheritance</h3>
+<p><strong>Canonical template.</strong></p>
+<pre><code class="language-python">class CheckingAccount(Account):
+    interest = 0.01              # override class attribute
+    withdraw_fee = 1
+
+    def withdraw(self, amount):
+        return Account.withdraw(self, amount + self.withdraw_fee)
+        # or: super().withdraw(amount + self.withdraw_fee)
+</code></pre>
+<p><strong>Method resolution order (MRO).</strong> Subclass first, then parent, then grandparent. Python uses C3 linearization for multiple inheritance.</p>
+<h3 id="special-methods-dunder-methods">Special Methods (dunder methods)</h3>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>When called</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>__init__(self, ...)</code></td>
+<td>construction</td>
+</tr>
+<tr>
+<td><code>__repr__(self)</code></td>
+<td><code>repr(obj)</code>, debugger display, REPL</td>
+</tr>
+<tr>
+<td><code>__str__(self)</code></td>
+<td><code>str(obj)</code>, <code>print(obj)</code></td>
+</tr>
+<tr>
+<td><code>__eq__(self, other)</code></td>
+<td>\(self == other\)</td>
+</tr>
+<tr>
+<td><code>__add__(self, other)</code></td>
+<td><code>self + other</code></td>
+</tr>
+<tr>
+<td><code>__len__(self)</code></td>
+<td><code>len(obj)</code></td>
+</tr>
+<tr>
+<td><code>__iter__(self)</code></td>
+<td><code>iter(obj)</code>, makes class iterable</td>
+</tr>
+<tr>
+<td><code>__getitem__(self, k)</code></td>
+<td><code>obj[k]</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="exam-patterns-pitfalls_4">Exam patterns / pitfalls</h3>
+<ul>
+<li>"Find the class attribute" vs "find the instance attribute" — always check the instance dict first.</li>
+<li><code>__init__</code> is NOT the constructor in the strict sense — it's the initializer. Construction happens before <code>__init__</code> runs.</li>
+<li><code>super().method(...)</code> vs <code>Parent.method(self, ...)</code> — both work; <code>super()</code> is cleaner.</li>
+<li>Class attribute mutation: \(Account.interest = 0.05\) changes the value for all instances that haven't shadowed it.</li>
+</ul>
+<hr />
+<h1 id="9-linked-lists-link-class">9. Linked Lists (<code>Link</code> class)</h1>
+<p><em>[Slides 14, 22]</em></p>
+<h3 id="the-link-class-memorize-this-exactly">The <code>Link</code> class — memorize this exactly</h3>
+<pre><code class="language-python">class Link:
+    empty = ()                                  # sentinel for end of list
+
+    def __init__(self, first, rest=empty):
+        assert rest is Link.empty or isinstance(rest, Link)
+        self.first = first
+        self.rest = rest                        # always a Link or Link.empty
+</code></pre>
+<h3 id="names-to-know">Names to know</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>What it is</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>lnk.first</code></td>
+<td>value at this node</td>
+</tr>
+<tr>
+<td><code>lnk.rest</code></td>
+<td>the next <code>Link</code> (or <code>Link.empty</code>)</td>
+</tr>
+<tr>
+<td><code>Link.empty</code></td>
+<td>sentinel — the empty tuple <code>()</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="base-case-check-use-is-not">Base case check (use <code>is</code>, not <code>==</code>)</h3>
+<pre><code class="language-python">if lnk is Link.empty:
+    ...
+</code></pre>
+<h3 id="core-templates">Core templates</h3>
+<p><strong>Traverse / read:</strong></p>
+<pre><code class="language-python">def length(lnk):
+    if lnk is Link.empty:
+        return 0
+    return 1 + length(lnk.rest)
+</code></pre>
+<p><strong>Filter (return new list excluding some elements):</strong></p>
+<pre><code class="language-python">def exclude(lnk, x):
+    if lnk is Link.empty:
+        return Link.empty
+    if lnk.first == x:
+        return exclude(lnk.rest, x)
+    return Link(lnk.first, exclude(lnk.rest, x))
+</code></pre>
+<p><strong>Build (prepend, iterative):</strong></p>
+<pre><code class="language-python">def from_list(lst):
+    result = Link.empty
+    for x in reversed(lst):
+        result = Link(x, result)
+    return result
+</code></pre>
+<p><strong>Mutate in place (set the second value to 99):</strong></p>
+<pre><code class="language-python">lnk.rest.first = 99
+</code></pre>
+<p><strong>Insert at end (mutating):</strong></p>
+<pre><code class="language-python">def append_last(lnk, value):
+    while lnk.rest is not Link.empty:
+        lnk = lnk.rest
+    lnk.rest = Link(value)
+</code></pre>
+<h3 id="exam-patterns-pitfalls_5">Exam patterns / pitfalls</h3>
+<ul>
+<li><code>Link.empty</code> is <code>()</code> — comparing with <code>==</code> works but <code>is</code> is the idiomatic 61A check.</li>
+<li>Recursive <code>Link</code> functions almost always have the same shape: base case on <code>Link.empty</code>, recursive case combines <code>lnk.first</code> with the result of <code>... lnk.rest</code>.</li>
+<li>Building the result in reverse order: a common bug. Either build with <code>reversed()</code>, or use direct recursion (which preserves order).</li>
+</ul>
+<hr />
+<h1 id="10-trees-tree-class">10. Trees (<code>Tree</code> class)</h1>
+<p><em>[Slide 14]</em></p>
+<h3 id="the-tree-class-memorize-this-exactly">The <code>Tree</code> class — memorize this exactly</h3>
+<pre><code class="language-python">class Tree:
+    def __init__(self, label, branches=[]):
+        for b in branches:
+            assert isinstance(b, Tree)
+        self.label = label
+        self.branches = list(branches)
+
+    def is_leaf(self):
+        return not self.branches
+</code></pre>
+<h3 id="names-to-know_1">Names to know</h3>
+<ul>
+<li><code>t.label</code> — value at this node</li>
+<li><code>t.branches</code> — list of subtrees (each a <code>Tree</code>)</li>
+<li><code>t.is_leaf()</code> — <code>True</code> iff no branches</li>
+</ul>
+<h3 id="core-templates_1">Core templates</h3>
+<p><strong>Sum all labels:</strong></p>
+<pre><code class="language-python">def total(t):
+    return t.label + sum(total(b) for b in t.branches)
+</code></pre>
+<p><strong>Count leaves:</strong></p>
+<pre><code class="language-python">def count_leaves(t):
+    if t.is_leaf():
+        return 1
+    return sum(count_leaves(b) for b in t.branches)
+</code></pre>
+<p><strong>Map a function over labels (returns new tree):</strong></p>
+<pre><code class="language-python">def tree_map(t, f):
+    return Tree(f(t.label), [tree_map(b, f) for b in t.branches])
+</code></pre>
+<p><strong>All paths from root to leaf:</strong></p>
+<pre><code class="language-python">def paths(t):
+    if t.is_leaf():
+        return [[t.label]]
+    result = []
+    for b in t.branches:
+        for path in paths(b):
+            result.append([t.label] + path)
+    return result
+</code></pre>
+<h3 id="exam-patterns-pitfalls_6">Exam patterns / pitfalls</h3>
+<ul>
+<li>Forgetting <code>t.is_leaf()</code> base case → wrong recursion structure for empty branches list.</li>
+<li>Mutating shared default arguments. Default <code>branches=[]</code> is shared across calls; always copy with <code>list(branches)</code> in <code>__init__</code>.</li>
+<li>The pattern <code>[f(b) for b in t.branches]</code> recurses on each branch.</li>
+</ul>
+<hr />
+<h1 id="11-scheme-syntax-and-semantics">11. Scheme — Syntax and Semantics</h1>
+<p><em>[Slide 26]</em></p>
+<h3 id="atom-vs-pair">Atom vs Pair</h3>
+<p><strong>Definition.</strong> Scheme programs and data are built from atoms (numbers, booleans, symbols, <code>()</code>) and <em>pairs</em> <code>(cons a b)</code>.
+<em>Plain English.</em> Lists in Scheme are nested pairs ending in <code>nil</code>/<code>'()</code>. <code>(1 2 3)</code> is <code>(cons 1 (cons 2 (cons 3 '())))</code>.</p>
+<h3 id="special-forms-memorize">Special Forms (memorize)</h3>
+<pre><code class="language-scheme">(define x 5)                          ; bind x to 5
+
+(define (square x) (* x x))           ; define a function
+
+(lambda (x) (* x x))                  ; anonymous function
+
+(if predicate then-expr else-expr)    ; if expression
+
+(cond ((test1) result1)               ; multi-branch cond
+      ((test2) result2)
+      (else default))
+
+(let ((x 1) (y 2)) body)              ; local bindings
+
+(and e1 e2 ...)                       ; short-circuit and
+(or e1 e2 ...)                        ; short-circuit or
+
+(begin e1 e2 ... eN)                  ; sequence; returns last
+</code></pre>
+<h3 id="pair-list-operations">Pair / List Operations</h3>
+<pre><code class="language-scheme">(cons 1 2)                ; → (1 . 2)
+(cons 1 (cons 2 '()))     ; → (1 2)
+(car '(1 2 3))            ; → 1
+(cdr '(1 2 3))            ; → (2 3)
+(null? '())               ; → #t
+(pair? (cons 1 2))        ; → #t
+(list 1 2 3)              ; → (1 2 3)
+(append '(1 2) '(3 4))    ; → (1 2 3 4)
+</code></pre>
+<h3 id="mutation-61as-mutable-pairs">Mutation (61A's mutable pairs)</h3>
+<pre><code class="language-scheme">(set-car! p new-first)    ; mutate first
+(set-cdr! p new-rest)     ; mutate rest
+</code></pre>
+<h3 id="canonical-scheme-functions">Canonical Scheme functions</h3>
+<pre><code class="language-scheme">(define (length lst)
+  (if (null? lst)
+      0
+      (+ 1 (length (cdr lst)))))
+
+(define (factorial n)
+  (if (= n 0)
+      1
+      (* n (factorial (- n 1)))))
+
+(define (count-leaves t)
+  (cond ((null? t) 0)
+        ((not (pair? t)) 1)
+        (else (+ (count-leaves (car t))
+                 (count-leaves (cdr t))))))
+
+(define (map f lst)
+  (if (null? lst)
+      '()
+      (cons (f (car lst)) (map f (cdr lst)))))
+</code></pre>
+<h3 id="exam-patterns-pitfalls_7">Exam patterns / pitfalls</h3>
+<ul>
+<li><code>cons</code> makes a pair. A <em>list</em> is just a chain of pairs ending in <code>'()</code>.</li>
+<li><code>(cons 1 (cons 2 (cons 3 '())))</code> displays as <code>(1 2 3)</code>. <code>(cons 1 (cons 2 3))</code> displays as <code>(1 2 . 3)</code> — the dot indicates an "improper list."</li>
+<li><code>'()</code> is the empty list. <code>(null? '())</code> → <code>#t</code>.</li>
+<li>Forgetting parens (or having extra ones) is the #1 bug source.</li>
+<li><code>(define f 5)</code> creates a binding; <code>(define (f x) (* x x))</code> creates a function.</li>
+</ul>
+<hr />
+<h1 id="12-tail-calls">12. Tail Calls</h1>
+<p><em>[Likely Slide 24 — verify in cs61a.org Composing Programs Ch 3.5 or equivalent]</em></p>
+<h3 id="tail-call">Tail Call</h3>
+<p><strong>Definition.</strong> A function call is in <em>tail position</em> if its return value is the return value of the enclosing function — no further computation happens after it returns.
+<em>Plain English.</em> <code>(define (f x) (g x))</code> — the call to <code>g</code> is a tail call. <code>(define (f x) (+ 1 (g x)))</code> — NOT a tail call (we add 1 after).</p>
+<p><strong>Why it matters.</strong> Scheme implementations <em>must</em> perform tail-call optimization (TCO): tail calls don't add to the call stack. So tail-recursive functions run in constant space. Python does NOT do TCO.</p>
+<h3 id="tail-position-rules">Tail position rules</h3>
+<p>A call <code>(f ...)</code> is in tail position if:</p>
+<ul>
+<li>It's the body of a <code>lambda</code> or <code>define</code>-function.</li>
+<li>It's the last expression in a <code>begin</code>.</li>
+<li>It's a branch result of <code>if</code>, <code>cond</code>, <code>case</code>, <code>when</code>, <code>unless</code>.</li>
+<li>It's the body of a <code>let</code> (not the bindings).</li>
+</ul>
+<h3 id="converting-non-tail-to-tail-recursive">Converting non-tail to tail recursive</h3>
+<p><strong>Pattern: accumulator.</strong> Add a parameter that accumulates the result.</p>
+<pre><code class="language-scheme">;; NOT tail recursive (the multiplication waits for the recursive call):
+(define (factorial n)
+  (if (= n 0)
+      1
+      (* n (factorial (- n 1)))))
+
+;; Tail recursive (uses accumulator):
+(define (factorial n)
+  (define (helper n acc)
+    (if (= n 0)
+        acc
+        (helper (- n 1) (* n acc))))
+  (helper n 1))
+</code></pre>
+<h3 id="exam-patterns-pitfalls_8">Exam patterns / pitfalls</h3>
+<ul>
+<li>"Is this tail recursive?" → look at the very last operation. If it's an arithmetic op or <code>cons</code> <em>after</em> the recursive call, NOT tail recursive.</li>
+<li>"Convert this to tail recursive" → introduce an accumulator parameter (helper function pattern).</li>
+<li>A <code>cond</code> branch's last expression is in tail position only if the <code>cond</code> itself is in tail position.</li>
+</ul>
+<hr />
+<h1 id="13-streams">13. Streams</h1>
+<p><em>[Likely Slide 25 — verify in cs61a.org Composing Programs Ch 4.2 or equivalent]</em></p>
+<h3 id="stream">Stream</h3>
+<p><strong>Definition.</strong> A lazy list — a pair where the <em>cdr</em> is a thunk (no-arg lambda) that produces the rest only when forced.
+<em>Plain English.</em> Lets you build infinite sequences. The first element is computed; the rest is a promise.</p>
+<h3 id="cons-stream-and-stream-basics-61a-convention"><code>cons-stream</code> and stream basics (61A convention)</h3>
+<pre><code class="language-scheme">(cons-stream &lt;first&gt; &lt;rest&gt;)       ; first is evaluated; rest is delayed (not yet evaluated)
+(car s)                            ; first element (evaluated)
+(cdr-stream s)  or  (cdr s)        ; force the rest — depending on 61A's exact API
+(null? s)                          ; check empty stream (often '() / nil-stream)
+</code></pre>
+<p><strong>Note on API.</strong> Different 61A semesters use slightly different stream APIs. Common functions are <code>stream-car</code>, <code>stream-cdr</code>, <code>stream-ref</code>, <code>stream-map</code>, <code>stream-filter</code>. The semantics are the same; only the names differ. Verify by re-reading your project Scheme code.</p>
+<h3 id="canonical-stream-definitions">Canonical stream definitions</h3>
+<pre><code class="language-scheme">;; Infinite stream of integers starting at n
+(define (integers-from n)
+  (cons-stream n (integers-from (+ n 1))))
+
+;; Map over a stream
+(define (stream-map f s)
+  (if (null? s)
+      '()
+      (cons-stream (f (car s)) (stream-map f (cdr-stream s)))))
+
+;; Filter a stream
+(define (stream-filter pred s)
+  (cond ((null? s) '())
+        ((pred (car s))
+         (cons-stream (car s) (stream-filter pred (cdr-stream s))))
+        (else (stream-filter pred (cdr-stream s)))))
+
+;; Take first n elements as a list
+(define (stream-take s n)
+  (if (or (null? s) (= n 0))
+      '()
+      (cons (car s) (stream-take (cdr-stream s) (- n 1)))))
+</code></pre>
+<h3 id="exam-patterns-pitfalls_9">Exam patterns / pitfalls</h3>
+<ul>
+<li>Stream functions look like list functions but use <code>cons-stream</code> instead of <code>cons</code> so the recursive part isn't evaluated immediately.</li>
+<li>Forcing the cdr too eagerly defeats the purpose of streams (and may cause infinite loop for infinite streams).</li>
+<li>"Show what <code>(stream-take (integers-from 0) 5)</code> returns" → <code>(0 1 2 3 4)</code>.</li>
+</ul>
+<hr />
+<h1 id="14-interpreters-calculator-and-scheme">14. Interpreters — Calculator and Scheme</h1>
+<p><em>[Slides 28–29]</em></p>
+<h3 id="read-eval-print-loop-repl">Read-Eval-Print Loop (REPL)</h3>
+<p><strong>Plain English.</strong> An interpreter has three phases:
+1. <strong>Read</strong> — parse user input string into an internal representation (typically nested Pairs in 61A).
+2. <strong>Eval</strong> — evaluate the parsed expression in some environment.
+3. <strong>Print</strong> — display the result.</p>
+<h3 id="calculator-language-slide-28">Calculator language (Slide 28)</h3>
+<p><strong>Definition.</strong> A small subset of Scheme: only <code>+</code>, <code>-</code>, <code>*</code>, <code>/</code> with numeric arguments. No variables, no functions.
+<em>Plain English.</em> The 61A toy language. Easier than full Scheme. Lets you understand the eval/apply cycle without OOP/closures complexity.</p>
+<p><strong>Eval rules (Calculator).</strong>
+1. A number evaluates to itself.
+2. A call expression <code>(op operand1 operand2 ...)</code>:</p>
+<ul>
+<li>Evaluate each operand recursively.</li>
+<li>Apply the operator to the resulting values.</li>
+</ul>
+<p><strong>Implementation skeleton (Python).</strong></p>
+<pre><code class="language-python">def calc_eval(expr):
+    if isinstance(expr, (int, float)):
+        return expr                                           # numbers evaluate to themselves
+    op, *args = expr                                          # destructure
+    arg_values = [calc_eval(a) for a in args]                 # eager arg evaluation
+    return calc_apply(op, arg_values)
+
+def calc_apply(op, args):
+    if op == '+': return sum(args)
+    if op == '-': return args[0] - sum(args[1:]) if len(args) &gt; 1 else -args[0]
+    if op == '*':
+        result = 1
+        for a in args: result *= a
+        return result
+    if op == '/': return args[0] / args[1]
+    raise ValueError(f'unknown op: {op}')
+</code></pre>
+<h3 id="full-scheme-interpreter-slide-29-the-project">Full Scheme interpreter (Slide 29 — the project)</h3>
+<p><strong>Plain English.</strong> Full Scheme adds: variables, <code>define</code>, <code>lambda</code>, special forms (<code>if</code>, <code>cond</code>, <code>let</code>, <code>quote</code>, <code>and</code>, <code>or</code>), procedure calls. The eval function must distinguish <em>special forms</em> from <em>regular procedure calls</em> before evaluating arguments.</p>
+<p><strong><code>scheme_eval(expr, env)</code> — high-level skeleton.</strong></p>
+<pre><code class="language-python">def scheme_eval(expr, env):
+    # 1. Self-evaluating: numbers, strings, booleans
+    if self_evaluating(expr):
+        return expr
+    # 2. Symbol: look up in env
+    if isinstance(expr, str):
+        return env.lookup(expr)
+    # 3. Pair: it's a call expression OR a special form
+    first, rest = expr.first, expr.rest
+    if first in SPECIAL_FORMS:
+        return SPECIAL_FORMS[first](rest, env)        # don't eval args yet
+    # 4. Procedure call: eval operator and operands, then apply
+    procedure = scheme_eval(first, env)
+    args = [scheme_eval(operand, env) for operand in rest_to_list(rest)]
+    return scheme_apply(procedure, args, env)
+</code></pre>
+<p><strong><code>scheme_apply(procedure, args, env)</code> — high-level skeleton.</strong></p>
+<pre><code class="language-python">def scheme_apply(procedure, args, env):
+    if isinstance(procedure, BuiltinProcedure):
+        return procedure.fn(*args)
+    if isinstance(procedure, LambdaProcedure):
+        new_env = Environment(parent=procedure.env)             # parent = lambda's defining env
+        for param, arg in zip(procedure.params, args):
+            new_env.bind(param, arg)
+        return scheme_eval(procedure.body, new_env)
+    raise SchemeError('not a procedure')
+</code></pre>
+<h3 id="special-forms-vs-procedure-calls">Special forms vs procedure calls</h3>
+<p><strong>Critical distinction.</strong></p>
+<ul>
+<li><strong>Procedure call:</strong> evaluate all operands first, then apply the procedure. (<code>(+ 1 2)</code> → eval <code>1</code>, eval <code>2</code>, then call <code>+</code>)</li>
+<li><strong>Special form:</strong> the special-form handler decides what (if anything) to evaluate. (<code>(if #t 1 (error))</code> — only eval the chosen branch; don't eval <code>(error)</code>!)</li>
+</ul>
+<p>This is why <code>if</code>, <code>define</code>, <code>lambda</code>, <code>cond</code>, <code>quote</code>, <code>and</code>, <code>or</code>, <code>let</code> need their own handlers — they violate the "always eval all args" rule.</p>
+<h3 id="exam-patterns-pitfalls_10">Exam patterns / pitfalls</h3>
+<ul>
+<li>"Modify Calculator to support <code>pow</code>" — extend <code>calc_apply</code> and (maybe) <code>calc_eval</code> for variadic ops.</li>
+<li>"Add a special form <code>repeat</code>" — write a handler that takes the unevaluated form and evaluates parts manually.</li>
+<li>"Why is <code>if</code> a special form?" — because if it were a procedure, both branches would be evaluated, defeating its purpose.</li>
+<li>The lambda's environment captures the <em>defining</em> environment, not the <em>calling</em> one — same rule as Python.</li>
+</ul>
+<hr />
+<h1 id="15-programs-as-data">15. Programs as Data</h1>
+<p><em>[Slide 30]</em></p>
+<h3 id="code-is-data">Code is Data</h3>
+<p><strong>Definition.</strong> In Scheme, programs are just nested pairs (the same data structure as lists). Therefore, you can manipulate them with normal pair operations.
+<em>Plain English.</em> The expression <code>(+ 1 2)</code> is a <em>pair</em> whose first element is the symbol <code>+</code> and whose rest is the list <code>(1 2)</code>. You can take it apart with <code>car</code> and <code>cdr</code>, transform it, and pass the result to <code>eval</code> to run it.</p>
+<h3 id="quote"><code>quote</code></h3>
+<p><strong>Definition.</strong> <code>(quote x)</code> (or <code>'x</code>) returns <code>x</code> literally — without evaluating it.
+<em>Plain English.</em> Quote turns "code" into "data." <code>(+ 1 2)</code> evaluates to <code>3</code>. <code>'(+ 1 2)</code> evaluates to the <em>list</em> <code>(+ 1 2)</code> — the symbol <code>+</code>, the number <code>1</code>, the number <code>2</code>.</p>
+<pre><code class="language-scheme">(+ 1 2)           ; → 3 (evaluated)
+'(+ 1 2)          ; → (+ 1 2) (a list of 3 elements)
+(car '(+ 1 2))    ; → +  (the symbol)
+(cdr '(+ 1 2))    ; → (1 2)
+</code></pre>
+<h3 id="code-manipulation-example">Code-manipulation example</h3>
+<pre><code class="language-scheme">;; Take an expression like (+ 1 2) and return (* 1 2)
+(define (plus-to-times expr)
+  (cons '* (cdr expr)))
+
+(plus-to-times '(+ 1 2))   ; → (* 1 2)
+
+;; Then evaluate it:
+(eval (plus-to-times '(+ 1 2)) (the-environment))   ; → 2
+</code></pre>
+<h3 id="exam-patterns-pitfalls_11">Exam patterns / pitfalls</h3>
+<ul>
+<li>"Write a function that swaps the first two arguments of any function call expression."</li>
+<li>"Why is <code>'foo</code> different from <code>foo</code>?" — <code>foo</code> evaluates the symbol; <code>'foo</code> returns the symbol itself.</li>
+<li>Programs as data is the foundation for macros — see next section.</li>
+</ul>
+<hr />
+<h1 id="16-macros">16. Macros</h1>
+<p><em>[Slide 31]</em></p>
+<h3 id="macro">Macro</h3>
+<p><strong>Definition.</strong> A macro is a code transformation: it takes the <em>unevaluated</em> code as input, produces new code, which is then evaluated.
+<em>Plain English.</em> Functions take values. Macros take code. The macro substitutes parameters into a template and the result is evaluated.</p>
+<h3 id="define-macro-61as-macro-form"><code>define-macro</code> (61A's macro form)</h3>
+<p><strong>Canonical template.</strong></p>
+<pre><code class="language-scheme">(define-macro (name params)
+  template-that-returns-an-expression)
+</code></pre>
+<p><strong>The macro receives unevaluated arguments.</strong> The result of the macro is a Scheme expression, which Scheme then evaluates in the call site's environment.</p>
+<h3 id="example-unless">Example: <code>unless</code></h3>
+<pre><code class="language-scheme">;; unless executes the body only if the condition is FALSE
+(define-macro (unless condition body)
+  (list 'if condition '() body))
+;; → (unless (= x 0) (/ 1 x)) expands to (if (= x 0) () (/ 1 x))
+</code></pre>
+<h3 id="quasiquote-helps-build-templates">Quasiquote (helps build templates)</h3>
+<pre><code class="language-scheme">`(if ,condition () ,body)     ; backtick = quasiquote, comma = unquote
+;; equivalent to:
+(list 'if condition '() body)
+</code></pre>
+<h3 id="exam-patterns-pitfalls_12">Exam patterns / pitfalls</h3>
+<ul>
+<li>A macro is NOT a function. Trying to use a macro as a function fails because functions evaluate args before the call.</li>
+<li>"Write a macro <code>swap-args</code> that swaps the args of any 2-arg call." → use list construction (or quasiquote).</li>
+<li>"When does the macro body run?" — at <em>expansion</em> time, before evaluation. The macro's job is to produce code; that code runs later.</li>
+<li>Hygiene: 61A macros are NOT hygienic — variable name capture can cause bugs. Watch for accidental shadowing.</li>
+</ul>
+<hr />
+<h1 id="17-sql-queries">17. SQL — Queries</h1>
+<p><em>[Slides 32–33]</em></p>
+<h3 id="basic-select">Basic SELECT</h3>
+<p><strong>Canonical template.</strong></p>
+<pre><code class="language-sql">SELECT column1, column2
+  FROM table
+ WHERE condition
+ ORDER BY column [ASC|DESC]
+ LIMIT n;
+</code></pre>
+<p><strong>Plain English.</strong> Pick columns from rows of a table where a condition holds, optionally sorted and limited.</p>
+<h3 id="renaming-and-computed-columns">Renaming and computed columns</h3>
+<pre><code class="language-sql">SELECT name AS person, age * 12 AS age_in_months
+  FROM people;
+</code></pre>
+<h3 id="joins">Joins</h3>
+<pre><code class="language-sql">-- Cross product (Cartesian product, then filter):
+SELECT a.name, b.name
+  FROM people AS a, people AS b
+ WHERE a.parent = b.id;
+
+-- Equivalent INNER JOIN:
+SELECT a.name, b.name
+  FROM people AS a
+       JOIN people AS b ON a.parent = b.id;
+</code></pre>
+<p><strong>Plain English.</strong> Joining two tables produces all combinations of rows; the <code>WHERE</code> (or <code>ON</code>) clause keeps only the meaningful ones.</p>
+<h3 id="self-join-parentchild-relationship">Self-join (parent/child relationship)</h3>
+<pre><code class="language-sql">SELECT child.name, parent.name
+  FROM dogs AS child
+       JOIN dogs AS parent ON child.parent_id = parent.id;
+</code></pre>
+<h3 id="exam-patterns-pitfalls_13">Exam patterns / pitfalls</h3>
+<ul>
+<li>Forgetting to alias when joining a table to itself → ambiguous column names.</li>
+<li><code>WHERE</code> filters rows BEFORE grouping. <code>HAVING</code> filters AFTER aggregation.</li>
+<li>Cross-product without a <code>WHERE</code>/<code>ON</code> clause produces N×M rows — almost never what you want.</li>
+</ul>
+<hr />
+<h1 id="18-sql-aggregation-and-recursive-ctes">18. SQL — Aggregation and Recursive CTEs</h1>
+<p><em>[Slides 34–35]</em></p>
+<h3 id="group-by-aggregate-functions">GROUP BY + Aggregate functions</h3>
+<p><strong>Canonical template.</strong></p>
+<pre><code class="language-sql">SELECT department, COUNT(*) AS num_employees, AVG(salary) AS avg_salary
+  FROM employees
+ GROUP BY department
+HAVING COUNT(*) &gt;= 5;
+</code></pre>
+<p><strong>Aggregate functions.</strong> <code>COUNT(*)</code>, <code>COUNT(col)</code>, <code>SUM(col)</code>, <code>AVG(col)</code>, <code>MIN(col)</code>, <code>MAX(col)</code>.</p>
+<p><strong>Plain English.</strong> <code>GROUP BY</code> collapses rows that share a value in the grouping column into one row. Aggregates produce one number per group.</p>
+<h3 id="rules">Rules</h3>
+<ul>
+<li>Every column in <code>SELECT</code> that isn't an aggregate must appear in <code>GROUP BY</code>.</li>
+<li><code>WHERE</code> filters before grouping. <code>HAVING</code> filters after.</li>
+</ul>
+<h3 id="recursive-cte-common-table-expression">Recursive CTE (Common Table Expression)</h3>
+<p><strong>Canonical template.</strong></p>
+<pre><code class="language-sql">WITH RECURSIVE name(col1, col2, ...) AS (
+    -- Base case
+    SELECT ... FROM ...
+    UNION
+    -- Recursive case (refers to `name`)
+    SELECT ... FROM name JOIN ... ON ... WHERE ...
+)
+SELECT * FROM name;
+</code></pre>
+<p><strong>Plain English.</strong> A self-referential temporary table. Used for hierarchical or iterative queries: ancestors, paths, generating sequences.</p>
+<h3 id="example-ancestors-transitive-closure">Example: ancestors (transitive closure)</h3>
+<pre><code class="language-sql">WITH RECURSIVE ancestor(name, ancestor) AS (
+    SELECT child, parent FROM family
+    UNION
+    SELECT a.name, f.parent
+      FROM ancestor AS a
+           JOIN family AS f ON a.ancestor = f.child
+)
+SELECT * FROM ancestor;
+</code></pre>
+<h3 id="example-integers-1-to-10">Example: integers 1 to 10</h3>
+<pre><code class="language-sql">WITH RECURSIVE nums(n) AS (
+    SELECT 1
+    UNION
+    SELECT n + 1 FROM nums WHERE n &lt; 10
+)
+SELECT * FROM nums;
+</code></pre>
+<h3 id="exam-patterns-pitfalls_14">Exam patterns / pitfalls</h3>
+<ul>
+<li>Forgetting <code>UNION</code> between base and recursive cases.</li>
+<li>Recursive case must reference the CTE; otherwise it's not actually recursive.</li>
+<li>Termination: recursive case must eventually return zero rows (or a <code>WHERE</code> clause must cut it off).</li>
+<li>Column names declared after the CTE name (<code>WITH RECURSIVE name(col1, col2)</code>) — column count must match the SELECT.</li>
+</ul>
+<hr />
+<h2 id="closing-notes">Closing notes</h2>
+<p>This guide is the structural catalog. Use it together with:</p>
+<ul>
+<li><code>61A_Exam_Reference.md</code> — your pattern-trigger reference (still your primary).</li>
+<li><code>MT2_Code_Trigger_Sheet.md</code> — Linked List + Tree + OOP trigger sheet.</li>
+<li>Past exam: <code>61a-fa25-final.pdf</code> (or sp25/su25 final) — take timed.</li>
+<li>The <code>cs61a/</code> codebase — your own project work, especially the Scheme project.</li>
+</ul>
+<p><strong>Verify before exam day:</strong></p>
+<ul>
+<li>Final exam exact time and location at https://cs61a.org/articles/about-61a/</li>
+<li>Cheat sheet allowance for SP26 (typically 2 double-sided handwritten pages).</li>
+<li>Whether Streams (Slide 25) and Tail Calls (Slide 24) are in scope — verify on cs61a.org schedule. If yes, drill them.</li>
+</ul>
+<p><strong>Memorize cold (cheat sheet candidates):</strong></p>
+<ul>
+<li><code>Link</code> class definition + <code>Link.empty</code> sentinel</li>
+<li><code>Tree</code> class definition + <code>is_leaf()</code> method</li>
+<li>Environment-model rule: new frame's parent = function's parent at definition</li>
+<li>Scheme special forms list (<code>define</code>, <code>lambda</code>, <code>if</code>, <code>cond</code>, <code>let</code>, <code>and</code>, <code>or</code>, <code>quote</code>, <code>begin</code>)</li>
+<li><code>cons</code>/<code>car</code>/<code>cdr</code> and how lists are built</li>
+<li>Tail position rules (last in body / branch of if/cond / last in begin)</li>
+<li><code>cons-stream</code> semantics (first eager, rest delayed)</li>
+<li><code>scheme_eval</code> skeleton (self-eval, symbol, special form, procedure call)</li>
+<li>SQL: <code>SELECT ... FROM ... WHERE ... GROUP BY ... HAVING ... ORDER BY ... LIMIT</code></li>
+<li>Recursive CTE: <code>WITH RECURSIVE name(cols) AS (base UNION recursive)</code></li>
+</ul>
+</div>
+<script>
+// Collapsible H2 sections
+document.querySelectorAll('h2').forEach(function(h){
+  if (h.parentElement && h.parentElement.classList.contains('toc')) return;
+  h.addEventListener('click', function(){
+    h.classList.toggle('collapsed');
+    var el = h.nextElementSibling;
+    while (el && el.tagName !== 'H2') {
+      el.style.display = (el.style.display === 'none') ? '' : 'none';
+      el = el.nextElementSibling;
+    }
+  });
+});
+</script>
+</body>
+</html>
