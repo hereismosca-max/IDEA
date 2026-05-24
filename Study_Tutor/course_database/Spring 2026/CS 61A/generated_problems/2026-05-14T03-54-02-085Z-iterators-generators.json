@@ -1,0 +1,32 @@
+{
+  "course": "CS 61A",
+  "semester": "Spring 2026",
+  "topic": "Iterators & Generators",
+  "problemType": "What Would Python Display (WWPD)",
+  "difficulty": "medium",
+  "problem": "For each of the following expressions, write the output displayed by the interactive Python interpreter when the expression is evaluated. The output may have multiple lines. If an error occurs, write \"ERROR\". If an iterator or generator object is displayed, write \"Iterator\" or \"Generator\" respectively. If nothing is displayed, write \"Nothing\".\n\nAssume the following code has been executed:\n\n```python\ndef countdown(n):\n    print(f'Start {n}')\n    while n > 0:\n        yield n\n        n -= 1\n    print('Done')\n\ndef process(gen):\n    result = []\n    for x in gen:\n        if x % 2 == 0:\n            result.append(x)\n        else:\n            return result\n    return result\n\ng = countdown(5)\nh = countdown(3)\n```\n\nNow evaluate each expression:\n\n(a) `g`\n\n(b) `next(g)`\n\n(c) `next(g)`\n\n(d) `process(g)`\n\n(e) `next(g)`\n\n(f) `list(h)`\n\n(g) `sum(countdown(4))`",
+  "answerParts": [
+    "(a)",
+    "(b)",
+    "(c)",
+    "(d)",
+    "(e)",
+    "(f)",
+    "(g)"
+  ],
+  "needsDrawing": false,
+  "expectedAnswer": "(a) Generator\n\n(b) Start 5\n5\n\n(c) 4\n\n(d) [4, 2]\n\n(e) ERROR\n\n(f) Start 3\n3\n2\n1\nDone\n[3, 2, 1]\n\n(g) Start 4\nDone\n10",
+  "gradingRubric": [
+    "(a) 1 point: Correctly identifies that g is a Generator object (not evaluated until next() is called)",
+    "(b) 1 point: Shows 'Start 5' is printed when generator first executes, then 5 is yielded",
+    "(c) 1 point: Shows only 4 is displayed (no print statement, generator resumes from yield)",
+    "(d) 1.5 points: Correctly traces that 4 is appended (even), 3 causes early return, result is [4, 2] after 2 is yielded and appended",
+    "(e) 1 point: Recognizes StopIteration error because generator was already consumed by process() loop",
+    "(f) 1.5 points: Shows all print statements (Start 3, Done) and final list [3, 2, 1] with correct order",
+    "(g) 1 point: Shows sum() consumes entire generator (Start 4, Done printed) and computes 4+3+2+1=10",
+    "Deduct 0.5 points per part for minor formatting errors (missing newlines, extra quotes)",
+    "Award partial credit (0.5 points) if logic is correct but output format is slightly wrong"
+  ],
+  "id": "2026-05-14T03-54-02-085Z-iterators-generators",
+  "generatedAt": "2026-05-14T03:54:02.085Z"
+}

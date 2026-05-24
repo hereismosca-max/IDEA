@@ -1,0 +1,26 @@
+{
+  "course": "CS 61A",
+  "semester": "Spring 2026",
+  "topic": "Iterators & Generators",
+  "problemType": "What Would Python Display? (WWPD)",
+  "difficulty": "medium",
+  "problem": "For each of the following expressions, write the output displayed by the interactive Python interpreter when the expression is evaluated. The output may have multiple lines. If an error occurs, write \"ERROR\". If the interpreter would display nothing, write \"Nothing\". If the result is a generator or iterator object, write \"Generator\" or \"Iterator\" respectively.\n\nAssume the following code has been executed:\n\n```python\ndef mystery(n):\n    print('Start:', n)\n    while n > 0:\n        yield n\n        n = n - 1\n    print('Done')\n\ndef process(gen, k):\n    result = []\n    for _ in range(k):\n        result.append(next(gen))\n    return result\n\ng = mystery(3)\nx = process(g, 2)\ny = list(g)\n```\n\nEvaluate each expression:\n\n(a) `g`\n\n(b) `x`\n\n(c) `y`\n\n(d) `next(g)`\n\n(e) `sum([i for i in mystery(2)])`",
+  "answerParts": [
+    "Part (a)",
+    "Part (b)",
+    "Part (c)",
+    "Part (d)",
+    "Part (e)"
+  ],
+  "needsDrawing": false,
+  "expectedAnswer": "(a) Generator\n\n(b) [3, 2]\n\n(c) [1]\n\n(d) ERROR\n\n(e) 3",
+  "gradingRubric": [
+    "Part (a): Correctly identifies that g is a Generator object (1 point)",
+    "Part (b): Correctly traces that process(g, 2) calls next(g) twice, yielding 3 then 2, after printing 'Start: 3' once. Result is [3, 2]. (1 point)",
+    "Part (c): Correctly traces that list(g) consumes the remaining generator, yielding only 1 (since 3 and 2 were already consumed), and prints 'Done' when generator exhausted. Result is [1]. (1 point)",
+    "Part (d): Correctly identifies that calling next(g) after generator is exhausted raises StopIteration ERROR. (1 point)",
+    "Part (e): Correctly traces that mystery(2) creates a fresh generator, the list comprehension consumes it yielding 2 then 1, and sum([2, 1]) equals 3. Prints 'Start: 2' and 'Done' occur but are side effects, not the answer to sum(). (1 point)"
+  ],
+  "id": "2026-05-14T03-55-58-010Z-iterators-generators",
+  "generatedAt": "2026-05-14T03:55:58.010Z"
+}

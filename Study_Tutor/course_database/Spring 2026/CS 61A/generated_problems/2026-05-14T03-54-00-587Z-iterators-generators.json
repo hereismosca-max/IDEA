@@ -1,0 +1,28 @@
+{
+  "course": "CS 61A",
+  "semester": "Spring 2026",
+  "topic": "Iterators & Generators",
+  "problemType": "What Would Python Display? (WWPD)",
+  "difficulty": "medium",
+  "problem": "Consider the following Python code:\n\n```python\ndef filter_gen(pred, seq):\n    for item in seq:\n        if pred(item):\n            yield item\n\ndef double_yield(gen):\n    for item in gen:\n        yield item\n        yield item\n\ng = filter_gen(lambda x: x % 2 == 0, [1, 2, 3, 4, 5])\nh = double_yield(g)\nprint(next(h))\nprint(next(h))\nprint(next(h))\nprint(list(h))\nprint(list(g))\n```\n\nWhat will Python display for each of the five `print` statements? Write your answers in order, one per line. If an error occurs, write ERROR. If the output is an iterator or generator object (not its contents), write Generator or Iterator as appropriate.",
+  "answerParts": [
+    "print(next(h)) line 1",
+    "print(next(h)) line 2",
+    "print(next(h)) line 3",
+    "print(list(h)) line 4",
+    "print(list(g)) line 5"
+  ],
+  "needsDrawing": false,
+  "expectedAnswer": "Line 1: 2\nLine 2: 2\nLine 3: 4\nLine 4: [4]\nLine 5: []\n\nExplanation:\n- g is a generator that yields even numbers from [1,2,3,4,5]: will yield 2, then 4\n- h wraps g with double_yield, which yields each item from g twice\n- First next(h): g yields 2, h yields 2 (first copy)\n- Second next(h): h yields 2 again (second copy of same item)\n- Third next(h): g yields 4, h yields 4 (first copy)\n- list(h): consumes rest of h, which yields 4 again (second copy), result is [4]\n- list(g): g is already exhausted (all items consumed through h), result is []",
+  "gradingRubric": [
+    "Line 1 correct (2): Must recognize first next() call yields 2 from the filtered sequence",
+    "Line 2 correct (2): Must recognize double_yield yields the same item twice, so second next() also returns 2",
+    "Line 3 correct (4): Must understand g advances to next even number (4) after both copies of 2 are yielded",
+    "Line 4 correct ([4]): Must recognize list() consumes remaining items from h, which is just the second copy of 4",
+    "Line 5 correct ([]): Must understand generator exhaustion—g was consumed through h, so calling list(g) returns empty list",
+    "Demonstrates understanding of generator chaining and shared state between g and h",
+    "Recognizes that consuming h also consumes g since h iterates over g"
+  ],
+  "id": "2026-05-14T03-54-00-587Z-iterators-generators",
+  "generatedAt": "2026-05-14T03:54:00.587Z"
+}
